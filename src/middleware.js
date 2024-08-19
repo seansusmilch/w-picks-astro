@@ -3,6 +3,7 @@ import { POCKETBASE_URL } from 'astro:env/server';
 import { defineMiddleware } from 'astro/middleware';
 
 export const onRequest = defineMiddleware(async ({ locals, request }, next) => {
+  console.log('POCKETBASE_URL:', POCKETBASE_URL);
   locals.pb = new PocketBase(POCKETBASE_URL);
 
   // load the store data from the request cookie string
