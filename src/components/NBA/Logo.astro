@@ -1,0 +1,9 @@
+---
+import { TeamMap } from './teamMap';
+
+const { tricode, ...props } = Astro.props;
+
+const { logo, name } = TeamMap[tricode];
+---
+
+<img src={logo} alt={`${name} Logo`} {...props} />

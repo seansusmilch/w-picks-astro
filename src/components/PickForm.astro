@@ -1,0 +1,22 @@
+---
+import { MatchupType } from '@/lib/definitions';
+
+interface Props {
+  matchup: any;
+  pick?: any;
+}
+
+const { matchup, pick } = Astro.props;
+
+const { home_code, away_code } = MatchupType.parse(matchup);
+---
+
+<form>
+  <div class='flex flex-col items-center gap-4'>
+    <h1 class='text-2xl font-bold'>Your Pick</h1>
+    <select id='pick' name='pick' class='p-2 rounded-lg'>
+      <option value='home'>Home</option>
+      <option value='away'>Away</option>
+    </select>
+  </div>
+</form>
