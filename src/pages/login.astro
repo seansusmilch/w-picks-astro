@@ -1,21 +1,19 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import { LoginSignupForm } from '@/components/LoginSignupForm';
 
 export const prerender = false;
 const pageTitle = 'Login/Signup';
 
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
-  const authType = formData.get('authType');
   const email = formData.get('email');
   const password = formData.get('password');
 
-  if (authType === 'login') {
-    const authData = await Astro.locals.pb
-      .collection('users')
-      .authWithPassword(email, password);
-    return Astro.redirect('/');
-  }
+  const authData = await Astro.locals.pb
+    .collection('users')
+    .authWithPassword(email, password);
+  return Astro.redirect('/');
   if (authType === 'signup') {
     console.log('Signup Data', email, password);
   }
@@ -23,35 +21,36 @@ if (Astro.request.method === 'POST') {
 ---
 
 <Layout title={pageTitle}>
-  <div class='container mx-auto'>
-    <h1 class='text-3xl font-bold text-center my-8'>{pageTitle}</h1>
-    <form method='POST'>
-      <div class='flex flex-col max-w-lg'>
-        <fieldset>
-          <div class='flex flex-row justify-center gap-2'>
-            <label for='login'>Login</label>
-            <input type='radio' name='authType' value='login' checked />
-            <input type='radio' name='authType' value='signup' />
-            <label for='signup'>Sign Up</label>
-          </div>
-        </fieldset>
-        <label>Email</label>
-        <input class='p-2 bg-slate-100' type='email' name='email' required />
-
-        <label>Password</label>
-        <input
-          class='p-2 bg-slate-100'
-          type='password'
-          name='password'
-          required
-          minlength='6'
-        />
-
-        <button
-          class='mt-4 p-2 bg-blue-500 text-white rounded-lg justify-self-end max-w-fit'
-          >Submit</button
-        >
-      </div>
-    </form>
+  <div class='flex justify-center w-full'>
+    <LoginSignupForm client:load />
   </div>
 </Layout>
+<h1 class='text-3xl font-bold text-center my-8'>{pageTitle}</h1>
+<form method='POST'>
+  <div class='flex flex-col max-w-lg'>
+    <fieldset>
+      <div class='flex flex-row justify-center gap-2'>
+        <label for='login'>Login</label>
+        <input type='radio' name='authType' value='login' checked />
+        <input type='radio' name='authType' value='signup' />
+        <label for='signup'>Sign Up</label>
+      </div>
+    </fieldset>
+    <label>Email</label>
+    <input class='p-2 bg-slate-100' type='email' name='email' required />
+
+    <label>Password</label>
+    <input
+      class='p-2 bg-slate-100'
+      type='password'
+      name='password'
+      required
+      minlength='6'
+    />
+
+    <button
+      class='mt-4 p-2 bg-blue-500 text-white rounded-lg justify-self-end max-w-fit'
+      >Submit</button
+    >
+  </div>
+</form>

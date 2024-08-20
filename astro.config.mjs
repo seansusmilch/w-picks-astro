@@ -2,26 +2,24 @@ import { defineConfig, envField } from 'astro/config';
 import node from '@astrojs/node';
 import tailwind from '@astrojs/tailwind';
 
-import react from "@astrojs/react";
+import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
   adapter: node({
-    mode: 'standalone'
+    mode: 'standalone',
   }),
-  integrations: [tailwind({
-    applyBaseStyles: true
-  }), react()],
+  integrations: [tailwind({ applyBaseStyles: true }), react()],
   experimental: {
     serverIslands: true,
     env: {
       schema: {
         POCKETBASE_URL: envField.string({
           context: 'server',
-          access: 'public'
-        })
-      }
-    }
-  }
+          access: 'public',
+        }),
+      },
+    },
+  },
 });
