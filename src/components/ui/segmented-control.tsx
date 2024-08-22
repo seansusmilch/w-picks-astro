@@ -20,6 +20,7 @@ interface SegmentedControlProps {
   onChange?: (value: string) => void;
   className?: React.HTMLProps<HTMLElement>['className'];
   activeClass?: string;
+  name?: string;
 }
 
 export const SegmentedControl: React.FC<SegmentedControlProps> = ({
@@ -27,6 +28,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
   defaultValue,
   onChange,
   className,
+  name,
 }) => {
   const [selectedOption, setSelectedOption] = useState<string>(
     defaultValue || options[0].name
@@ -44,6 +46,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
         className
       )}
     >
+      <input type='hidden' name={name || ''} value={selectedOption} />
       {options.map((option) => (
         <button
           type='button'

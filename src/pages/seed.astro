@@ -1,4 +1,7 @@
 ---
+import PocketBase from 'pocketbase';
+import { POCKETBASE_URL, ADMIN_USER, ADMIN_PASSWORD } from 'astro:env/server';
+
 const mock_matchups = [
   {
     id: '20240206-HOUIND',
@@ -44,9 +47,9 @@ const mock_matchups = [
   },
 ];
 
-const pb = Astro.locals.pb;
+const pb = new PocketBase(POCKETBASE_URL);
 
-await pb.admins.authWithPassword('admin@demo.com', 'demopassword');
+await pb.admins.authWithPassword(ADMIN_USER, ADMIN_PASSWORD);
 console.log('Authed as admin', pb.authStore.isValid);
 
 mock_matchups.forEach(async (matchup) => {

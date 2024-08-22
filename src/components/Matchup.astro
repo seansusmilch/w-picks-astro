@@ -1,11 +1,11 @@
 ---
 import { Logo } from '@/components/NBA/Logo';
 import { TeamMap } from './NBA/teamMap';
-import { MatchupType } from '@/lib/definitions';
+import { MatchupZ } from '@/lib/definitions';
 
 const { matchup } = Astro.props;
 
-const result = MatchupType.safeParse(matchup);
+const result = MatchupZ.safeParse(matchup);
 if (!result.success) {
   console.error('Invalid matchup data:', result.error);
   return;

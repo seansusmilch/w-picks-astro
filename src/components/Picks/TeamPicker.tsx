@@ -3,12 +3,15 @@ import { Logo } from '@/components/NBA/Logo';
 import clsx from 'clsx';
 
 export function TeamPicker({
+  name,
   home_code,
   away_code,
   logoClass,
   defaultValue,
   className,
 }: {
+  /** input field name */
+  name: string;
   home_code: string;
   away_code: string;
   logoClass?: string;
@@ -45,6 +48,7 @@ export function TeamPicker({
       className={className}
       options={options}
       defaultValue={defaultValue || 'indeterminate'}
+      name={name || 'win_prediction'}
     />
   );
 }

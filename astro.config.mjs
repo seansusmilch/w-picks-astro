@@ -19,6 +19,14 @@ export default defineConfig({
           context: 'server',
           access: 'public',
         }),
+        ADMIN_USER: envField.string({
+          context: 'server',
+          access: 'secret',
+        }),
+        ADMIN_PASSWORD: envField.string({
+          context: 'server',
+          access: 'secret',
+        }),
       },
     },
   },

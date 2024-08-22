@@ -1,0 +1,44 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Matchup from '@/components/Matchup.astro';
+import { PickForm } from '@/components/Picks/PickForm';
+import { TeamMap } from '@/components/NBA/teamMap';
+import { MatchupZ, PickZ } from '@/lib/definitions';
+
+const { pb, user } = Astro.locals;
+const { id } = Astro.params;
+
+const matchupRaw = await pb.collection('matchups').getOne(id);
+if (!matchupRaw) return Astro.redirect('/404');
+
+const matchupResult = MatchupZ.safeParse(matchupRaw);
+if (!matchupResult.success) {
+  console.error('Invalid matchup data:', matchupResult.error);
+  return;
+}
+const matchup = matchupResult.data;
+
+const { away_code, home_code } = matchupResult.data;
+const title = `${TeamMap[away_code].name_short} at ${TeamMap[home_code].name_short}`;
+
+const picks = await pb.collection('picks').getList(1, 30, {
+  filter: pb.filter('matchup = {:id}', { id: matchup.id }),
+});
+
+let userPick = null;
+if (user) {
+  const userPickRaw = picks.items.find((p) => p.user === user.record.id);
+  const pickResult = PickZ.safeParse(userPickRaw);
+  if (pickResult.success) {
+    userPick = pickResult.data;
+  }
+}
+
+console.log('Matchup:', matchup);
+console.log('Pick:', userPick);
+---
+
+<Layout title={title}>
+  <Matchup matchup={matchup} />
+  <PickForm matchup={matchup} pick={userPick} client:load />
+</Layout>
