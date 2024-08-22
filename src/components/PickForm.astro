@@ -1,5 +1,8 @@
 ---
 import { MatchupType } from '@/lib/definitions';
+import { TeamPicker } from '@/components/Picks/TeamPicker';
+import { Textarea } from '@/components/ui/textarea';
+import { HelpDialog } from '@/components/Picks/HelpDialog';
 
 interface Props {
   matchup: any;
@@ -17,11 +20,37 @@ const { away_code, home_code, time_utc } = result.data;
 ---
 
 <form>
-  <div class='flex flex-col items-center gap-4'>
+  <div class='p-4 text-center max-w-md rounded-xl shadow-md border bg-card'>
     <h1 class='text-2xl font-bold'>Your Pick</h1>
-    <select id='pick' name='pick' class='p-2 rounded-lg'>
-      <option value='home'>Home</option>
-      <option value='away'>Away</option>
-    </select>
+
+    <TeamPicker
+      className='grow-0'
+      home_code={home_code}
+      away_code={away_code}
+      logoClass='h-24'
+      client:load
+    />
+
+    <div class='flex flex-col pt-4'>
+      <label for='comment' class='text-left text-lg font-semibold'>
+        Comment
+      </label>
+
+      <Textarea
+        name='comment'
+        placeholder='I think they will win because...'
+        client:load
+      />
+
+      <div class='flex flex-row gap-4 pt-4'>
+        <HelpDialog client:load />
+        <button
+          type='submit'
+          class='p-2 grow rounded-lg text-white font-bold bg-gradient-to-r from-cyan-500 to-purple-500'
+        >
+          Save
+        </button>
+      </div>
+    </div>
   </div>
 </form>

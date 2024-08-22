@@ -1,0 +1,78 @@
+---
+const mock_matchups = [
+  {
+    id: '20240206-HOUIND',
+    code: '20240206/HOUIND',
+    time_utc: '2024-02-07T00:00:00+00:00',
+    home_code: 'IND',
+    away_code: 'HOU',
+  },
+  {
+    id: '20240206-DALBKN',
+    code: '20240206/DALBKN',
+    time_utc: '2024-02-07T00:30:00+00:00',
+    home_code: 'BKN',
+    away_code: 'DAL',
+  },
+  {
+    id: '20240206-ORLMIA',
+    code: '20240206/ORLMIA',
+    time_utc: '2024-02-07T00:30:00+00:00',
+    home_code: 'MIA',
+    away_code: 'ORL',
+  },
+  {
+    id: '20240206-MEMNYK',
+    code: '20240206/MEMNYK',
+    time_utc: '2024-02-07T00:30:00+00:00',
+    home_code: 'NYK',
+    away_code: 'MEM',
+  },
+  {
+    id: '20240206-MINCHI',
+    code: '20240206/MINCHI',
+    time_utc: '2024-02-07T01:00:00+00:00',
+    home_code: 'CHI',
+    away_code: 'MIN',
+  },
+  {
+    id: '20240208-DETPOR',
+    code: '20240208/DETPOR',
+    time_utc: '2024-02-09T03:00:00+00:00',
+    home_code: 'POR',
+    away_code: 'DET',
+  },
+];
+
+const pb = Astro.locals.pb;
+
+await pb.admins.authWithPassword('admin@demo.com', 'demopassword');
+console.log('Authed as admin', pb.authStore.isValid);
+
+mock_matchups.forEach(async (matchup) => {
+  console.log('Creating matchup:', matchup.id);
+  try {
+    await pb.collection('matchups').create(matchup, { requestKey: matchup.id });
+  } catch (e) {
+    console.error('Error creating matchup:', e.message);
+  }
+
+  console.log('Creating pick:', matchup.id);
+  try {
+    await pb.collection('picks').create(
+      {
+        matchup: matchup.id,
+        comment: 'Seed comment',
+        win_prediction:
+          Math.random() < 0.5 ? matchup.home_code : matchup.away_code,
+        user: 'a48i4lhs6lc2j1t',
+      },
+      { requestKey: null }
+    );
+  } catch (e) {
+    console.error('Error creating pick:', e.message);
+  }
+});
+---
+
+<p>Seeded</p>

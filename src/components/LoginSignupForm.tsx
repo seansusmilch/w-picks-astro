@@ -4,7 +4,7 @@ export function LoginSignupForm() {
   return (
     <form
       method='POST'
-      className='bg-neutral-50 p-4 rounded-md shadow-lg max-w-lg min-w-96'
+      className='bg-inherit p-4 rounded-md shadow-lg max-w-lg min-w-96'
     >
       <h1 className='text-2xl font-semibold text-center py-4'>
         Welcome to W Picks
@@ -21,7 +21,7 @@ export function LoginSignupForm() {
           <div className='flex flex-col max-w-lg'>
             <label>Email</label>
             <input
-              className='p-2 bg-neutral-100 rounded-md'
+              className='p-2 bg-muted rounded-md'
               type='email'
               name='email'
               required
@@ -29,7 +29,7 @@ export function LoginSignupForm() {
 
             <label>Password</label>
             <input
-              className='p-2 bg-neutral-100 rounded-md'
+              className='p-2 bg-muted rounded-md'
               type='password'
               name='password'
               required

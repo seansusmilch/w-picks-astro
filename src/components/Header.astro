@@ -17,7 +17,7 @@ const pb = Astro.locals.pb;
 const isAuthed = pb.authStore.isValid;
 ---
 
-<header class='border-b-2 border-b-black'>
+<header class='border-b'>
   <div class='lg:flex justify-between p-2 gap-4 mx-auto'>
     <Astronav closeOnClick>
       <div class='flex w-fulllg:w-auto justify-between items-center'>
@@ -32,13 +32,19 @@ const isAuthed = pb.authStore.isValid;
           <h2 class='font-bold text-3xl'>W Picks</h2>
         </a>
         <div class='block lg:hidden'>
-          <MenuIcon class='text-black' />
+          <MenuIcon class='text-foreground' />
         </div>
       </div>
       <MenuItems class='hidden lg:flex'>
         <ul
           class='flex flex-col gap-4 p-2 text-right lg:items-center lg:flex-row lg:text-left'
         >
+          <li>
+            <a class='text-xl' href='/seed'>Seed Database</a>
+          </li>
+          <li>
+            <a class='text-xl' href='/today'>Today</a>
+          </li>
           <li>
             <a class='text-xl' href='/'>Home</a>
           </li>
@@ -63,48 +69,3 @@ const isAuthed = pb.authStore.isValid;
     </Astronav>
   </div>
 </header>
-<!-- <header>
-  <div class='flex justify-center'>
-    <div class='max-w-screen-xl w-full flex flex-row items-center'>
-      <Astronav>
-        <div class='p-2 grow'>
-          <a class='flex flex-row gap-4 items-center' href='/'>
-            <Image
-              class='rounded-xl'
-              src={BrandLogo}
-              alt='W Picks Logo'
-              height={50}
-              width={50}
-            />
-            <h2 class='font-bold text-3xl'>W Picks</h2>
-          </a>
-        </div>
-        <div class='justify-self-end grow flex justify-end p-2'>
-          <MenuIcon class='text-black block lg:hidden' />
-        </div>
-        <MenuItems class='hidden p-2 justify-self-end lg:flex'>
-          <ul
-            class='flex flex-col gap-4 text-right lg:items-center lg:flex-row lg:text-left'
-          >
-            <li>
-              <a class='text-xl' href='/'>Home</a>
-            </li>
-            <li>
-              {
-                isAuthed ? (
-                  <a class='text-xl' href='/logout'>
-                    Logout
-                  </a>
-                ) : (
-                  <a class='text-xl' href='/login'>
-                    Login
-                  </a>
-                )
-              }
-            </li>
-          </ul>
-        </MenuItems>
-      </Astronav>
-    </div>
-  </div>
-</header> -->
