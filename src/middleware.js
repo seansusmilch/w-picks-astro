@@ -6,10 +6,15 @@ export const onRequest = defineMiddleware(async ({ locals, request }, next) => {
   console.log('POCKETBASE_URL:', POCKETBASE_URL);
   locals.pb = new PocketBase(POCKETBASE_URL);
   locals.apb = new PocketBase(POCKETBASE_URL);
-  locals.apb = await locals.apb.admins.authWithPassword(
-    ADMIN_USER,
-    ADMIN_PASSWORD
-  );
+
+  try {
+    locals.apb = await locals.apb.admins.authWithPassword(
+      ADMIN_USER,
+      ADMIN_PASSWORD
+    );
+  } catch {
+    console.error('PB: Failed to authenticate as admin');
+  }
 
   // load the store data from the request cookie string
   locals.pb.authStore.loadFromCookie(request.headers.get('cookie') || '');
