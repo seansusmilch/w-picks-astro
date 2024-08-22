@@ -8,7 +8,12 @@ interface Props {
 
 const { matchup, pick } = Astro.props;
 
-const { home_code, away_code } = MatchupType.parse(matchup);
+const result = MatchupType.safeParse(matchup);
+if (!result.success) {
+  console.error('Invalid matchup data:', result.error);
+  return;
+}
+const { away_code, home_code, time_utc } = result.data;
 ---
 
 <form>
