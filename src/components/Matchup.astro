@@ -2,6 +2,7 @@
 import { Logo } from '@/components/NBA/Logo';
 import { TeamMap } from './NBA/teamMap';
 import { MatchupZ } from '@/lib/definitions';
+import { TimeTooltip } from '@/components/ui/TimeTooltip';
 
 const { matchup } = Astro.props;
 
@@ -26,21 +27,7 @@ console.log('Matchup:', matchup);
     <p class='sm:text-2xl font-bold'>{awayTeamShort}</p>
   </div>
   <div class='basis-2/12 flex flex-col items-center justify-center text-center'>
-    <p class='text-md font-bold'>
-      {gameTime.toLocaleString('en-US', { weekday: 'short' }).toUpperCase()}
-    </p>
-    <p class='text-sm font-semibold'>
-      {
-        gameTime
-          .toLocaleString('en-US', {
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: true,
-          })
-          .replace(' AM', 'a')
-          .replace(' PM', 'p')
-      }
-    </p>
+    <TimeTooltip time={gameTime} client:load />
   </div>
   <div class='basis-5/12 flex flex-col items-center text-center'>
     <Logo tricode={home_code} className='h-20 sm:h-24' />
