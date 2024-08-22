@@ -11,7 +11,11 @@ import clsx from 'clsx';
 
 interface SegmentedControlProps {
   //   options: string[];
-  options: { name: string; content: string | React.ReactNode | any }[];
+  options: {
+    name: string;
+    content: string | React.ReactNode | any;
+    disabled?: boolean;
+  }[];
   defaultValue?: string;
   onChange?: (value: string) => void;
   className?: React.HTMLProps<HTMLElement>['className'];
@@ -43,6 +47,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
       {options.map((option) => (
         <button
           type='button'
+          disabled={option.disabled}
           key={option.name}
           onClick={() => handleOptionChange(option.name)}
           className={clsx(
