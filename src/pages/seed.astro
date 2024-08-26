@@ -75,6 +75,22 @@ mock_matchups.forEach(async (matchup) => {
   } catch (e) {
     console.error('Error creating pick:', e.message);
   }
+
+  try {
+    await pb.collection('scoreboards').create(
+      {
+        id: matchup.id,
+        code: matchup.code,
+        status: Math.round(Math.random() * 2) + 1,
+        status_text: 'Status text',
+        home_score: Math.round(Math.random() * 130),
+        away_score: Math.round(Math.random() * 130),
+      },
+      { requestKey: null }
+    );
+  } catch (e) {
+    console.error('Error creating scoreboard:', e.message);
+  }
 });
 ---
 

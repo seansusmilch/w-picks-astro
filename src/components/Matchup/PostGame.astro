@@ -1,0 +1,54 @@
+---
+import { Logo } from '@/components/NBA/Logo';
+import { TeamMap } from '../NBA/teamMap';
+import { Badge } from '@/components/ui/badge';
+import clsx from 'clsx';
+
+interface Props {
+  away_code: string;
+  away_score: number;
+  home_code: string;
+  home_score: number;
+  status_text: string;
+}
+
+const { away_code, away_score, home_code, home_score, status_text } =
+  Astro.props;
+
+const homeTeamShort = TeamMap[home_code].name_short;
+const awayTeamShort = TeamMap[away_code].name_short;
+---
+
+<div class='basis-1/4 grow flex flex-col text-center'>
+  <Logo tricode={away_code} className='h-20 sm:h-24' />
+  <p class='sm:text-xl font-bold'>{awayTeamShort}</p>
+</div>
+<div class='basis-1/2 flex flex-col items-center justify-between text-center'>
+  <div class='w-full flex-grow flex flex-row items-center justify-between'>
+    <p
+      class={clsx(
+        'text-4xl font-extrabold',
+        away_score > home_score ? 'text-green-500' : 'text-destructive'
+      )}
+    >
+      {away_score}
+    </p>
+    <p
+      class={clsx(
+        'text-4xl font-extrabold',
+        home_score > away_score ? 'text-green-500' : 'text-destructive'
+      )}
+    >
+      {home_score}
+    </p>
+  </div>
+  <p
+    class='flex-grow-0 text-white font-bold rounded-xl px-2 py-1 bg-gradient-to-r from-cyan-500 to-purple-500'
+  >
+    {status_text}
+  </p>
+</div>
+<div class='basis-1/4 flex flex-col items-center text-center'>
+  <Logo tricode={home_code} className='h-20 sm:h-24' />
+  <p class='sm:text-xl font-bold'>{homeTeamShort}</p>
+</div>

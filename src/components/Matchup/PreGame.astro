@@ -1,0 +1,29 @@
+---
+import { Logo } from '@/components/NBA/Logo';
+import { TeamMap } from '../NBA/teamMap';
+import { TimeTooltip } from '@/components/ui/TimeTooltip';
+
+interface Props {
+  away_code: string;
+  home_code: string;
+  time_utc: string;
+}
+
+const { away_code, home_code, time_utc } = Astro.props;
+
+const gameTime = new Date(Date.parse(time_utc.replace(' ', 'T')));
+const homeTeamShort = TeamMap[home_code].name_short;
+const awayTeamShort = TeamMap[away_code].name_short;
+---
+
+<div class='basis-5/12 grow flex flex-col text-center'>
+  <Logo tricode={away_code} className='h-20 sm:h-24' />
+  <p class='sm:text-xl font-bold'>{awayTeamShort}</p>
+</div>
+<div class='basis-2/12 flex flex-col items-center justify-center text-center'>
+  <TimeTooltip time={gameTime} client:load />
+</div>
+<div class='basis-5/12 flex flex-col items-center text-center'>
+  <Logo tricode={home_code} className='h-20 sm:h-24' />
+  <p class='sm:text-xl font-bold'>{homeTeamShort}</p>
+</div>

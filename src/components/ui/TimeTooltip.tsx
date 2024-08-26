@@ -6,7 +6,6 @@ import {
 } from '@/components/ui/tooltip';
 
 export function TimeTooltip({ time }: { time: Date }) {
-  console.log('Time:', time);
   return (
     <TooltipProvider>
       <Tooltip>

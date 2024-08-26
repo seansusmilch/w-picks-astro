@@ -1,11 +1,12 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import Matchup from '@/components/Matchup.astro';
+import Matchup from '@/components/Matchup/Matchup.astro';
 import { PickForm } from '@/components/Picks/PickForm';
 import { TeamMap } from '@/components/NBA/teamMap';
 import { MatchupZ, PickZ } from '@/lib/definitions';
+import { z } from 'astro/zod';
 
-const { pb, user } = Astro.locals;
+const { pb, apb, user } = Astro.locals;
 const { id } = Astro.params;
 
 const matchupRaw = await pb.collection('matchups').getOne(id);
@@ -33,12 +34,11 @@ if (user) {
     userPick = pickResult.data;
   }
 }
-
-console.log('Matchup:', matchup);
-console.log('Pick:', userPick);
 ---
 
 <Layout title={title}>
-  <Matchup matchup={matchup} />
-  <PickForm matchup={matchup} pick={userPick} client:load />
+  <div class='flex flex-col gap-4'>
+    <Matchup matchup={matchup} />
+    <PickForm matchup={matchup} pick={userPick} client:load />
+  </div>
 </Layout>

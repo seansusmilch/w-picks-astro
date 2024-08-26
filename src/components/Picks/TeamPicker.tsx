@@ -9,6 +9,7 @@ export function TeamPicker({
   logoClass,
   defaultValue,
   className,
+  disabled,
 }: {
   /** input field name */
   name: string;
@@ -17,6 +18,7 @@ export function TeamPicker({
   logoClass?: string;
   defaultValue?: string;
   className?: string;
+  disabled?: boolean;
 }) {
   const options = [
     {
@@ -49,6 +51,7 @@ export function TeamPicker({
       options={options}
       defaultValue={defaultValue || 'indeterminate'}
       name={name || 'win_prediction'}
+      disabled={disabled}
     />
   );
 }
