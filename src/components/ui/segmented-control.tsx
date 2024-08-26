@@ -21,6 +21,7 @@ interface SegmentedControlProps {
   className?: React.HTMLProps<HTMLElement>['className'];
   activeClass?: string;
   name?: string;
+  disabled?: boolean;
 }
 
 export const SegmentedControl: React.FC<SegmentedControlProps> = ({
@@ -29,12 +30,14 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
   onChange,
   className,
   name,
+  disabled,
 }) => {
   const [selectedOption, setSelectedOption] = useState<string>(
     defaultValue || options[0].name
   );
 
   const handleOptionChange = (optionName: string) => {
+    if (disabled) return;
     setSelectedOption(optionName);
     onChange?.(optionName);
   };
@@ -43,6 +46,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
     <div
       className={clsx(
         'inline-flex flex-row items-center justify-center rounded-xl bg-muted p-2 text-muted-foreground',
+        { 'opacity-70': disabled },
         className
       )}
     >

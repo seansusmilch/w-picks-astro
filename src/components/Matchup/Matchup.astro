@@ -1,0 +1,69 @@
+---
+import PreGame from './PreGame.astro';
+import { LiveScore } from './LiveScore';
+import PostGame from './PostGame.astro';
+import { MatchupZ, ScoreboardZ } from '@/lib/definitions';
+import { getPB } from '@/lib/data';
+
+const { matchup } = Astro.props;
+const matchupResult = MatchupZ.safeParse(matchup);
+if (!matchupResult.success) {
+  console.error('Invalid matchup data:', matchupResult.error);
+  return;
+}
+const matchupParsed = matchupResult.data;
+
+const pb = getPB();
+let gameStatus = 0;
+let scoreboardParsed;
+
+try {
+  const scoreboard = await pb
+    .collection('scoreboards')
+    .getOne(matchupParsed.id);
+  const scoreboardResult = ScoreboardZ.safeParse(scoreboard);
+  if (!scoreboardResult.success) {
+    console.error('Invalid scoreboard data:', scoreboardResult.error);
+    return;
+  }
+  scoreboardParsed = scoreboardResult.data;
+  gameStatus = scoreboardParsed.status;
+} catch (e) {
+  console.error('Error getting scoreboard:', e.message);
+}
+---
+
+<div
+  class='p-3 flex flex-row justify-between max-w-md h-36 rounded-xl shadow-md border bg-card'
+>
+  {
+    gameStatus === 0 && (
+      <PreGame
+        away_code={matchupParsed.away_code}
+        home_code={matchupParsed.home_code}
+        time_utc={matchupParsed.time_utc}
+      />
+    )
+  }
+  {
+    gameStatus === 1 && (
+      <PreGame
+        away_code={matchupParsed.away_code}
+        home_code={matchupParsed.home_code}
+        time_utc={matchupParsed.time_utc}
+      />
+    )
+  }
+  {gameStatus === 2 && <LiveScore client:load />}
+  {
+    gameStatus === 3 && (
+      <PostGame
+        away_code={matchupParsed.away_code}
+        away_score={scoreboardParsed?.away_score}
+        home_code={matchupParsed.home_code}
+        home_score={scoreboardParsed?.home_score}
+        status_text={scoreboardParsed?.status_text}
+      />
+    )
+  }
+</div>
