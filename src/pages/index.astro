@@ -8,7 +8,4 @@ const matchups = await pb.collection('matchups').getFullList();
 console.log(matchups);
 ---
 
-<Layout title='W Picks | Home'>
-  <Matchup matchup={matchups[0]} />
-  <PickForm matchup={matchups[0]} client:load />
-</Layout>
+<Layout title='Home'> Home page </Layout>

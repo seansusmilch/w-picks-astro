@@ -18,12 +18,14 @@ export type MatchupType = z.infer<typeof MatchupZ>;
   "user": "RELATION_RECORD_ID"
 };
  */
-export const PickZ = z.object({
-  id: z.string().length(15),
-  matchup: z.string().length(15),
-  win_prediction: z.string().length(3),
-  comment: z.string(),
-  user: z.string().length(15),
-});
+export const PickZ = z
+  .object({
+    id: z.string().length(15),
+    matchup: z.string().length(15),
+    win_prediction: z.string().length(3),
+    comment: z.string(),
+    user: z.string().length(15),
+  })
+  .required({ matchup: true, win_prediction: true, user: true });
 
 export type PickType = z.infer<typeof PickZ>;

@@ -16,6 +16,7 @@ export function PickForm({
     <form method='POST'>
       <div className='p-4 text-center max-w-md rounded-xl shadow-md border bg-card'>
         <h1 className='text-2xl font-bold'>Your Pick</h1>
+        <input type='hidden' name='pick_id' value={pick?.id} />
         <input type='hidden' name='matchup' value={id} />
         <TeamPicker
           name='win_prediction'
