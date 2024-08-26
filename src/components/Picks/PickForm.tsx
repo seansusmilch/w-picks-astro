@@ -2,6 +2,8 @@ import { TeamPicker } from './TeamPicker';
 import { HelpDialog } from './HelpDialog';
 import { Textarea } from '@/components/ui/textarea';
 import { type MatchupType, type PickType } from '@/lib/definitions';
+import { useState } from 'react';
+import clsx from 'clsx';
 
 export function PickForm({
   matchup,
@@ -11,9 +13,26 @@ export function PickForm({
   pick?: PickType;
 }) {
   const { home_code, away_code, id } = matchup;
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = (e) => {
+    setLoading(true);
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    formData.forEach((value, key) => {
+      console.log(key, value);
+    });
+
+    fetch('/api/picks', {
+      method: 'POST',
+      body: formData,
+    }).then(() => {
+      setLoading(false);
+    });
+  };
 
   return (
-    <form method='POST'>
+    <form method='POST' onSubmit={handleSubmit}>
       <div className='p-4 text-center max-w-md rounded-xl shadow-md border bg-card'>
         <h1 className='text-2xl font-bold'>Your Pick</h1>
         <input type='hidden' name='pick_id' value={pick?.id} />
@@ -42,9 +61,13 @@ export function PickForm({
             <HelpDialog />
             <button
               type='submit'
-              className='p-2 grow rounded-lg text-white font-bold bg-gradient-to-r from-cyan-500 to-purple-500'
+              disabled={loading}
+              className={clsx(
+                'p-2 grow rounded-lg text-white font-bold bg-gradient-to-r from-cyan-500 to-purple-500',
+                { 'opacity-70': loading }
+              )}
             >
-              Save
+              {loading ? 'Saving...' : 'Save'}
             </button>
           </div>
         </div>

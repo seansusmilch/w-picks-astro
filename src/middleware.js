@@ -1,17 +1,13 @@
-import PocketBase from 'pocketbase';
-import { POCKETBASE_URL, ADMIN_USER, ADMIN_PASSWORD } from 'astro:env/server';
+import { getPB, getAPB, getUser } from '@/lib/data';
+import { ADMIN_USER, ADMIN_PASSWORD } from 'astro:env/server';
 import { defineMiddleware } from 'astro/middleware';
 
 export const onRequest = defineMiddleware(async ({ locals, request }, next) => {
-  console.log('POCKETBASE_URL:', POCKETBASE_URL);
-  locals.pb = new PocketBase(POCKETBASE_URL);
-  locals.apb = new PocketBase(POCKETBASE_URL);
+  locals.pb = getPB();
+  locals.apb = getAPB();
 
   try {
-    locals.apb = await locals.apb.admins.authWithPassword(
-      ADMIN_USER,
-      ADMIN_PASSWORD
-    );
+    await locals.apb.admins.authWithPassword(ADMIN_USER, ADMIN_PASSWORD);
   } catch {
     console.error('PB: Failed to authenticate as admin');
   }
@@ -22,7 +18,7 @@ export const onRequest = defineMiddleware(async ({ locals, request }, next) => {
   try {
     // get an up-to-date auth store state by verifying and refreshing the loaded auth model (if any)
     if (locals.pb.authStore.isValid) {
-      locals.user = await locals.pb.collection('users').authRefresh();
+      locals.user = await getUser();
     }
   } catch (_) {
     // clear the auth store on failed refresh

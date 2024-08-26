@@ -10,13 +10,13 @@ importers:
     dependencies:
       '@astrojs/node':
         specifier: ^8.3.3
-        version: 8.3.3(astro@4.14.2(rollup@4.21.0)(typescript@5.5.4))
+        version: 8.3.3(astro@4.14.5(rollup@4.21.0)(typescript@5.5.4))
       '@astrojs/react':
         specifier: ^3.6.2
         version: 3.6.2(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@5.4.1)
       '@astrojs/tailwind':
         specifier: ^5.1.0
-        version: 5.1.0(astro@4.14.2(rollup@4.21.0)(typescript@5.5.4))(tailwindcss@3.4.10)
+        version: 5.1.0(astro@4.14.5(rollup@4.21.0)(typescript@5.5.4))(tailwindcss@3.4.10)
       '@fontsource/poppins':
         specifier: ^5.0.15
         version: 5.0.15
@@ -48,8 +48,8 @@ importers:
         specifier: ^18.3.0
         version: 18.3.0
       astro:
-        specifier: ^4.14.2
-        version: 4.14.2(rollup@4.21.0)(typescript@5.5.4)
+        specifier: ^4.14.5
+        version: 4.14.5(rollup@4.21.0)(typescript@5.5.4)
       astro-navbar:
         specifier: ^2.3.3
         version: 2.3.3
@@ -1058,8 +1058,8 @@ packages:
   astro-navbar@2.3.3:
     resolution: {integrity: sha512-WAiQUVh3fS+bUw1oDcWpddFj30z3VgmMDmSjpU78idCXiV5t4KtlBvKV0mE/+hpcGLK0ji1evvCbk2wQ7wphyQ==}
 
-  astro@4.14.2:
-    resolution: {integrity: sha512-x9VeYx8Ih6kYKBMVwwsfRzsZVq30+SUhiawnYQ6+46qQnEx3zH05KcH24HsJMe6dVpHD8HdH7CWR5C4o7Q/jeg==}
+  astro@4.14.5:
+    resolution: {integrity: sha512-sv47kPE6FnvyxxHHcCePNwTKpOMKBq0r1m6WZYg6ag9j3yF9m72ov64NFB7c+hAMDUKgsHfVdLKjOOqDC/c+fA==}
     engines: {node: ^18.17.1 || ^20.3.0 || >=21.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
     hasBin: true
 
@@ -2525,9 +2525,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/node@8.3.3(astro@4.14.2(rollup@4.21.0)(typescript@5.5.4))':
+  '@astrojs/node@8.3.3(astro@4.14.5(rollup@4.21.0)(typescript@5.5.4))':
     dependencies:
-      astro: 4.14.2(rollup@4.21.0)(typescript@5.5.4)
+      astro: 4.14.5(rollup@4.21.0)(typescript@5.5.4)
       send: 0.18.0
       server-destroy: 1.0.1
     transitivePeerDependencies:
@@ -2549,9 +2549,9 @@ snapshots:
       - supports-color
       - vite
 
-  '@astrojs/tailwind@5.1.0(astro@4.14.2(rollup@4.21.0)(typescript@5.5.4))(tailwindcss@3.4.10)':
+  '@astrojs/tailwind@5.1.0(astro@4.14.5(rollup@4.21.0)(typescript@5.5.4))(tailwindcss@3.4.10)':
     dependencies:
-      astro: 4.14.2(rollup@4.21.0)(typescript@5.5.4)
+      astro: 4.14.5(rollup@4.21.0)(typescript@5.5.4)
       autoprefixer: 10.4.20(postcss@8.4.41)
       postcss: 8.4.41
       postcss-load-config: 4.0.2(postcss@8.4.41)
@@ -3409,7 +3409,7 @@ snapshots:
 
   astro-navbar@2.3.3: {}
 
-  astro@4.14.2(rollup@4.21.0)(typescript@5.5.4):
+  astro@4.14.5(rollup@4.21.0)(typescript@5.5.4):
     dependencies:
       '@astrojs/compiler': 2.10.3
       '@astrojs/internal-helpers': 0.4.1

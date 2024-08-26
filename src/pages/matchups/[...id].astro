@@ -9,44 +9,6 @@ import { z } from 'astro:content';
 const { pb, apb, user } = Astro.locals;
 const { id } = Astro.params;
 
-const PickFormZ = PickZ.omit({ win_prediction: true, id: true }).extend({
-  win_prediction: z.string(),
-  id: z.string(),
-});
-
-if (Astro.request.method === 'POST') {
-  const formData = await Astro.request.formData();
-  console.log(`id "${formData.get('pick_id')}"`);
-  const pickData = PickFormZ.safeParse({
-    id: formData.get('pick_id'),
-    user: user.record.id,
-    matchup: id,
-    win_prediction: formData.get('win_prediction'),
-    comment: formData.get('comment'),
-  });
-
-  try {
-    if (!pickData.success) {
-      console.error('Invalid pick data:', pickData.error);
-      throw new Error(
-        `Invalid pick data: ${JSON.stringify(pickData.error.issues)}`
-      );
-    }
-    if (pickData.data.id) {
-      if (pickData.data.win_prediction === 'indeterminate') {
-        await pb.collection('picks').delete(pickData.data.id);
-      } else
-        await pb.collection('picks').update(pickData.data.id, pickData.data);
-    } else {
-      await pb.collection('picks').create(pickData.data);
-    }
-  } catch (e) {
-    console.error('Error saving pick:', e);
-  } finally {
-    return Astro.redirect(`/matchups/${id}`);
-  }
-}
-
 const matchupRaw = await pb.collection('matchups').getOne(id);
 if (!matchupRaw) return Astro.redirect('/404');
 
