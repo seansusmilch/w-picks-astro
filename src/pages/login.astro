@@ -1,18 +1,26 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { LoginSignupForm } from '@/components/LoginSignupForm';
+// import { z } from 'astro/zod';
 
-export const prerender = false;
-const pageTitle = 'Login/Signup';
+const pageTitle = 'Login';
+const { pb } = Astro.locals;
+
+// const formSchema = z.object({
+//   email: z.string().email(),
+//   password: z.string().min(6),
+//   authType: z.enum(['login', 'signup']),
+// });
 
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
   const email = formData.get('email');
   const password = formData.get('password');
 
-  const authData = await Astro.locals.pb
+  const authData = await pb
     .collection('users')
     .authWithPassword(email, password);
+  console.log('Auth Data', authData);
   return Astro.redirect('/');
   if (authType === 'signup') {
     console.log('Signup Data', email, password);
