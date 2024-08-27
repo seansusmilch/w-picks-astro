@@ -34,7 +34,10 @@ try {
 ---
 
 <div
-  class='p-3 flex flex-row justify-between max-w-md h-36 rounded-xl shadow-md border bg-card'
+  class:list={[
+    'p-3 flex flex-row justify-between max-w-md h-36',
+    'border rounded-xl shadow-md',
+  ]}
 >
   {
     gameStatus === 0 && (
