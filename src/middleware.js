@@ -8,8 +8,8 @@ export const onRequest = defineMiddleware(async ({ locals, request }, next) => {
 
   try {
     await locals.apb.admins.authWithPassword(ADMIN_USER, ADMIN_PASSWORD);
-  } catch {
-    console.error('PB: Failed to authenticate as admin');
+  } catch (e) {
+    console.error('PB: Failed to authenticate as admin', e.message);
   }
 
   // load the store data from the request cookie string
