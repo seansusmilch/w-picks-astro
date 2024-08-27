@@ -1,19 +1,11 @@
 ---
-import {
-  Astronav,
-  MenuItems,
-  MenuIcon,
-  Dropdown,
-  DropdownItems,
-  DropdownSubmenu,
-  OpenIcon,
-  CloseIcon,
-} from 'astro-navbar';
+import { Astronav, MenuItems, MenuIcon } from 'astro-navbar';
 import { Image } from 'astro:assets';
 import BrandLogo from '@/assets/brand/logo-hires-uncropped.webp';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { ThemeToggle } from './ThemeToggle';
+import { UserDropdown } from './UserDropdown';
 
-const pb = Astro.locals.pb;
+const { pb, user } = Astro.locals;
 const isAuthed = pb.authStore.isValid;
 ---
 
@@ -37,30 +29,26 @@ const isAuthed = pb.authStore.isValid;
       </div>
       <MenuItems class='hidden lg:flex'>
         <ul
-          class='flex flex-col gap-4 p-2 text-right lg:items-center lg:flex-row lg:text-left'
+          class='flex flex-col gap-4 text-xl p-2 text-right lg:items-center lg:flex-row lg:text-left'
         >
           <li>
-            <a class='text-xl' href='/seed'>Seed Database</a>
+            <a href='/seed'>Seed Database</a>
           </li>
           <li>
-            <a class='text-xl' href='/matchups/today'>Today</a>
+            <a href='/matchups/today'>Today</a>
           </li>
           <li>
-            <a class='text-xl' href='/matchups'>Matchups</a>
+            <a href='/matchups'>Matchups</a>
           </li>
           <li>
-            <a class='text-xl' href='/'>Home</a>
+            <a href='/'>Home</a>
           </li>
           <li>
             {
               isAuthed ? (
-                <a class='text-xl' href='/logout'>
-                  Logout
-                </a>
+                <UserDropdown user={user} client:load />
               ) : (
-                <a class='text-xl' href='/login'>
-                  Login
-                </a>
+                <a href='/login'>Login</a>
               )
             }
           </li>
