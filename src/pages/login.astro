@@ -17,10 +17,24 @@ if (Astro.request.method === 'POST') {
   const email = formData.get('email');
   const password = formData.get('password');
 
-  const authData = await pb
-    .collection('users')
-    .authWithPassword(email, password);
-  console.log('Auth Data', authData);
+  try {
+    const authData = await pb
+      .collection('users')
+      .authWithPassword(email, password);
+    console.log('Auth Data', authData);
+  } catch (e) {
+    console.log('Login error:', e.message);
+    return new Response(
+      JSON.stringify({ error: 'Invalid email or password' }),
+      {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  }
+
   return Astro.redirect('/');
   if (authType === 'signup') {
     console.log('Signup Data', email, password);
