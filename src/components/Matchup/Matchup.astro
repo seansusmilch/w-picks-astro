@@ -48,11 +48,12 @@ try {
   {
     [1, 2].includes(gameStatus) && (
       <LiveScore
+        id={scoreboardParsed.id}
         away_code={matchupParsed.away_code}
-        away_score={scoreboardParsed?.away_score}
+        away_score={scoreboardParsed.away_score}
         home_code={matchupParsed.home_code}
-        home_score={scoreboardParsed?.home_score}
-        status_text={scoreboardParsed?.status_text}
+        home_score={scoreboardParsed.home_score}
+        status_text={scoreboardParsed.status_text}
         status={gameStatus}
         client:load
       />

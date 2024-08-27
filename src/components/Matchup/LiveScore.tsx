@@ -2,8 +2,11 @@ import clsx from 'clsx';
 import { TeamMap } from '@/components/NBA/teamMap';
 import { Logo } from '@/components/NBA/Logo';
 import { useEffect, useState } from 'react';
+import { getPB } from '@/lib/data';
+import { ScoreboardZ } from '@/lib/definitions';
 
 export function LiveScore({
+  id,
   away_code,
   away_score,
   home_code,
@@ -11,6 +14,7 @@ export function LiveScore({
   status_text,
   status,
 }: {
+  id: string;
   away_code: string;
   away_score: number;
   home_code: string;
@@ -18,15 +22,33 @@ export function LiveScore({
   status_text: string;
   status: number;
 }) {
-  const [scoreboard, setScoreboard] = useState({
+  const [liveScore, setLiveScore] = useState({
     away_score: away_score,
-    home_score: away_score,
+    home_score: home_score,
     status_text: status_text,
     status: status,
   });
 
   const awayTeamShort = TeamMap[away_code].name_short;
   const homeTeamShort = TeamMap[home_code].name_short;
+
+  useEffect(() => {
+    const pb = getPB();
+    pb.collection('scoreboards').subscribe(id, (data) => {
+      const scoreboardResult = ScoreboardZ.safeParse(data.record);
+      if (!scoreboardResult.success) {
+        console.error('Failed to parse scoreboard', scoreboardResult.error);
+        return;
+      }
+      const board = scoreboardResult.data;
+      setLiveScore({
+        away_score: board.away_score,
+        home_score: board.home_score,
+        status_text: board.status_text,
+        status: board.status,
+      });
+    });
+  });
 
   return (
     <>
@@ -37,14 +59,14 @@ export function LiveScore({
       <div className='basis-1/3 flex flex-col items-center justify-between text-center'>
         <div className='w-full flex-grow flex flex-row items-center justify-between'>
           <p className={clsx('text-2xl sm:text-4xl font-extrabold')}>
-            {away_score}
+            {liveScore.away_score}
           </p>
           <p className={clsx('text-2xl sm:text-4xl font-extrabold')}>
-            {home_score}
+            {liveScore.home_score}
           </p>
         </div>
         <p className='flex-grow-0 text-sm sm:text-md text-white font-bold rounded-xl px-2 py-1 bg-gradient-to-r from-red-500 to-orange-500'>
-          {status_text}
+          {liveScore.status_text}
         </p>
       </div>
       <div className='basis-1/3 flex flex-col items-center text-center'>

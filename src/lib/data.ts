@@ -2,7 +2,7 @@ import PocketBase, {
   type RecordAuthResponse,
   type RecordModel,
 } from 'pocketbase';
-import { POCKETBASE_URL } from 'astro:env/server';
+import { POCKETBASE_URL } from 'astro:env/client';
 
 let pb: PocketBase;
 let apb: PocketBase;
