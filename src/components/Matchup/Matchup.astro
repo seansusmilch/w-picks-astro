@@ -46,15 +46,18 @@ try {
     )
   }
   {
-    gameStatus === 1 && (
-      <PreGame
+    [1, 2].includes(gameStatus) && (
+      <LiveScore
         away_code={matchupParsed.away_code}
+        away_score={scoreboardParsed?.away_score}
         home_code={matchupParsed.home_code}
-        time_utc={matchupParsed.time_utc}
+        home_score={scoreboardParsed?.home_score}
+        status_text={scoreboardParsed?.status_text}
+        status={gameStatus}
+        client:load
       />
     )
   }
-  {gameStatus === 2 && <LiveScore client:load />}
   {
     gameStatus === 3 && (
       <PostGame

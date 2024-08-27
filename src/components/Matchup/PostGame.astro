@@ -1,7 +1,6 @@
 ---
 import { Logo } from '@/components/NBA/Logo';
-import { TeamMap } from '../NBA/teamMap';
-import { Badge } from '@/components/ui/badge';
+import { TeamMap } from '@/components/NBA/teamMap';
 import clsx from 'clsx';
 
 interface Props {
@@ -19,15 +18,15 @@ const homeTeamShort = TeamMap[home_code].name_short;
 const awayTeamShort = TeamMap[away_code].name_short;
 ---
 
-<div class='basis-1/4 grow flex flex-col text-center'>
+<div class='basis-1/3 grow flex flex-col text-center'>
   <Logo tricode={away_code} className='h-20 sm:h-24' />
   <p class='sm:text-xl font-bold'>{awayTeamShort}</p>
 </div>
-<div class='basis-1/2 flex flex-col items-center justify-between text-center'>
+<div class='basis-1/3 flex flex-col items-center justify-between text-center'>
   <div class='w-full flex-grow flex flex-row items-center justify-between'>
     <p
       class={clsx(
-        'text-4xl font-extrabold',
+        'text-2xl sm:text-4xl font-extrabold',
         away_score > home_score ? 'text-green-500' : 'text-destructive'
       )}
     >
@@ -35,7 +34,7 @@ const awayTeamShort = TeamMap[away_code].name_short;
     </p>
     <p
       class={clsx(
-        'text-4xl font-extrabold',
+        'text-2xl sm:text-4xl font-extrabold',
         home_score > away_score ? 'text-green-500' : 'text-destructive'
       )}
     >
@@ -43,12 +42,12 @@ const awayTeamShort = TeamMap[away_code].name_short;
     </p>
   </div>
   <p
-    class='flex-grow-0 text-white font-bold rounded-xl px-2 py-1 bg-gradient-to-r from-cyan-500 to-purple-500'
+    class='flex-grow-0 text-sm sm:text-md text-white font-bold rounded-xl px-2 py-1 bg-gradient-to-r from-cyan-500 to-purple-500'
   >
     {status_text}
   </p>
 </div>
-<div class='basis-1/4 flex flex-col items-center text-center'>
+<div class='basis-1/3 flex flex-col items-center text-center'>
   <Logo tricode={home_code} className='h-20 sm:h-24' />
   <p class='sm:text-xl font-bold'>{homeTeamShort}</p>
 </div>
