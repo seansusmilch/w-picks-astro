@@ -38,9 +38,11 @@ export function LoginSignupForm() {
         </TabsContent>
         <TabsContent value='signup'>Signup content</TabsContent>
       </Tabs>
-      <button className='mt-4 p-2 bg-blue-500 text-white rounded-lg justify-self-end max-w-fit'>
-        Submit
-      </button>
+      <div className='flex flex-row justify-end'>
+        <button className='mt-4 p-2 bg-blue-500 text-white rounded-lg max-w-fit'>
+          Submit
+        </button>
+      </div>
     </form>
   );
 }
