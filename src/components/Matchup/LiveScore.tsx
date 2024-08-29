@@ -52,7 +52,7 @@ export function LiveScore({
 
   return (
     <>
-      <div className='basis-1/3 grow flex flex-col text-center'>
+      <div className='basis-1/3 flex flex-col text-center'>
         <Logo tricode={away_code} className='h-20 sm:h-24' />
         <p className='sm:text-xl font-bold'>{awayTeamShort}</p>
       </div>
