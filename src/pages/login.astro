@@ -1,21 +1,65 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { LoginSignupForm } from '@/components/LoginSignupForm';
-// import { z } from 'astro/zod';
+import { z } from 'astro/zod';
 
 const pageTitle = 'Login';
-const { pb } = Astro.locals;
+const { pb, apb } = Astro.locals;
 
-// const formSchema = z.object({
-//   email: z.string().email(),
-//   password: z.string().min(6),
-//   authType: z.enum(['login', 'signup']),
-// });
+const loginSignupFormZ = z.object({
+  email: z.string().email('Email is invalid').trim(),
+  password: z.string().min(8, 'Password must be at least 8 characters!'),
+  confirm_password: z.nullable(z.string().min(8, 'Passwords must match!')),
+});
 
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
-  const email = formData.get('email');
-  const password = formData.get('password');
+  const formDataParsed = loginSignupFormZ.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+    confirm_password: formData.get('confirm_password'),
+  });
+
+  if (!formDataParsed.success) {
+    console.log('Form data is invalid:', formDataParsed.error);
+    return new Response(
+      JSON.stringify({
+        error: formDataParsed.error.errors.map((i) => i.message).join(' '),
+      }),
+      {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  }
+
+  const { email, password, confirm_password } = formDataParsed.data;
+  if (confirm_password) {
+    // Signup
+    try {
+      if (password !== confirm_password) {
+        throw new Error('Passwords do not match');
+      }
+      const record = await apb.collection('users').create({
+        username: email.split('@')[0],
+        email,
+        password,
+        passwordConfirm: confirm_password,
+      });
+      await pb.collection('users').requestVerification(email);
+      return Astro.redirect('/login?confirm=true');
+    } catch (e) {
+      console.log('Signup error:', e.message);
+      return new Response(JSON.stringify({ error: e.message }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+  }
 
   try {
     const authData = await pb
@@ -36,14 +80,13 @@ if (Astro.request.method === 'POST') {
   }
 
   return Astro.redirect('/');
-  if (authType === 'signup') {
-    console.log('Signup Data', email, password);
-  }
 }
+
+const confirm = Astro.url.searchParams.get('confirm') === 'true';
 ---
 
 <Layout title={pageTitle}>
   <div class='flex justify-center w-full'>
-    <LoginSignupForm client:load />
+    <LoginSignupForm confirm={confirm} client:load />
   </div>
 </Layout>

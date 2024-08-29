@@ -1,7 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import clsx from 'clsx';
 import { useState } from 'react';
 
-export function LoginSignupForm() {
+export function LoginSignupForm({ confirm }: { confirm: boolean }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -37,6 +38,14 @@ export function LoginSignupForm() {
       <h1 className='text-2xl font-semibold text-center py-4'>
         Welcome to W Picks
       </h1>
+
+      {confirm && (
+        <div className='text-left text-foreground bg-green-400 dark:bg-green-600 p-2 rounded-md'>
+          <p className='font-semibold'>Error:</p>
+          <p className=''>Confirm your email!</p>
+        </div>
+      )}
+
       <Tabs defaultValue='login'>
         <div className='flex justify-center'>
           <TabsList>
@@ -66,7 +75,36 @@ export function LoginSignupForm() {
             />
           </div>
         </TabsContent>
-        <TabsContent value='signup'>Signup content</TabsContent>
+        <TabsContent value='signup'>
+          <div className='flex flex-col max-w-lg'>
+            <label>Email</label>
+            <input
+              className='p-2 bg-muted rounded-md'
+              type='email'
+              name='email'
+              disabled={loading}
+              required
+            />
+
+            <label>Password</label>
+            <input
+              className='p-2 bg-muted rounded-md'
+              type='password'
+              name='password'
+              disabled={loading}
+              required
+            />
+
+            <label>Confirm Password</label>
+            <input
+              className='p-2 bg-muted rounded-md'
+              type='password'
+              name='confirm_password'
+              disabled={loading}
+              required
+            />
+          </div>
+        </TabsContent>
       </Tabs>
       {error && (
         <div className='text-left text-destructive-foreground bg-destructive p-2 rounded-md'>
@@ -74,10 +112,13 @@ export function LoginSignupForm() {
           <p className=''>{error}</p>
         </div>
       )}
-      <div className='flex flex-row justify-end'>
+      <div className='pt-4 flex flex-row justify-end'>
         <button
           disabled={loading}
-          className='mt-4 p-2 bg-blue-500 text-white rounded-lg max-w-fit'
+          className={clsx(
+            'p-2 bg-blue-500 text-white rounded-lg max-w-fit hover:bg-blue-700 transition-colors',
+            loading && 'opacity-70'
+          )}
         >
           Submit
         </button>
