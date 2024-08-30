@@ -56,11 +56,11 @@ function AwayPick({ pick }: { pick: RecordModel }) {
   return (
     <div className='flex flex-row p-1 gap-2 border'>
       <Avatar>
-        <AvatarImage src='https://i.pravatar.cc/300' />
+        <AvatarImage src={pick.expand.user.avatar_url} />
         <AvatarFallback>?</AvatarFallback>
       </Avatar>
       <div className='flex-grow flex flex-col'>
-        <p className='text-xs font-semibold'>{pick.expand.user.username}</p>
+        <p className='text-xs font-semibold'>@{pick.expand.user.username}</p>
         <p className='text-sm'>{pick.comment}</p>
       </div>
     </div>
@@ -71,11 +71,11 @@ function HomePick({ pick }: { pick: RecordModel }) {
   return (
     <div className='flex flex-row p-1 gap-2 border'>
       <div className='flex-grow flex flex-col'>
-        <p className='text-xs font-semibold'>{pick.expand.user.username}</p>
+        <p className='text-xs font-semibold'>@{pick.expand.user.username}</p>
         <p className='text-sm'>{pick.comment}</p>
       </div>
       <Avatar>
-        <AvatarImage src='https://i.pravatar.cc/300' />
+        <AvatarImage src={pick.expand.user.avatar_url} />
         <AvatarFallback>?</AvatarFallback>
       </Avatar>
     </div>

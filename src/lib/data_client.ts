@@ -1,12 +1,10 @@
+import { POCKETBASE_PUBLIC_URL } from 'astro:env/client';
 import PocketBase, {
   type RecordAuthResponse,
   type RecordModel,
 } from 'pocketbase';
-import { POCKETBASE_URL } from 'astro:env/server';
-import { POCKETBASE_PUBLIC_URL } from 'astro:env/client';
 
 let pb: PocketBase;
-let apb: PocketBase;
 let user: RecordAuthResponse<RecordModel>;
 
 /**
@@ -14,19 +12,10 @@ let user: RecordAuthResponse<RecordModel>;
  */
 export function getPB() {
   if (!pb) {
-    pb = new PocketBase(POCKETBASE_URL);
+    pb = new PocketBase(POCKETBASE_PUBLIC_URL);
+    pb.authStore.loadFromCookie(document.cookie);
   }
   return pb;
-}
-
-/**
- * Admin authenticated PocketBase instance
- */
-export function getAPB() {
-  if (!apb) {
-    apb = new PocketBase(POCKETBASE_URL);
-  }
-  return apb;
 }
 
 /**
@@ -44,10 +33,3 @@ export async function getUser() {
     pb.authStore.clear();
   }
 }
-
-export const getUserAvatarUrl = (user_id: string, filename: string) => {
-  return new URL(
-    `/api/files/users/${user_id}/${filename}`,
-    POCKETBASE_PUBLIC_URL
-  ).toString();
-};

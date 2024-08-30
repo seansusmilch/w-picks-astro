@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { TeamMap } from '@/components/NBA/teamMap';
 import { Logo } from '@/components/NBA/Logo';
 import { useEffect, useState } from 'react';
-import { getPB } from '@/lib/data';
+import { getPB } from '@/lib/data_client';
 import { ScoreboardZ } from '@/lib/definitions';
 
 export function LiveScore({

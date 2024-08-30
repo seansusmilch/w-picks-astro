@@ -16,6 +16,10 @@ export default defineConfig({
     env: {
       schema: {
         POCKETBASE_URL: envField.string({
+          context: 'server',
+          access: 'secret',
+        }),
+        POCKETBASE_PUBLIC_URL: envField.string({
           context: 'client',
           access: 'public',
         }),

@@ -1,30 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
-import { getPB, getUser } from '@/lib/data';
+import { useState, useEffect, useRef } from 'react';
 
 export function AvatarSection({ user }: { user: any }) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
-  const [avatar, setAvatar] = useState(
-    ''
-    // new URL(
-    //   `/api/files/users/${user.record.id}/${user.record.avatar}`,
-    //   POCKETBASE_URL
-    // ).toString()
-  );
-
-  useEffect(() => {
-    const pb = getPB();
-    pb.authStore.loadFromCookie(document.cookie);
-    if (!pb.authStore.isValid) return;
-
-    getUser().then((usr) => {
-      const url = pb.files.getUrl(usr.record, usr.record.avatar);
-      console.log('usr', usr);
-      setAvatar(url);
-    });
-  });
+  const [avatar, setAvatar] = useState(user.record.avatar_url);
 
   const handleSubmit = (e) => {
     setLoading(true);
@@ -35,10 +17,10 @@ export function AvatarSection({ user }: { user: any }) {
       body: formData,
     }).then((res) => {
       if (res.ok) {
+        inputRef.current.value = '';
         setLoading(false);
       }
     });
-    console.log(formData.get('avatar'));
   };
 
   return (
@@ -51,14 +33,34 @@ export function AvatarSection({ user }: { user: any }) {
         <div className='flex flex-col gap-4'>
           <p className='text-lg'>Change Avatar</p>
           <Input
+            ref={inputRef}
             name='avatar'
             type='file'
             className='w-64'
             accept={['image/png', 'image/jpeg', 'image/gif', 'image/webp'].join(
               ','
             )}
+            onChange={(e) => setAvatar(URL.createObjectURL(e.target.files[0]))}
           />
-          <Button disabled={loading}>Upload</Button>
+          {inputRef.current?.files?.length > 0 && (
+            <div className='flex flex-row w-full gap-2'>
+              <Button
+                className='basis-1/2'
+                variant='outline'
+                type='button'
+                disabled={loading}
+                onClick={() => {
+                  inputRef.current.value = '';
+                  setAvatar(user.record.avatar_url);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button className='basis-1/2' type='submit' disabled={loading}>
+                Upload
+              </Button>
+            </div>
+          )}
         </div>
       </form>
     </div>
