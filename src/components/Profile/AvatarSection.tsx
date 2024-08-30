@@ -36,7 +36,7 @@ export function AvatarSection({ user }: { user: any }) {
             ref={inputRef}
             name='avatar'
             type='file'
-            className='w-64'
+            className='w-64 file:text-foreground'
             accept={['image/png', 'image/jpeg', 'image/gif', 'image/webp'].join(
               ','
             )}
