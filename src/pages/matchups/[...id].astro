@@ -3,8 +3,8 @@ import Layout from '@/layouts/Layout.astro';
 import Matchup from '@/components/Matchup/Matchup.astro';
 import { PickForm } from '@/components/Picks/PickForm';
 import { TeamMap } from '@/components/NBA/teamMap';
-import { MatchupZ, PickZ } from '@/lib/definitions';
-import { z } from 'astro/zod';
+import { MatchupZ } from '@/lib/definitions';
+import { PickTable } from '@/components/Picks/PickTable';
 
 const { pb, apb, user } = Astro.locals;
 const { id } = Astro.params;
@@ -22,23 +22,25 @@ const matchup = matchupResult.data;
 const { away_code, home_code } = matchupResult.data;
 const title = `${TeamMap[away_code].name_short} at ${TeamMap[home_code].name_short}`;
 
-const picks = await pb.collection('picks').getList(1, 30, {
+const picksResults = await apb.collection('picks').getList(1, 30, {
   filter: pb.filter('matchup = {:id}', { id: matchup.id }),
+  expand: 'user',
+  fields: '*,expand.user.avatar,expand.user.username',
 });
+
+console.log('picksResults:', JSON.stringify(picksResults, null, 4));
 
 let userPick = null;
 if (user) {
-  const userPickRaw = picks.items.find((p) => p.user === user.record.id);
-  const pickResult = PickZ.safeParse(userPickRaw);
-  if (pickResult.success) {
-    userPick = pickResult.data;
-  }
+  const userPickRaw = picksResults.items.find((p) => p.user === user.record.id);
+  userPick = userPickRaw;
 }
 ---
 
 <Layout title={title}>
   <div class='flex flex-col gap-4'>
     <Matchup matchup={matchup} />
+    <PickTable matchup={matchup} picks={picksResults.items} client:load />
     <PickForm matchup={matchup} pick={userPick} client:load />
   </div>
 </Layout>
