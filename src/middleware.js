@@ -7,9 +7,11 @@ export const onRequest = defineMiddleware(async ({ locals, request }, next) => {
   locals.apb = getAPB();
 
   try {
-    await locals.apb.admins.authWithPassword(ADMIN_USER, ADMIN_PASSWORD);
+    await locals.apb.admins.authWithPassword(ADMIN_USER, ADMIN_PASSWORD, {
+      requestKey: Date.now().toString(),
+    });
   } catch (e) {
-    console.error('PB: Failed to authenticate as admin', e.message);
+    console.error('PB: Failed to authenticate as admin.', e.message);
   }
 
   // load the store data from the request cookie string
@@ -28,7 +30,13 @@ export const onRequest = defineMiddleware(async ({ locals, request }, next) => {
   const response = await next();
 
   // send back the default 'pb_auth' cookie to the client with the latest store state
-  response.headers.append('set-cookie', locals.pb.authStore.exportToCookie());
+  response.headers.append(
+    'set-cookie',
+    locals.pb.authStore.exportToCookie({
+      secure: request.url.startsWith('https://'),
+      httpOnly: false,
+    })
+  );
 
   return response;
 });
