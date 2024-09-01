@@ -23,6 +23,7 @@ export function PickForm({
   });
 
   const handleSubmit = (e) => {
+    setError('');
     setLoading(true);
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -97,12 +98,17 @@ export function PickForm({
 
         <div className='flex flex-col pt-4 gap-4'>
           <div className='flex flex-col'>
-            <label
-              htmlFor='comment'
-              className='text-left text-lg font-semibold'
-            >
-              Comment
-            </label>
+            <div className='flex flex-row justify-between'>
+              <label
+                htmlFor='comment'
+                className='text-left text-lg font-semibold'
+              >
+                Comment
+              </label>
+              {formState.comment.length > 200 && (
+                <p className='text-sm'>{formState.comment.length}/250</p>
+              )}
+            </div>
 
             <Textarea
               name='comment'

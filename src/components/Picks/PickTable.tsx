@@ -3,8 +3,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { type PickType, PickZ, type MatchupType } from '@/lib/definitions';
 import { z } from 'astro/zod';
 import type { ListResult, RecordModel } from 'pocketbase';
-
-const PicksZ = z.array(PickZ);
+import { useState, useEffect } from 'react';
+import { getPB } from '@/lib/data_client';
+import { getUserAvatarUrl } from '@/lib/data_common';
 
 export function PickTable({
   matchup,
@@ -13,13 +14,44 @@ export function PickTable({
   matchup: MatchupType;
   picks: RecordModel[];
 }) {
-  // can add db realtime subscriptions for picks here or down in separate components
-  const awayPicks = picks.filter(
-    (pick) => pick.win_prediction === matchup.away_code
-  );
-  const homePicks = picks.filter(
-    (pick) => pick.win_prediction === matchup.home_code
-  );
+  const [livePicks, setLivePicks] = useState(picks);
+  useEffect(() => {
+    console.log('Adding picks subscription');
+    const pb = getPB();
+    pb.collection('picks').subscribe(
+      '*',
+      (data) => {
+        console.log('Pick updated!', data.action, data.record);
+        if (data.action === 'delete') {
+          // remove the pick from the list
+          setLivePicks((prev) =>
+            prev.filter((pick) => pick.id !== data.record.id)
+          );
+          return;
+        }
+
+        const pick = data.record;
+        pick.expand.user.avatar_url = getUserAvatarUrl(
+          pick.expand.user.id,
+          pick.expand.user.avatar
+        );
+        if (data.action === 'create') {
+          // add the pick to the list with avatar and username
+          setLivePicks((prev) => [...prev, pick]);
+        } else if (data.action === 'update') {
+          // update the pick in the list without changing order
+          setLivePicks((prev) =>
+            prev.map((p) => (p.id === pick.id ? pick : p))
+          );
+        }
+      },
+      {
+        filter: pb.filter('matchup = {:id}', { id: matchup.id }),
+        expand: 'user',
+        fields: '*,expand.user.id,expand.user.avatar,expand.user.username',
+      }
+    );
+  }, []);
 
   return (
     <div
@@ -35,15 +67,19 @@ export function PickTable({
           <p>Home</p>
         </div>
         <div className='flex flex-row'>
-          <div className='basis-1/2 flex flex-col'>
-            {awayPicks.map((pick) => (
-              <AwayPick key={pick.id} pick={pick} />
-            ))}
+          <div className='w-1/2 flex flex-col'>
+            {livePicks
+              .filter((p) => p.win_prediction === matchup.away_code)
+              .map((pick) => (
+                <AwayPick key={pick.id} pick={pick} />
+              ))}
           </div>
-          <div className='basis-1/2 flex flex-col'>
-            {homePicks.map((pick) => (
-              <HomePick key={pick.id} pick={pick} />
-            ))}
+          <div className='w-1/2 flex flex-col'>
+            {livePicks
+              .filter((p) => p.win_prediction === matchup.home_code)
+              .map((pick) => (
+                <HomePick key={pick.id} pick={pick} />
+              ))}
           </div>
         </div>
       </div>
@@ -52,16 +88,15 @@ export function PickTable({
 }
 
 function AwayPick({ pick }: { pick: RecordModel }) {
-  console.log('avatar', pick.expand.user.avatar);
   return (
-    <div className='flex flex-row p-1 gap-2 border'>
-      <Avatar>
+    <div className='flex flex-row p-1 gap-2 border border-l-0'>
+      <Avatar className='w-1/5'>
         <AvatarImage src={pick.expand.user.avatar_url} />
         <AvatarFallback>?</AvatarFallback>
       </Avatar>
-      <div className='flex-grow flex flex-col'>
+      <div className='w-4/5 flex flex-col'>
         <p className='text-xs font-semibold'>@{pick.expand.user.username}</p>
-        <p className='text-sm'>{pick.comment}</p>
+        <p className='text-sm break-words pr-2'>{pick.comment}</p>
       </div>
     </div>
   );
@@ -69,12 +104,12 @@ function AwayPick({ pick }: { pick: RecordModel }) {
 
 function HomePick({ pick }: { pick: RecordModel }) {
   return (
-    <div className='flex flex-row p-1 gap-2 border'>
-      <div className='flex-grow flex flex-col'>
+    <div className='flex flex-row border border-r-0 p-1'>
+      <div className='w-4/5 flex flex-col'>
         <p className='text-xs font-semibold'>@{pick.expand.user.username}</p>
-        <p className='text-sm'>{pick.comment}</p>
+        <p className='text-sm break-words'>{pick.comment}</p>
       </div>
-      <Avatar>
+      <Avatar className='w-1/5'>
         <AvatarImage src={pick.expand.user.avatar_url} />
         <AvatarFallback>?</AvatarFallback>
       </Avatar>

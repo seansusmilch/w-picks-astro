@@ -55,54 +55,63 @@ export function LoginSignupForm({ confirm }: { confirm: boolean }) {
         </div>
 
         <TabsContent value='login'>
-          <div className='flex flex-col max-w-lg'>
-            <label>Email</label>
-            <input
-              className='p-2 bg-muted rounded-md'
-              type='email'
-              name='email'
-              disabled={loading}
-              required
-            />
-
-            <label>Password</label>
-            <input
-              className='p-2 bg-muted rounded-md'
-              type='password'
-              name='password'
-              disabled={loading}
-              required
-            />
+          <div className='flex flex-col max-w-lg gap-4'>
+            <div className='flex flex-col text-lg'>
+              <label>Email</label>
+              <input
+                className='p-2 bg-muted rounded-md'
+                type='email'
+                name='email'
+                disabled={loading}
+                required
+              />
+            </div>
+            <div className='flex flex-col text-lg'>
+              <label>Password</label>
+              <input
+                className='p-2 bg-muted rounded-md'
+                type='password'
+                name='password'
+                disabled={loading}
+                required
+              />
+            </div>
           </div>
         </TabsContent>
         <TabsContent value='signup'>
-          <div className='flex flex-col max-w-lg'>
-            <label>Email</label>
-            <input
-              className='p-2 bg-muted rounded-md'
-              type='email'
-              name='email'
-              disabled={loading}
-              required
-            />
+          <div className='flex flex-col max-w-lg gap-4'>
+            <div className='flex flex-col text-lg'>
+              <label>Email</label>
+              <input
+                className='p-2 bg-muted rounded-md'
+                type='email'
+                name='email'
+                disabled={loading}
+                required
+              />
+            </div>
 
-            <label>Password</label>
-            <input
-              className='p-2 bg-muted rounded-md'
-              type='password'
-              name='password'
-              disabled={loading}
-              required
-            />
+            <div className='flex flex-col text-lg'>
+              <label>Password</label>
+              <input
+                className='p-2 bg-muted rounded-md'
+                type='password'
+                name='password'
+                disabled={loading}
+                required
+              />
+            </div>
 
-            <label>Confirm Password</label>
-            <input
-              className='p-2 bg-muted rounded-md'
-              type='password'
-              name='confirm_password'
-              disabled={loading}
-              required
-            />
+            <div className='flex flex-col text-lg'>
+              <label>Confirm Password</label>
+              <input
+                className='p-2 bg-muted rounded-md'
+                type='password'
+                name='confirm_password'
+                disabled={loading}
+                required
+              />
+            </div>
           </div>
         </TabsContent>
       </Tabs>

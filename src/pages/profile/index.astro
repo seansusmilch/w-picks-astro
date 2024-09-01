@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { AvatarSection } from '@/components/Profile/AvatarSection';
-import { getUserAvatarUrl } from '@/lib/data';
+import { getUserAvatarUrl } from '@/lib/data_common';
 
 const { user } = Astro.locals;
 user.record.avatar_url = getUserAvatarUrl(user.record.id, user.record.avatar);

@@ -48,6 +48,10 @@ export function LiveScore({
         status: board.status,
       });
     });
+
+    return () => {
+      pb.collection('scoreboards').unsubscribe(id);
+    };
   });
 
   return (
