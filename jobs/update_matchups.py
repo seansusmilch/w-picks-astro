@@ -10,8 +10,13 @@ NBA_SCHEDULE_URL = os.getenv('NBA_SCHEDULE_URL', 'https://cdn.nba.com/static/jso
 def update_matchups():
     matchups_json = requests.get(NBA_SCHEDULE_URL).json()
     matchups = parse_matchups(matchups_json)
+    results = []
     for matchup in matchups:
-        common.pb_upsert_record('matchups', matchup['id'], matchup)
+        results.append(common.pb_upsert_record('matchups', matchup['id'], matchup))
+    
+    created = list(filter(lambda x: x.get('action') == 'CREATED', results))
+    updated = list(filter(lambda x: x.get('action') == 'UPDATED', results))
+    print(f'MATCHUPS\n\tCREATED: {len(created)} records\n\tUPDATED: {len(updated)} records')
 
 def parse_matchups(raw_data):
     pastCutoff = datetime.now() - timedelta(days=PAST_CUTOFF)

@@ -64,7 +64,8 @@ def pb_upsert_record(collection:str, record_id:str, data:dict):
     
     # must be 404
     create_response = pb_create_record(collection, data)
-    print('CREATE', collection, create_response.get('id'))
+    # print('CREATE', collection, create_response.get('id'))
+    return {'action': 'CREATED', 'collection': collection, 'id': create_response.get('id')}
 
 
 if __name__ == '__main__':
