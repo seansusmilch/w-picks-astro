@@ -5,6 +5,7 @@ WORKDIR /jobs
 COPY ./requirements.txt /jobs/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /jobs/requirements.txt
+RUN apt update && apt install -y curl
 
 COPY . /jobs
 

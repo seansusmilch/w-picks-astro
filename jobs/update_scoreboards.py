@@ -8,7 +8,7 @@ def update_scoreboards():
     scoreboards_json = requests.get(NBA_SCOREBOARDS_URL).json()
     print(scoreboards_json)
     scoreboards = parse_scoreboards(scoreboards_json)
-    for scoreboard in scoreboards[0:4]:
+    for scoreboard in scoreboards:
         common.pb_upsert_record('scoreboards', scoreboard['id'], scoreboard)
     
 def parse_scoreboards(raw_data):

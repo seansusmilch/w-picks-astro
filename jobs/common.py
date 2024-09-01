@@ -56,7 +56,7 @@ def pb_create_record(collection:str, data:dict):
 def pb_upsert_record(collection:str, record_id:str, data:dict):
     update_response = pb_update_record(collection, record_id, data)
     if update_response.get('id'):
-        print('UPDATE', update_response.get('id'))
+        print('UPDATE',collection, update_response.get('id'))
         return
     if update_response['code'] in [400, 403]:
         print('Failed to update record', update_response.json())
@@ -64,7 +64,7 @@ def pb_upsert_record(collection:str, record_id:str, data:dict):
     
     # must be 404
     create_response = pb_create_record(collection, data)
-    print('CREATE', create_response.get('id'))
+    print('CREATE', collection, create_response.get('id'))
 
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@ NBA_SCHEDULE_URL = os.getenv('NBA_SCHEDULE_URL', 'https://cdn.nba.com/static/jso
 def update_matchups():
     matchups_json = requests.get(NBA_SCHEDULE_URL).json()
     matchups = parse_matchups(matchups_json)
-    for matchup in matchups[0:4]:
+    for matchup in matchups:
         common.pb_upsert_record('matchups', matchup['id'], matchup)
 
 def parse_matchups(raw_data):
