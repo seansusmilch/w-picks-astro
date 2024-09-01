@@ -18,7 +18,7 @@ def update_matchups():
     created = list(filter(lambda x: x.get('action') == 'CREATED', results))
     updated = list(filter(lambda x: x.get('action') == 'UPDATED', results))
     failed = list(filter(lambda x: x.get('action') == 'FAILED', results))
-    print(f'MATCHUPS\n\tCREATED: {len(created)} records\n\tUPDATED: {len(updated)} records\n\tFAILED: {len(failed)} records')
+    print(f'\nMATCHUPS\n\tCREATED: {len(created)} records\n\tUPDATED: {len(updated)} records\n\tFAILED: {len(failed)} records')
 
 def parse_matchups(raw_data):
     pastCutoff = datetime.now() - timedelta(days=PAST_CUTOFF)

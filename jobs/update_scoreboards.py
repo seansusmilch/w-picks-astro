@@ -15,7 +15,7 @@ def update_scoreboards():
     created = list(filter(lambda x: x.get('action') == 'CREATED', results))
     updated = list(filter(lambda x: x.get('action') == 'UPDATED', results))
     failed = list(filter(lambda x: x.get('action') == 'FAILED', results))
-    print(f'SCOREBOARDS\n\tCREATED: {len(created)} records\n\tUPDATED: {len(updated)} records\n\tFAILED: {len(failed)} records')
+    print(f'\nSCOREBOARDS\n\tCREATED: {len(created)} records\n\tUPDATED: {len(updated)} records\n\tFAILED: {len(failed)} records')
     
 def parse_scoreboards(raw_data):
     todays_scoreboards = raw_data['scoreboard']['games']
