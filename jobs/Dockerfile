@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir --upgrade -r /jobs/requirements.txt
 
 COPY . /jobs
 
-CMD ["fastapi", "run", "jobs/main.py", "--port", "80"]
+CMD ["fastapi", "run", "main.py", "--port", "80"]
