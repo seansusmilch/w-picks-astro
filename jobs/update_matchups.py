@@ -13,10 +13,12 @@ def update_matchups():
     results = []
     for matchup in matchups:
         results.append(common.pb_upsert_record('matchups', matchup['id'], matchup))
+        print('.', end='', flush=True)
     
     created = list(filter(lambda x: x.get('action') == 'CREATED', results))
     updated = list(filter(lambda x: x.get('action') == 'UPDATED', results))
-    print(f'MATCHUPS\n\tCREATED: {len(created)} records\n\tUPDATED: {len(updated)} records')
+    failed = list(filter(lambda x: x.get('action') == 'FAILED', results))
+    print(f'MATCHUPS\n\tCREATED: {len(created)} records\n\tUPDATED: {len(updated)} records\n\tFAILED: {len(failed)} records')
 
 def parse_matchups(raw_data):
     pastCutoff = datetime.now() - timedelta(days=PAST_CUTOFF)
