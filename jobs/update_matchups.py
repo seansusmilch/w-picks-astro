@@ -11,14 +11,15 @@ def update_matchups():
     matchups_json = requests.get(NBA_SCHEDULE_URL).json()
     matchups = parse_matchups(matchups_json)
     results = []
-    for matchup in matchups:
+    for idx, matchup in enumerate(matchups):
+        common.print_progress('Updating Matchups', idx, len(matchups))
         results.append(common.pb_upsert_record('matchups', matchup['id'], matchup))
-        print('.', end='', flush=True)
     
     created = list(filter(lambda x: x.get('action') == 'CREATED', results))
     updated = list(filter(lambda x: x.get('action') == 'UPDATED', results))
     failed = list(filter(lambda x: x.get('action') == 'FAILED', results))
     print(f'\nMATCHUPS\n\tCREATED: {len(created)} records\n\tUPDATED: {len(updated)} records\n\tFAILED: {len(failed)} records')
+    return {'created': len(created), 'updated': len(updated), 'failed': len(failed)}
 
 def parse_matchups(raw_data):
     pastCutoff = datetime.now() - timedelta(days=PAST_CUTOFF)

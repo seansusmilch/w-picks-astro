@@ -2,6 +2,7 @@ from datetime import datetime
 import requests
 import os
 import cachetools.func
+import time
 
 POCKETBASE_URL = os.getenv('POCKETBASE_URL')
 ADMIN_USER = os.getenv('ADMIN_USER')
@@ -15,6 +16,9 @@ def parse_date(date_str):
 def id_from_code(code):
     return code.replace('/', '-')
 
+def print_progress(prefix:str, done:int, total:int):
+    print(f'{prefix} - {done}/{total} ({done/total*100:.2f}%)', end='\r')
+
 @cachetools.func.ttl_cache(maxsize=1, ttl=10 * 60)
 def auth_pb():
     print('Authenticating with PocketBase')
@@ -24,16 +28,6 @@ def auth_pb():
         raise Exception('Failed to authenticate')
     
     return response.json()['token']
-
-def pb_get_record(collection, record_id):
-    token = auth_pb()
-    response = requests.get(
-        f'{POCKETBASE_URL}/api/collections/{collection}/records/{record_id}', 
-        headers={'Authorization': f'Bearer {token}'}, 
-        params={'filter': ''}
-        )
-    print(response.json())
-    return response.json()
 
 def pb_update_record(collection:str, record_id:str, data:dict):
     token = auth_pb()
@@ -72,4 +66,6 @@ def pb_upsert_record(collection:str, record_id:str, data:dict):
 
 
 if __name__ == '__main__':
-    pass
+    for idx, i in enumerate(range(300)):
+        print_progress('Poggers',idx, 300)
+        time.sleep(.1)
