@@ -4,6 +4,7 @@ import { Image } from 'astro:assets';
 import BrandLogo from '@/assets/brand/logo-hires-uncropped.webp';
 import { ThemeToggle } from './ThemeToggle';
 import { UserDropdown } from './UserDropdown';
+import { FeedbackDialog } from '@/components/Feedback/FeedbackDialog';
 
 const { pb, user } = Astro.locals;
 const isAuthed = pb.authStore.isValid;
@@ -53,6 +54,13 @@ const isAuthed = pb.authStore.isValid;
               )
             }
           </li>
+          {
+            isAuthed && (
+              <li>
+                <FeedbackDialog client:load />
+              </li>
+            )
+          }
           <li>
             <ThemeToggle client:load />
           </li>
