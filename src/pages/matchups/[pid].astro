@@ -8,9 +8,9 @@ import { PickTable } from '@/components/Picks/PickTable';
 import { getUserAvatarUrl } from '@/lib/data_common';
 
 const { pb, apb, user } = Astro.locals;
-const { id } = Astro.params;
+const { pid } = Astro.params;
 
-const matchupRaw = await pb.collection('matchups').getOne(id);
+const matchupRaw = await pb.collection('matchups').getOne(pid);
 if (!matchupRaw) return Astro.redirect('/404');
 
 const matchupResult = MatchupZ.safeParse(matchupRaw);

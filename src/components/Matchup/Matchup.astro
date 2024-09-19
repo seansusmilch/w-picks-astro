@@ -29,7 +29,10 @@ try {
   scoreboardParsed = scoreboardResult.data;
   gameStatus = scoreboardParsed.status;
 } catch (e) {
-  console.error('Error getting scoreboard:', e.message);
+  if (e.status === 404) {
+  } else {
+    console.error('Error getting scoreboard:', e);
+  }
 }
 ---
 

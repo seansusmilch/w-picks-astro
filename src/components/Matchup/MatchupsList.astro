@@ -1,0 +1,42 @@
+---
+import Matchup from '@/components/Matchup/Matchup.astro';
+import { Button } from '@/components/ui/button';
+
+const pb = Astro.locals.pb;
+const page = parseInt(Astro.params.page || '1');
+console.log('page:', Astro.params);
+const matchups = await pb
+  .collection('matchups')
+  .getList(page, 5, { sort: '+time_utc' });
+---
+
+<h1 class='text-4xl font-bold'>Matchups</h1>
+<div class='flex flex-col gap-2 max-w-md'>
+  {
+    matchups.items.map((matchup) => (
+      <a href={`/matchups/${matchup.id}`}>
+        <Matchup matchup={matchup} />
+      </a>
+    ))
+  }
+</div>
+<div class='flex flex-row justify-between gap-2 max-w-md p-4'>
+  <div>
+    {
+      matchups.page > 1 && (
+        <a href={`/matchups/page/${matchups.page - 1}`}>
+          <Button client:load>Prev</Button>
+        </a>
+      )
+    }
+  </div>
+  <div>
+    {
+      matchups.page < matchups.totalPages && (
+        <a href={`/matchups/page/${matchups.page + 1}`}>
+          <Button client:load>Next</Button>
+        </a>
+      )
+    }
+  </div>
+</div>

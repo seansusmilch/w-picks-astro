@@ -3,13 +3,33 @@ import Layout from '@/layouts/Layout.astro';
 import Matchup from '@/components/Matchup/Matchup.astro';
 
 const pb = Astro.locals.pb;
-console.warn('Today page: just getting all matchups rn');
-const matchups = await pb.collection('matchups').getFullList();
+
+const today = new Date();
+const todayStart = new Date(today.setHours(0, 0, 0, 0));
+const todayEnd = new Date(today.setHours(23, 59, 59, 999));
+
+let matchups = [];
+const matchupsRes = await pb.collection('matchups').getList(1, 30, {
+  filter: pb.filter('time_utc >= {:start} && time_utc <= {:end}', {
+    start: todayStart,
+    end: todayEnd,
+  }),
+  sort: 'time_utc',
+});
+matchups = matchupsRes.items;
 ---
 
 <Layout title='W Picks | Today'>
   <h1 class='text-4xl font-bold'>Today's Matchups</h1>
-  <div class='grid grid-cols-1 gap-2'>
-    {matchups.map((matchup) => <Matchup matchup={matchup} />)}
+  <div class='grid grid-cols-1 gap-2 max-w-md'>
+    {
+      matchups.length
+        ? matchups.map((matchup) => (
+            <a href={`/matchups/${matchup.id}`}>
+              <Matchup matchup={matchup} />
+            </a>
+          ))
+        : 'No matchups today'
+    }
   </div>
 </Layout>
