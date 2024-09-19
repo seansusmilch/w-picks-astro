@@ -1,6 +1,7 @@
 import { getPB, getAPB, getUser } from '@/lib/data';
 import { ADMIN_USER, ADMIN_PASSWORD } from 'astro:env/server';
-import { defineMiddleware } from 'astro/middleware';
+// @ts-ignore
+import { defineMiddleware } from 'astro:middleware';
 
 export const onRequest = defineMiddleware(async ({ locals, request }, next) => {
   locals.pb = getPB();

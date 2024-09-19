@@ -1,4 +1,9 @@
 export const TeamMap = {
+  NBA: {
+    name_short: 'NBA',
+    logo: 'https://a4.espncdn.com/combiner/i?img=%2Fi%2Fespn%2Fmisc_logos%2F500%2Fnba.png',
+    name_full: 'National Basketball Association',
+  },
   BOS: {
     name_short: 'Celtics',
     logo: 'https://cdn.nba.com/logos/nba/1610612738/primary/L/logo.svg',
