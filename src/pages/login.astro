@@ -65,7 +65,6 @@ if (Astro.request.method === 'POST') {
     const authData = await pb
       .collection('users')
       .authWithPassword(email, password);
-    console.log('Auth Data', authData);
   } catch (e) {
     console.log('Login error:', e.message);
     return new Response(
