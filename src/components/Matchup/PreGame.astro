@@ -19,13 +19,13 @@ console.log('Rendering pregame');
 ---
 
 <div class='basis-5/12 flex flex-col text-center'>
-  <Logo tricode={away_code} className='h-20 sm:h-24' />
+  <Logo tricode={away_code} className='h-20 sm:h-24' client:load />
   <p class='sm:text-xl font-bold'>{awayTeamShort}</p>
 </div>
 <div class='basis-2/12 flex flex-col items-center justify-center text-center'>
   <TimeTooltip time={gameTime} client:load />
 </div>
 <div class='basis-5/12 flex flex-col items-center text-center'>
-  <Logo tricode={home_code} className='h-20 sm:h-24' />
+  <Logo tricode={home_code} className='h-20 sm:h-24' client:load />
   <p class='sm:text-xl font-bold'>{homeTeamShort}</p>
 </div>
