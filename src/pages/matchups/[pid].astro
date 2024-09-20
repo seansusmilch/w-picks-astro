@@ -37,8 +37,6 @@ const picksResults = picksResponse.items.map((p) => {
   return p;
 });
 
-console.log('picksResults:', JSON.stringify(picksResults, null, 4));
-
 let userPick = null;
 if (user) {
   const userPickRaw = picksResults.find((p) => p.user === user.record.id);

@@ -11,10 +11,6 @@ interface Props {
 }
 
 const { user, picks } = Astro.props;
-console.log(
-  'Is user the same as Astro.locals.user?',
-  user.id === Astro.locals.user?.record.id
-);
 ---
 
 <div class='flex flex-col items-center gap-4' transition:animate='fade'>

@@ -7,12 +7,10 @@ import type { UserType } from '@/lib/definitions';
 const { pb } = Astro.locals;
 const { username } = Astro.params;
 
-console.log(username);
-
 const user: UserType & { avatar_url: string } = await pb
   .collection('users')
   .getFirstListItem(`username="${username}"`);
-console.log(user);
+
 user.avatar_url = getUserAvatarUrl(user.id, user.avatar);
 const picks = await pb
   .collection('picks')
