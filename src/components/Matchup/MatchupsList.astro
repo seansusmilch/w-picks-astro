@@ -8,6 +8,8 @@ const page = parseInt(Astro.params.page || '1');
 const matchups = await pb
   .collection('matchups')
   .getList(page, 5, { sort: '+time_utc' });
+
+console.log('Rendering matchups list', matchups);
 ---
 
 <h1 class='text-4xl font-bold'>Matchups</h1>
