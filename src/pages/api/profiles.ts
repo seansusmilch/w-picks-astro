@@ -3,6 +3,7 @@ import { getUser, getPB, getAPB } from '@/lib/data';
 
 export const POST: APIRoute = async ({ request }) => {
   const pb = getPB();
+  const apb = getAPB();
   if (!pb.authStore.isValid) {
     return new Response(
       JSON.stringify({ success: false, error: 'Unauthorized' }),
@@ -24,6 +25,6 @@ export const POST: APIRoute = async ({ request }) => {
     if (data[key] === null) delete data[key];
   });
 
-  const updatedUser = pb.collection('users').update(user.record.id, data);
+  const updatedUser = apb.collection('users').update(user.record.id, data);
   return new Response(JSON.stringify({ success: true, user: updatedUser }));
 };
