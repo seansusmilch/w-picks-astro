@@ -17,7 +17,7 @@ interface Props {
 const { error } = Astro.props;
 
 const message = error instanceof Error ? error.message : 'Unknown error';
-console.error('500 Page Error:', error);
+// console.error('500 Page Error:', error);
 
 const selectedEmoji = emojis[Math.floor(Math.random() * emojis.length)];
 ---
