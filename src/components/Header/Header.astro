@@ -54,14 +54,8 @@ const isAuthed = pb.authStore.isValid;
               )
             }
           </li>
-          {
-            isAuthed && (
-              <li>
-                <FeedbackDialog client:load />
-              </li>
-            )
-          }
-          <li>
+          <li class='flex gap-4 justify-end'>
+            {isAuthed && <FeedbackDialog client:load />}
             <ThemeToggle client:load />
           </li>
         </ul>
