@@ -1,29 +1,33 @@
 ---
 import Matchup from '@/components/Matchup/Matchup.astro';
 import { PaginateControls } from './PaginateControls';
+import type { MatchupType } from '@/lib/definitions';
 
 interface Props {
-  page: number;
+  matchups: MatchupType[];
+  page?: number;
+  totalPages?: number;
 }
 
-const { page } = Astro.props;
-const { pb } = Astro.locals;
-
-const matchups = await pb
-  .collection('matchups')
-  .getList(page, 5, { sort: '+time_utc' });
+const { matchups, page, totalPages } = Astro.props;
 ---
 
 <h1 class='text-4xl font-bold'>Matchups</h1>
-<div class='flex flex-col gap-2 max-w-md'>
+<div class='flex flex-col items-start'>
+  <div class='flex flex-col gap-2 w-full max-w-md'>
+    {
+      matchups.map((matchup) => (
+        <a href={`/matchups/${matchup.id}`}>
+          <Matchup matchup={matchup} />
+        </a>
+      ))
+    }
+  </div>
   {
-    matchups.items.map((matchup) => (
-      <a href={`/matchups/${matchup.id}`}>
-        <Matchup matchup={matchup} />
-      </a>
-    ))
+    page && totalPages && (
+      <div class='flex flex-row justify-between gap-2 w-full max-w-md py-4'>
+        <PaginateControls page={page} totalPages={totalPages} />
+      </div>
+    )
   }
-</div>
-<div class='flex flex-row justify-between gap-2 max-w-md py-4'>
-  <PaginateControls page={matchups.page} totalPages={matchups.totalPages} />
 </div>

@@ -1,6 +1,8 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import Matchup from '@/components/Matchup/Matchup.astro';
+import { Button } from '@/components/ui/button';
+import MatchupsList from '@/components/Matchup/MatchupsList.astro';
 
 const pb = Astro.locals.pb;
 
@@ -23,13 +25,16 @@ matchups = matchupsRes.items;
   <h1 class='text-4xl font-bold'>Today's Matchups</h1>
   <div class='grid grid-cols-1 gap-2 max-w-md'>
     {
-      matchups.length
-        ? matchups.map((matchup) => (
-            <a href={`/matchups/${matchup.id}`}>
-              <Matchup matchup={matchup} />
-            </a>
-          ))
-        : 'No matchups today'
+      matchups.length ? (
+        <MatchupsList matchups={matchups} />
+      ) : (
+        <>
+          <p class='py-8'>No matchups today</p>
+          <a href='/matchups'>
+            <Button className='w-full'>View all matchups</Button>
+          </a>
+        </>
+      )
     }
   </div>
 </Layout>

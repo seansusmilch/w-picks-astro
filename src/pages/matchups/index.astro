@@ -2,9 +2,18 @@
 import Layout from '@/layouts/Layout.astro';
 import MatchupsList from '@/components/Matchup/MatchupsList.astro';
 
-const page = Astro.url.searchParams.get('page') || '1';
+const page = parseInt(Astro.url.searchParams.get('page') || '1');
+const { pb } = Astro.locals;
+
+const matchups = await pb
+  .collection('matchups')
+  .getList(page, 10, { sort: '+time_utc' });
 ---
 
 <Layout title='Matchups'>
-  <MatchupsList page={parseInt(page)} />
+  <MatchupsList
+    matchups={matchups.items}
+    page={matchups.page}
+    totalPages={matchups.totalPages}
+  />
 </Layout>
