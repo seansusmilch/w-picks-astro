@@ -1,8 +1,10 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import MatchupsList from '@/components/Matchup/MatchupsList.astro';
+
+const page = Astro.url.searchParams.get('page') || '1';
 ---
 
 <Layout title='Matchups'>
-  <MatchupsList page={1} />
+  <MatchupsList page={parseInt(page)} />
 </Layout>

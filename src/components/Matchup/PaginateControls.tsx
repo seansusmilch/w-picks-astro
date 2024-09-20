@@ -20,7 +20,7 @@ export function PaginateControls({
       <PaginationContent className='w-full flex justify-between'>
         <PaginationItem>
           <PaginationPrevious
-            href={`/matchups/page/${page > 1 ? page - 1 : 1}`}
+            href={`/matchups?page=${page > 1 ? page - 1 : 1}`}
           />
         </PaginationItem>
         <PaginationItem>
@@ -28,7 +28,7 @@ export function PaginateControls({
         </PaginationItem>
         <PaginationItem>
           <PaginationNext
-            href={`/matchups/page/${page < totalPages ? page + 1 : totalPages}`}
+            href={`/matchups?page=${page < totalPages ? page + 1 : totalPages}`}
           />
         </PaginationItem>
       </PaginationContent>
