@@ -21,7 +21,7 @@ if (Astro.request.method === 'POST') {
   });
 
   if (!formDataParsed.success) {
-    console.log('Form data is invalid:', formDataParsed.error);
+    console.error('Form data is invalid:', formDataParsed.error);
     return new Response(
       JSON.stringify({
         error: formDataParsed.error.errors.map((i) => i.message).join(' '),
@@ -51,7 +51,7 @@ if (Astro.request.method === 'POST') {
       await pb.collection('users').requestVerification(email);
       return Astro.redirect('/login?confirm=true');
     } catch (e) {
-      console.log('Signup error:', e.message);
+      console.error('Signup error:', e.message);
       return new Response(JSON.stringify({ error: e.message }), {
         status: 400,
         headers: {
@@ -66,7 +66,7 @@ if (Astro.request.method === 'POST') {
       .collection('users')
       .authWithPassword(email, password);
   } catch (e) {
-    console.log('Login error:', e.message);
+    console.error('Login error:', e.message);
     return new Response(
       JSON.stringify({ error: 'Invalid email or password' }),
       {

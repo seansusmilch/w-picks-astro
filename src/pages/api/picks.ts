@@ -95,7 +95,7 @@ export const DELETE: APIRoute = async ({ request }) => {
 
   const pickId = pickIdZ.safeParse(formData.get('pick_id'));
   if (!pickId.success) {
-    console.log('Invalid pick ID:', pickId.error);
+    console.error('Invalid pick ID:', pickId.error);
     return new Response(
       JSON.stringify({
         success: false,

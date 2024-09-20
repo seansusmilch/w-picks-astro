@@ -12,8 +12,6 @@ const { pb } = Astro.locals;
 const matchups = await pb
   .collection('matchups')
   .getList(page, 5, { sort: '+time_utc' });
-
-console.log('Rendering matchups list');
 ---
 
 <h1 class='text-4xl font-bold'>Matchups</h1>
