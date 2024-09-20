@@ -2,8 +2,13 @@
 import Matchup from '@/components/Matchup/Matchup.astro';
 import { PaginateControls } from './PaginateControls';
 
+interface Props {
+  page: number;
+}
+
+const { page } = Astro.props;
+
 const pb = Astro.locals.pb;
-const page = parseInt(Astro.params.page || '1');
 
 const matchups = await pb
   .collection('matchups')
