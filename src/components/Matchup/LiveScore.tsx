@@ -29,6 +29,8 @@ export function LiveScore({
     status: status,
   });
 
+  console.log('Rendering LiveScore');
+
   const awayTeamShort = TeamMap[away_code]?.name_short || away_code;
   const homeTeamShort = TeamMap[home_code]?.name_short || home_code;
 

@@ -14,6 +14,8 @@ const { away_code, home_code, time_utc } = Astro.props;
 const gameTime = new Date(Date.parse(time_utc.replace(' ', 'T')));
 const homeTeamShort = TeamMap[home_code]?.name_short || home_code;
 const awayTeamShort = TeamMap[away_code]?.name_short || away_code;
+
+console.log('Rendering pregame');
 ---
 
 <div class='basis-5/12 flex flex-col text-center'>
