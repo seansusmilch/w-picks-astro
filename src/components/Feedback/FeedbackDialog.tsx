@@ -11,8 +11,15 @@ import {
 import { FeedbackForm } from './FeedbackForm';
 import { ChatBubbleOvalLeftIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
+import { useRef } from 'react';
 
 export function FeedbackDialog() {
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+  const closeDialog = () => {
+    closeBtnRef.current?.click();
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -29,7 +36,7 @@ export function FeedbackDialog() {
           </DialogDescription>
         </DialogHeader>
         <main>
-          <FeedbackForm />
+          <FeedbackForm onSubmit={closeDialog} />
         </main>
         <DialogFooter>
           <Button
@@ -40,6 +47,7 @@ export function FeedbackDialog() {
             Submit
           </Button>
         </DialogFooter>
+        <DialogClose className='hidden' ref={closeBtnRef} />
       </DialogContent>
     </Dialog>
   );

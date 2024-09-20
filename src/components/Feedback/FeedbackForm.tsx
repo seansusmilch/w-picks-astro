@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { getPB } from '@/lib/data_client';
 
-export function FeedbackForm() {
+export function FeedbackForm({ onSubmit }: { onSubmit?: () => void }) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e) => {
@@ -21,7 +21,10 @@ export function FeedbackForm() {
 
     pb.collection('feedback')
       .create(data)
-      .then(() => setLoading(false));
+      .then(() => {
+        setLoading(false);
+        onSubmit?.();
+      });
   };
 
   return (
