@@ -11,6 +11,7 @@ export default defineConfig({
     mode: 'standalone',
   }),
   integrations: [tailwind({ applyBaseStyles: true }), react()],
+  compressHTML: false,
   experimental: {
     serverIslands: true,
     env: {
@@ -32,6 +33,11 @@ export default defineConfig({
           access: 'secret',
         }),
       },
+    },
+  },
+  vite: {
+    build: {
+      minify: false,
     },
   },
 });
