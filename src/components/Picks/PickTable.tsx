@@ -91,7 +91,11 @@ export function PickTable({
 function AwayPick({ pick }: { pick: RecordModel }) {
   return (
     <div className='flex flex-row p-1 gap-2 border border-l-0'>
-      <UserAvatar avatar_url={pick.expand.user.avatar_url} className='w-1/5' />
+      <div className='w-1/5'>
+        <a href={`/profile/${pick.expand.user.username}`}>
+          <UserAvatar avatar_url={pick.expand.user.avatar_url} />
+        </a>
+      </div>
       <div className='w-4/5 flex flex-col'>
         <a
           className='hover:underline'
@@ -117,7 +121,11 @@ function HomePick({ pick }: { pick: RecordModel }) {
         </a>
         <p className='text-sm break-words'>{pick.comment}</p>
       </div>
-      <UserAvatar avatar_url={pick.expand.user.avatar_url} className='w-1/5' />
+      <div className='w-1/5'>
+        <a href={`/profile/${pick.expand.user.username}`}>
+          <UserAvatar avatar_url={pick.expand.user.avatar_url} />
+        </a>
+      </div>
     </div>
   );
 }

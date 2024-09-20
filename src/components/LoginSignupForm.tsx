@@ -1,6 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import clsx from 'clsx';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export function LoginSignupForm({ confirm }: { confirm: boolean }) {
   const [loading, setLoading] = useState(false);
@@ -57,19 +59,12 @@ export function LoginSignupForm({ confirm }: { confirm: boolean }) {
         <TabsContent value='login'>
           <div className='flex flex-col max-w-lg gap-4'>
             <div className='flex flex-col text-lg'>
-              <label>Email</label>
-              <input
-                className='p-2 bg-muted rounded-md'
-                type='email'
-                name='email'
-                disabled={loading}
-                required
-              />
+              <label htmlFor='email'>Email</label>
+              <Input type='email' name='email' disabled={loading} required />
             </div>
             <div className='flex flex-col text-lg'>
-              <label>Password</label>
-              <input
-                className='p-2 bg-muted rounded-md'
+              <label htmlFor='password'>Password</label>
+              <Input
                 type='password'
                 name='password'
                 disabled={loading}
@@ -81,20 +76,13 @@ export function LoginSignupForm({ confirm }: { confirm: boolean }) {
         <TabsContent value='signup'>
           <div className='flex flex-col max-w-lg gap-4'>
             <div className='flex flex-col text-lg'>
-              <label>Email</label>
-              <input
-                className='p-2 bg-muted rounded-md'
-                type='email'
-                name='email'
-                disabled={loading}
-                required
-              />
+              <label htmlFor='email'>Email</label>
+              <Input type='email' name='email' disabled={loading} required />
             </div>
 
             <div className='flex flex-col text-lg'>
-              <label>Password</label>
-              <input
-                className='p-2 bg-muted rounded-md'
+              <label htmlFor='password'>Password</label>
+              <Input
                 type='password'
                 name='password'
                 disabled={loading}
@@ -103,9 +91,8 @@ export function LoginSignupForm({ confirm }: { confirm: boolean }) {
             </div>
 
             <div className='flex flex-col text-lg'>
-              <label>Confirm Password</label>
-              <input
-                className='p-2 bg-muted rounded-md'
+              <label htmlFor='confirm_password'>Confirm Password</label>
+              <Input
                 type='password'
                 name='confirm_password'
                 disabled={loading}
@@ -122,15 +109,9 @@ export function LoginSignupForm({ confirm }: { confirm: boolean }) {
         </div>
       )}
       <div className='pt-4 flex flex-row justify-end'>
-        <button
-          disabled={loading}
-          className={clsx(
-            'p-2 bg-blue-500 text-white rounded-lg max-w-fit hover:bg-blue-700 transition-colors',
-            loading && 'opacity-70'
-          )}
-        >
-          Submit
-        </button>
+        <Button className='font-bold' type='submit'>
+          Let's Goooo
+        </Button>
       </div>
     </form>
   );
