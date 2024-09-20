@@ -21,7 +21,7 @@ if (!matchupResult.success) {
 const matchup = matchupResult.data;
 
 const { away_code, home_code } = matchupResult.data;
-const title = `${TeamMap[away_code].name_short} at ${TeamMap[home_code].name_short}`;
+const title = `${TeamMap[away_code]?.name_short || away_code} at ${TeamMap[home_code]?.name_short || home_code}`;
 
 const picksResponse = await apb.collection('picks').getList(1, 30, {
   filter: pb.filter('matchup = {:id}', { id: matchup.id }),

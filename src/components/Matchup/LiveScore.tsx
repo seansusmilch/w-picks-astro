@@ -29,8 +29,8 @@ export function LiveScore({
     status: status,
   });
 
-  const awayTeamShort = TeamMap[away_code].name_short;
-  const homeTeamShort = TeamMap[home_code].name_short;
+  const awayTeamShort = TeamMap[away_code]?.name_short || away_code;
+  const homeTeamShort = TeamMap[home_code]?.name_short || home_code;
 
   useEffect(() => {
     const pb = getPB();
