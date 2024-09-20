@@ -1,6 +1,6 @@
 ---
 import Matchup from '@/components/Matchup/Matchup.astro';
-import { Button } from '@/components/ui/button';
+import { PaginateControls } from './PaginateControls';
 
 const pb = Astro.locals.pb;
 const page = parseInt(Astro.params.page || '1');
@@ -21,22 +21,5 @@ const matchups = await pb
   }
 </div>
 <div class='flex flex-row justify-between gap-2 max-w-md py-4'>
-  <div>
-    {
-      matchups.page > 1 && (
-        <a href={`/matchups/page/${matchups.page - 1}`}>
-          <Button client:load>Prev</Button>
-        </a>
-      )
-    }
-  </div>
-  <div>
-    {
-      matchups.page < matchups.totalPages && (
-        <a href={`/matchups/page/${matchups.page + 1}`}>
-          <Button client:load>Next</Button>
-        </a>
-      )
-    }
-  </div>
+  <PaginateControls page={matchups.page} totalPages={matchups.totalPages} />
 </div>
