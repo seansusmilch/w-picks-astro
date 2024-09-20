@@ -1,7 +1,7 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect, useRef } from 'react';
+import { UserAvatar } from '../UserAvatar';
 
 export function AvatarSection({ user }: { user: any }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -25,10 +25,7 @@ export function AvatarSection({ user }: { user: any }) {
 
   return (
     <div className='flex flex-row gap-4'>
-      <Avatar className='h-52 w-52'>
-        <AvatarImage src={avatar} />
-        <AvatarFallback>?</AvatarFallback>
-      </Avatar>
+      <UserAvatar className='h-20 w-20 lg:h-36 lg:w-36' avatar_url={avatar} />
       <form action='POST' onSubmit={handleSubmit}>
         <div className='flex flex-col gap-4'>
           <p className='text-lg'>Change Avatar</p>
@@ -36,7 +33,7 @@ export function AvatarSection({ user }: { user: any }) {
             ref={inputRef}
             name='avatar'
             type='file'
-            className='w-64 file:text-foreground'
+            className='max-w-64 file:text-foreground'
             accept={['image/png', 'image/jpeg', 'image/gif', 'image/webp'].join(
               ','
             )}

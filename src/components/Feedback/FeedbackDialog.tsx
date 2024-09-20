@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 export function FeedbackDialog() {
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button variant='outline' size='icon' className='hover:text-pink-400'>
           <ChatBubbleOvalLeftIcon className='h-[1.2rem] w-[1.2rem]' />
           <span className='sr-only'>Open feedback dialog</span>

@@ -13,6 +13,17 @@ export const POST: APIRoute = async ({ request }) => {
   const user = await getUser();
   const formData = await request.formData();
 
-  pb.collection('users').update(user.record.id, formData);
-  return new Response(JSON.stringify({ success: true }));
+  const data = {
+    username: formData.get('username'),
+    bio: formData.get('bio'),
+    avatar: formData.get('avatar'),
+  };
+
+  // Remove null values to avoid updating with empty values
+  Object.keys(data).forEach((key) => {
+    if (data[key] === null) delete data[key];
+  });
+
+  const updatedUser = pb.collection('users').update(user.record.id, data);
+  return new Response(JSON.stringify({ success: true, user: updatedUser }));
 };
