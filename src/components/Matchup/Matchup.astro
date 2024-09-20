@@ -6,6 +6,7 @@ import { MatchupZ, ScoreboardZ } from '@/lib/definitions';
 import { getPB } from '@/lib/data';
 
 const { matchup } = Astro.props;
+console.log('Rendering matchup', matchup);
 const matchupResult = MatchupZ.safeParse(matchup);
 if (!matchupResult.success) {
   console.error('Invalid matchup data:', matchupResult.error);
