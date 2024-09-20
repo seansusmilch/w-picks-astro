@@ -1,5 +1,15 @@
 import { z } from 'astro/zod';
 
+export const UserZ = z.object({
+  id: z.string().length(15),
+  email: z.string().email(),
+  username: z.string(),
+  avatar: z.string().url(),
+  bio: z.string(),
+});
+
+export type UserType = z.infer<typeof UserZ>;
+
 export const MatchupZ = z.object({
   id: z.string().length(15),
   code: z.string().length(15),

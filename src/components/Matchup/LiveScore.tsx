@@ -34,20 +34,22 @@ export function LiveScore({
 
   useEffect(() => {
     const pb = getPB();
-    pb.collection('scoreboards').subscribe(id, (data) => {
-      const scoreboardResult = ScoreboardZ.safeParse(data.record);
-      if (!scoreboardResult.success) {
-        console.error('Failed to parse scoreboard', scoreboardResult.error);
-        return;
-      }
-      const board = scoreboardResult.data;
-      setLiveScore({
-        away_score: board.away_score,
-        home_score: board.home_score,
-        status_text: board.status_text,
-        status: board.status,
-      });
-    });
+    pb.collection('scoreboards')
+      .subscribe(id, (data) => {
+        const scoreboardResult = ScoreboardZ.safeParse(data.record);
+        if (!scoreboardResult.success) {
+          console.error('Failed to parse scoreboard', scoreboardResult.error);
+          return;
+        }
+        const board = scoreboardResult.data;
+        setLiveScore({
+          away_score: board.away_score,
+          home_score: board.home_score,
+          status_text: board.status_text,
+          status: board.status,
+        });
+      })
+      .catch((err) => console.log('Error subscribing to scoreboard', err));
 
     return () => {
       pb.collection('scoreboards').unsubscribe(id);

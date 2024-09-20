@@ -9,7 +9,7 @@ export function UserAvatar({
   className?: string;
 }) {
   return (
-    <Avatar className={clsx(className)}>
+    <Avatar className={clsx('border', className)}>
       <AvatarImage alt='User avatar' src={avatar_url} />
       <AvatarFallback>?</AvatarFallback>
     </Avatar>

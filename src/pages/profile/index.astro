@@ -1,10 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { getUserAvatarUrl } from '@/lib/data_common';
-import { UserAvatar } from '@/components/Profile/UserAvatar';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { UserPicksTable } from '@/components/Profile/UserPicksTable';
+import ProfileView from '@/components/Profile/ProfileView.astro';
 
 const { user, pb } = Astro.locals;
 user.record.avatar_url = getUserAvatarUrl(user.record.id, user.record.avatar);
@@ -14,64 +11,5 @@ const picks = await pb
 ---
 
 <Layout title='Profile'>
-  <div class='flex flex-col items-center gap-4'>
-    <div
-      class='flex flex-col w-full max-w-md lg:max-w-xl border rounded-lg shadow-lg p-4 gap-4'
-    >
-      <div class='flex flex-row gap-6'>
-        <UserAvatar
-          client:load
-          className='h-20 w-20 lg:h-36 lg:w-36'
-          avatar_url={user.record.avatar_url}
-        />
-        <div class='flex flex-col items-start gap-4 w-full'>
-          <div class='flex flex-row justify-between w-full'>
-            <h1
-              class='text-2xl font-bold bg-gradient-to-r from-cyan-500 to-purple-500 inline-block text-transparent bg-clip-text'
-            >
-              @{user.record.username}
-            </h1>
-            <a class='hidden lg:flex' href='/profile/edit'>
-              <Button client:load>Edit Profile</Button>
-            </a>
-          </div>
-          <pre
-            class='text-xs lg:text-md text-gray-500 break-words max-w-60 lg:max-w-96 overflow-clip'
-            set:text={user.record.bio}
-          />
-        </div>
-      </div>
-      <a class='w-full lg:hidden' href='/profile/edit'>
-        <Button client:load className='w-full'>Edit Profile</Button>
-      </a>
-    </div>
-
-    <div
-      class='flex flex-col w-full max-w-md lg:max-w-xl border rounded-lg shadow-lg p-4 gap-4'
-    >
-      <h2 class='text-xl font-bold'>User Stats</h2>
-      <div class='flex flex-row justify-around'>
-        <div class='flex flex-col items-center'>
-          <span class='text-3xl font-bold'>42</span>
-          <span class='text-sm'>W Picks</span>
-        </div>
-        <div class='flex flex-col items-center'>
-          <span class='text-3xl font-bold'>128</span>
-          <span class='text-sm'>L Picks</span>
-        </div>
-        <div class='flex flex-col items-center'>
-          <span class='text-3xl font-bold'>{42 / 128}</span>
-          <span class='text-sm'>W/L Ratio</span>
-        </div>
-      </div>
-      <Progress client:load className='w-full' value={76} max={100} />
-    </div>
-
-    <div
-      class='flex flex-col w-full max-w-md lg:max-w-xl border rounded-lg shadow-lg p-4 gap-4'
-    >
-      <h2 class='text-xl font-bold'>Pick History</h2>
-      <UserPicksTable picks={picks.items} client:load />
-    </div>
-  </div>
+  <ProfileView user={user.record} picks={picks.items} />
 </Layout>

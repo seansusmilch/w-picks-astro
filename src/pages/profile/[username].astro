@@ -1,3 +1,24 @@
 ---
+import Layout from '@/layouts/Layout.astro';
+import { getUserAvatarUrl } from '@/lib/data_common';
+import ProfileView from '@/components/Profile/ProfileView.astro';
+import type { UserType } from '@/lib/definitions';
 
+const { pb } = Astro.locals;
+const { username } = Astro.params;
+
+console.log(username);
+
+const user: UserType & { avatar_url: string } = await pb
+  .collection('users')
+  .getFirstListItem(`username="${username}"`);
+console.log(user);
+user.avatar_url = getUserAvatarUrl(user.id, user.avatar);
+const picks = await pb
+  .collection('picks')
+  .getList(1, 50, { user_id: user.id, sort: 'updated' });
 ---
+
+<Layout title='Profile'>
+  <ProfileView user={user} picks={picks.items} />
+</Layout>

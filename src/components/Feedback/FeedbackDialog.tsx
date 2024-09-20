@@ -23,7 +23,7 @@ export function FeedbackDialog() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className='text-2xl'>Feedback</DialogTitle>
+          <DialogTitle className='text-2xl'>💌Feedback</DialogTitle>
           <DialogDescription>
             Let me know what can be improved!
           </DialogDescription>

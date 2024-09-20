@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 
 const pb = Astro.locals.pb;
 const page = parseInt(Astro.params.page || '1');
-console.log('page:', Astro.params);
+
 const matchups = await pb
   .collection('matchups')
   .getList(page, 5, { sort: '+time_utc' });
@@ -20,7 +20,7 @@ const matchups = await pb
     ))
   }
 </div>
-<div class='flex flex-row justify-between gap-2 max-w-md p-4'>
+<div class='flex flex-row justify-between gap-2 max-w-md py-4'>
   <div>
     {
       matchups.page > 1 && (

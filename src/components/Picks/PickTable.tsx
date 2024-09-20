@@ -6,6 +6,7 @@ import type { ListResult, RecordModel } from 'pocketbase';
 import { useState, useEffect } from 'react';
 import { getPB } from '@/lib/data_client';
 import { getUserAvatarUrl } from '@/lib/data_common';
+import { UserAvatar } from '@/components/Profile/UserAvatar';
 
 export function PickTable({
   matchup,
@@ -90,12 +91,14 @@ export function PickTable({
 function AwayPick({ pick }: { pick: RecordModel }) {
   return (
     <div className='flex flex-row p-1 gap-2 border border-l-0'>
-      <Avatar className='w-1/5'>
-        <AvatarImage src={pick.expand.user.avatar_url} />
-        <AvatarFallback>?</AvatarFallback>
-      </Avatar>
+      <UserAvatar avatar_url={pick.expand.user.avatar_url} className='w-1/5' />
       <div className='w-4/5 flex flex-col'>
-        <p className='text-xs font-semibold'>@{pick.expand.user.username}</p>
+        <a
+          className='hover:underline'
+          href={`/profile/${pick.expand.user.username}`}
+        >
+          <p className='text-xs font-semibold'>@{pick.expand.user.username}</p>
+        </a>
         <p className='text-sm break-words pr-2'>{pick.comment}</p>
       </div>
     </div>
@@ -106,13 +109,15 @@ function HomePick({ pick }: { pick: RecordModel }) {
   return (
     <div className='flex flex-row border border-r-0 p-1'>
       <div className='w-4/5 flex flex-col'>
-        <p className='text-xs font-semibold'>@{pick.expand.user.username}</p>
+        <a
+          className='hover:underline'
+          href={`/profile/${pick.expand.user.username}`}
+        >
+          <p className='text-xs font-semibold'>@{pick.expand.user.username}</p>
+        </a>
         <p className='text-sm break-words'>{pick.comment}</p>
       </div>
-      <Avatar className='w-1/5'>
-        <AvatarImage src={pick.expand.user.avatar_url} />
-        <AvatarFallback>?</AvatarFallback>
-      </Avatar>
+      <UserAvatar avatar_url={pick.expand.user.avatar_url} className='w-1/5' />
     </div>
   );
 }

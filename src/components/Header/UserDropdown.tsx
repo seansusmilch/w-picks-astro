@@ -21,11 +21,15 @@ export function UserDropdown({ user }: { user: any }) {
       <DropdownMenuContent>
         <DropdownMenuLabel className='text-md'>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className='text-md'>
-          <a href='/profile'>Profile</a>
+        <DropdownMenuItem asChild>
+          <a className='text-md' href='/profile'>
+            Profile
+          </a>
         </DropdownMenuItem>
-        <DropdownMenuItem className='text-md'>
-          <a href='/logout'>Logout</a>
+        <DropdownMenuItem asChild>
+          <a className='text-md' href='/logout'>
+            Logout
+          </a>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
