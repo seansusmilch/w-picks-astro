@@ -4,6 +4,10 @@ import MatchupsList from '@/components/Matchup/MatchupsList.astro';
 
 const page = parseInt(Astro.url.searchParams.get('page') || '1');
 const { pb } = Astro.locals;
+const isAuthed = pb.authStore.isValid;
+if (!isAuthed) {
+  throw new Error('Please login to view matchups');
+}
 
 const matchups = await pb
   .collection('matchups')
@@ -11,9 +15,23 @@ const matchups = await pb
 ---
 
 <Layout title='Matchups'>
-  <MatchupsList
-    matchups={matchups.items}
-    page={matchups.page}
-    totalPages={matchups.totalPages}
-  />
+  {
+    isAuthed ? (
+      <MatchupsList
+        matchups={matchups.items}
+        page={matchups.page}
+        totalPages={matchups.totalPages}
+      />
+    ) : (
+      <div class='flex flex-col items-center justify-center h-[80vh]'>
+        <h1 class='text-4xl font-bold'>Login to view matchups</h1>
+        <a
+          href='/login'
+          class='hover:underline text-2xl font-bold text-primary'
+        >
+          Login
+        </a>
+      </div>
+    )
+  }
 </Layout>
