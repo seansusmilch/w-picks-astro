@@ -8,29 +8,34 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 
+type PageEntry = {
+  title: string;
+  href: string;
+};
+
 export function PaginateControls({
   page,
-  totalPages,
+  nextPage,
+  prevPage,
 }: {
-  page: number;
-  totalPages: number;
+  page: PageEntry;
+  nextPage: PageEntry;
+  prevPage: PageEntry;
 }) {
   return (
     <Pagination>
-      <PaginationContent className='w-full flex justify-between'>
-        <PaginationItem>
-          <PaginationPrevious
-            href={`/matchups?page=${page > 1 ? page - 1 : 1}`}
-          />
-        </PaginationItem>
-        <PaginationItem>
-          {page}/{totalPages}
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationNext
-            href={`/matchups?page=${page < totalPages ? page + 1 : totalPages}`}
-          />
-        </PaginationItem>
+      <PaginationContent className='w-full'>
+        <div className='w-full grid grid-cols-3 justify-items-stretch'>
+          <PaginationItem className='justify-self-start'>
+            <PaginationPrevious href={prevPage.href} />
+          </PaginationItem>
+          <PaginationItem className='justify-self-center inline-flex items-center'>
+            {page.title}
+          </PaginationItem>
+          <PaginationItem className='justify-self-end'>
+            <PaginationNext href={nextPage.href} />
+          </PaginationItem>
+        </div>
       </PaginationContent>
     </Pagination>
   );

@@ -1,37 +1,62 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import MatchupsList from '@/components/Matchup/MatchupsList.astro';
+import { getCodePrefixFromDate } from '@/lib/data_common';
+import { PaginateControls } from '@/components/Matchup/PaginateControls';
+import moment from 'moment';
 
-const page = parseInt(Astro.url.searchParams.get('page') || '1');
+const page = Astro.url.searchParams.get('page');
 const { pb } = Astro.locals;
 const isAuthed = pb.authStore.isValid;
 if (!isAuthed) {
   throw new Error('Please login to view matchups');
 }
 
-const matchups = await pb
+const allMatchups = await pb
   .collection('matchups')
-  .getList(page, 10, { sort: '+time_utc' });
+  .getFullList({ fields: 'id,code', sort: 'time_utc' });
+
+const matchupsByCodePrefix = {};
+for (const m of allMatchups) {
+  const codePrefix = m.code.split('/')[0];
+  if (!matchupsByCodePrefix[codePrefix]) {
+    matchupsByCodePrefix[codePrefix] = [];
+  }
+  matchupsByCodePrefix[codePrefix].push(m.id);
+}
+
+// ascending order
+const sortedKeys = Object.keys(matchupsByCodePrefix).sort();
+
+const givenKey = page || getCodePrefixFromDate(new Date());
+let currentKey = sortedKeys.find((key) => key === givenKey);
+if (!currentKey) {
+  // find the closest key after the given key
+  currentKey = sortedKeys.find((key) => key > givenKey);
+}
+const prevKey = sortedKeys.filter((key) => key < currentKey).pop();
+const nextKey = sortedKeys.filter((key) => key > currentKey).shift();
+
+const ids = matchupsByCodePrefix[currentKey];
+
+const matchups = await pb.collection('matchups').getFullList({
+  filter: ids.map((id) => `id="${id}"`).join('||'),
+  sort: 'time_utc',
+});
+
+const currentText = moment(currentKey).format('ddd, M/D');
+const base_url = Astro.url.pathname;
 ---
 
 <Layout title='Matchups'>
-  {
-    isAuthed ? (
-      <MatchupsList
-        matchups={matchups.items}
-        page={matchups.page}
-        totalPages={matchups.totalPages}
+  <div class='flex flex-col items-start gap-4'>
+    <MatchupsList matchups={matchups} />
+    <div class='w-full max-w-md'>
+      <PaginateControls
+        page={{ title: currentText, href: '#' }}
+        prevPage={{ title: 'Prev Page', href: `${base_url}?page=${prevKey}` }}
+        nextPage={{ title: 'Next Page', href: `${base_url}?page=${nextKey}` }}
       />
-    ) : (
-      <div class='flex flex-col items-center justify-center h-[80vh]'>
-        <h1 class='text-4xl font-bold'>Login to view matchups</h1>
-        <a
-          href='/login'
-          class='hover:underline text-2xl font-bold text-primary'
-        >
-          Login
-        </a>
-      </div>
-    )
-  }
+    </div>
+  </div>
 </Layout>

@@ -7,7 +7,7 @@ const { user, pb } = Astro.locals;
 user.record.avatar_url = getUserAvatarUrl(user.record.id, user.record.avatar);
 const picks = await pb
   .collection('picks')
-  .getList(1, 50, { user_id: user.record.id, sort: 'updated' });
+  .getList(1, 20, { filter: `user="${user.record.id}"`, sort: 'updated' });
 ---
 
 <Layout title='Profile'>

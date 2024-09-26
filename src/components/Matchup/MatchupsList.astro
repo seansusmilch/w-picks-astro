@@ -1,6 +1,6 @@
 ---
 import Matchup from '@/components/Matchup/Matchup.astro';
-import { PaginateControls } from './PaginateControls';
+// import { PaginateControls } from './PaginateControls';
 import type { MatchupType } from '@/lib/definitions';
 
 interface Props {
@@ -9,32 +9,17 @@ interface Props {
   totalPages?: number;
 }
 
-const { matchups, page, totalPages } = Astro.props;
+const { matchups } = Astro.props;
 ---
 
 <h1 class='text-4xl font-bold'>Matchups</h1>
-<div class='flex flex-col items-start'>
+
+<div class='flex flex-col gap-2 w-full max-w-md'>
   {
-    page && totalPages && (
-      <div class='flex flex-row justify-between gap-2 w-full max-w-md py-4'>
-        <PaginateControls page={page} totalPages={totalPages} />
-      </div>
-    )
-  }
-  <div class='flex flex-col gap-2 w-full max-w-md'>
-    {
-      matchups.map((matchup) => (
-        <a href={`/matchups/${matchup.id}`}>
-          <Matchup matchup={matchup} />
-        </a>
-      ))
-    }
-  </div>
-  {
-    page && totalPages && (
-      <div class='flex flex-row justify-between gap-2 w-full max-w-md py-4'>
-        <PaginateControls page={page} totalPages={totalPages} />
-      </div>
-    )
+    matchups.map((matchup) => (
+      <a href={`/matchups/${matchup.id}`}>
+        <Matchup matchup={matchup} />
+      </a>
+    ))
   }
 </div>

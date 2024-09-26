@@ -3,22 +3,16 @@ import Layout from '@/layouts/Layout.astro';
 import Matchup from '@/components/Matchup/Matchup.astro';
 import { Button } from '@/components/ui/button';
 import MatchupsList from '@/components/Matchup/MatchupsList.astro';
+import { getCodePrefixFromDate } from '@/lib/data_common';
 
 const pb = Astro.locals.pb;
 
-const today = new Date();
-const todayStart = new Date(today.setHours(0, 0, 0, 0));
-const todayEnd = new Date(today.setHours(23, 59, 59, 999));
+const codePrefix = getCodePrefixFromDate(new Date());
 
-let matchups = [];
-const matchupsRes = await pb.collection('matchups').getList(1, 30, {
-  filter: pb.filter('time_utc >= {:start} && time_utc <= {:end}', {
-    start: todayStart,
-    end: todayEnd,
-  }),
+const matchups = await pb.collection('matchups').getFullList({
+  filter: `id ?~ "${codePrefix}"`,
   sort: 'time_utc',
 });
-matchups = matchupsRes.items;
 ---
 
 <Layout title='W Picks | Today'>
@@ -28,13 +22,11 @@ matchups = matchupsRes.items;
       matchups.length ? (
         <MatchupsList matchups={matchups} />
       ) : (
-        <>
-          <p class='py-8'>No matchups today</p>
-          <a href='/matchups'>
-            <Button className='w-full'>View all matchups</Button>
-          </a>
-        </>
+        <p class='py-8'>No matchups today</p>
       )
     }
+    <a href='/matchups'>
+      <Button className='w-full'>View all matchups</Button>
+    </a>
   </div>
 </Layout>
