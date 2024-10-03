@@ -34,10 +34,26 @@ def process_picks(picks:list):
             
         if scoreboard.get('status') == 3:
             pick['status'] = PAST
+            
+        
+        if pick['status'] == PAST:
+            winner = get_winner(pick['expand']['matchup'], scoreboard)
+            if pick['win_prediction'] == winner:
+                pick['result'] = 'W'
+            else:
+                pick['result'] = 'L'
+        
                 
         if pick != pick_clone:
             print('Updating pick', pick['id'], pick['status'])
             common.pb_update_record('picks', pick['id'], pick)
+            
+def get_winner(matchup, scoreboard):
+    home = matchup['home_code']
+    away = matchup['away_code']
+    winner = home if scoreboard['home_score'] > scoreboard['away_score'] else away
+    
+    return winner
             
 def get_job():
     return {
