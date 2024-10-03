@@ -30,15 +30,19 @@ export const POST: APIRoute = async ({ request }) => {
     result: '',
   });
 
-  const og = await pb.collection('picks').getOne(pickData.data.id);
-  if (og.status !== 'upcoming') {
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: 'Cannot update a pick for a live or past match',
-      }),
-      { status: 400 }
-    );
+  try {
+    const og = await pb.collection('picks').getOne(pickData.data.id);
+    if (og.status !== 'upcoming') {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Cannot update a pick for a live or past match',
+        }),
+        { status: 400 }
+      );
+    }
+  } catch {
+    // record doesn't exist, that's fine
   }
 
   console.log('pickData', JSON.stringify(pickData));
