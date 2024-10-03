@@ -26,14 +26,29 @@ export const POST: APIRoute = async ({ request }) => {
     matchup: formData.get('matchup'),
     win_prediction: formData.get('win_prediction'),
     comment: formData.get('comment'),
+    status: 'upcoming',
+    result: '',
   });
+
+  const og = await pb.collection('picks').getOne(pickData.data.id);
+  if (og.status !== 'upcoming') {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: 'Cannot update a pick for a live or past match',
+      }),
+      { status: 400 }
+    );
+  }
+
+  console.log('pickData', JSON.stringify(pickData));
 
   if (pickData.data.win_prediction === 'indeterminate') {
     return new Response(
       JSON.stringify({
         success: false,
         error:
-          'Bad Request: Cannot create/update a pick with an indeterminate prediction',
+          'Cannot create/update a pick with an indeterminate prediction. Please report this to the developer.',
       }),
       { status: 400 }
     );

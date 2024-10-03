@@ -35,6 +35,8 @@ export const PickZ = z
     win_prediction: z.string().length(3),
     comment: z.string(),
     user: z.string().length(15),
+    status: z.string(),
+    result: z.string(),
   })
   .required({ matchup: true, win_prediction: true, user: true });
 
