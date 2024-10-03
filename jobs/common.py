@@ -8,16 +8,21 @@ POCKETBASE_URL = os.getenv('POCKETBASE_URL')
 ADMIN_USER = os.getenv('ADMIN_USER')
 ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
 
-
 # 10/22/2024 00:00:00
 def parse_date(date_str):
     return datetime.strptime(date_str, '%m/%d/%Y %H:%M:%S')
+
+def parse_record_date(date_str):
+    return datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S.%fZ')
 
 def id_from_code(code):
     return code.replace('/', '-')
 
 def print_progress(prefix:str, done:int, total:int):
     print(f'{prefix} - {done}/{total} ({done/total*100:.2f}%)', end='\r')
+    
+def gen_headers(token:str):
+    return {'Authorization': f'Bearer {token}'}
 
 @cachetools.func.ttl_cache(maxsize=1, ttl=10 * 60)
 def auth_pb():
@@ -64,8 +69,23 @@ def pb_upsert_record(collection:str, record_id:str, data:dict):
     return_dict['action'] = 'CREATED'
     return return_dict
 
+def pb_get_records(collection:str, query:dict={}):
+    token = auth_pb()
+    response = requests.get(
+        f'{POCKETBASE_URL}/api/collections/{collection}/records', 
+        headers=gen_headers(token),
+        params=query
+    )
+    return response.json()
+
+def pb_get_record(collection:str, record_id:str):
+    token = auth_pb()
+    response = requests.get(
+        f'{POCKETBASE_URL}/api/collections/{collection}/records/{record_id}', 
+        headers=gen_headers(token)
+    )
+    return response.json()
+
 
 if __name__ == '__main__':
-    for idx, i in enumerate(range(300)):
-        print_progress('Poggers',idx, 300)
-        time.sleep(.1)
+    print(pb_get_records('picks', {'filter': 'win_prediction = "MIN"'}))
