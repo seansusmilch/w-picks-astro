@@ -12,11 +12,11 @@ interface Props {
 
 const { user, picks } = Astro.props;
 
-const totalPicks = picks.length;
+const pastPicks = picks.filter((pick) => pick.result === 'past').length;
 const winPicks = picks.filter((pick) => pick.result === 'W').length;
-const lossPicks = totalPicks - winPicks;
+const lossPicks = pastPicks - winPicks;
 const winLossRatio = winPicks / lossPicks;
-const progressValue = (winPicks / totalPicks) * 100;
+const progressValue = (winPicks / pastPicks) * 100;
 ---
 
 <div class='flex flex-col items-center gap-4'>
