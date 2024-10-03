@@ -15,8 +15,13 @@ user.avatar_url = getUserAvatarUrl(user.id, user.avatar);
 const picks = await pb
   .collection('picks')
   .getList(1, 100, { filter: `user="${user.id}"`, sort: 'updated' });
+
+const stats = await pb
+  .collection('stats')
+  .getFirstListItem(`user="${user.id}"`)
+  .catch(() => null);
 ---
 
 <Layout title='Profile'>
-  <ProfileView user={user} picks={picks.items} />
+  <ProfileView user={user} picks={picks.items} stats={stats} />
 </Layout>

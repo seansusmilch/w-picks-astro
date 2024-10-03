@@ -3,20 +3,18 @@ import { UserAvatar } from '@/components/Profile/UserAvatar';
 import { UserPicksTable } from '@/components/Profile/UserPicksTable';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import type { PickType, UserType } from '@/lib/definitions';
+import type { PickType, UserType, StatType } from '@/lib/definitions';
+import moment from 'moment';
 
 interface Props {
   user: UserType & { avatar_url: string };
   picks: PickType[];
+  stats?: StatType;
 }
 
-const { user, picks } = Astro.props;
+const { user, picks, stats } = Astro.props;
 
-const pastPicks = picks.filter((pick) => pick.result === 'past').length;
-const winPicks = picks.filter((pick) => pick.result === 'W').length;
-const lossPicks = pastPicks - winPicks;
-const winLossRatio = winPicks / lossPicks;
-const progressValue = (winPicks / pastPicks) * 100;
+const updated = stats?.updated ? moment(stats.updated).fromNow() : 'now';
 ---
 
 <div class='flex flex-col items-center gap-4'>
@@ -64,23 +62,29 @@ const progressValue = (winPicks / pastPicks) * 100;
   <div
     class='flex flex-col w-full max-w-md lg:max-w-xl border rounded-lg shadow-lg p-4 gap-4'
   >
-    <h2 class='text-xl font-bold'>User Stats</h2>
+    <div class='flex justify-between items-center'>
+      <h2 class='text-xl font-bold'>User Stats</h2>
+      <p class='text-sm'>{updated}</p>
+    </div>
+
     <div class='flex flex-row justify-around'>
       <div class='flex flex-col items-center'>
-        <span class='text-3xl font-bold'>{winPicks}</span>
+        <span class='text-3xl font-bold'>{stats?.win_picks || 0}</span>
         <span class='text-sm'>W Picks</span>
       </div>
       <div class='flex flex-col items-center'>
-        <span class='text-3xl font-bold'>{lossPicks}</span>
+        <span class='text-3xl font-bold'>{stats?.lose_picks || 0}</span>
         <span class='text-sm'>L Picks</span>
       </div>
       <div class='flex flex-col items-center'>
-        <span class='text-3xl font-bold'>{winLossRatio.toFixed(2)}</span>
+        <span class='text-3xl font-bold'>
+          {stats?.win_loss_ratio.toFixed(2) || 0}
+        </span>
         <span class='text-sm'>W/L Ratio</span>
       </div>
     </div>
     <div>
-      <Progress client:load value={progressValue} />
+      <Progress client:load value={(stats?.win_loss_ratio || 0) * 100} />
     </div>
   </div>
 

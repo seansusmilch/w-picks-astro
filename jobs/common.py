@@ -86,6 +86,11 @@ def pb_get_record(collection:str, record_id:str):
     )
     return response.json()
 
+def pb_get_first_item(collection:str, filter:str):
+    token = auth_pb()
+    res = pb_get_records(collection, {'filter': filter, 'perPage': 1})
+    return res['items'][0] if res['totalItems'] > 0 else None
+
 
 if __name__ == '__main__':
     print(pb_get_records('picks', {'filter': 'win_prediction = "MIN"'}))

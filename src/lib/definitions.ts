@@ -60,3 +60,15 @@ export const ScoreboardZ = z.object({
   home_score: z.number().min(0),
   away_score: z.number().min(0),
 });
+
+export const StatZ = z.object({
+  id: z.string().length(15),
+  user: z.string().length(15),
+  total_picks: z.number().min(0),
+  win_picks: z.number().min(0),
+  lose_picks: z.number().min(0),
+  win_loss_ratio: z.number().min(0),
+  updated: z.string(),
+});
+
+export type StatType = z.infer<typeof StatZ>;

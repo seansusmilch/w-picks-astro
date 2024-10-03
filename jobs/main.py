@@ -7,6 +7,8 @@ def lifespan(app : FastAPI):
     register_job(update_scoreboards.get_job())
     import update_picks
     register_job(update_picks.get_job())
+    import update_users
+    register_job(update_users.get_job())
     yield
     print('Shutting down...')
 
