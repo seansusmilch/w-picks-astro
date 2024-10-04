@@ -29,6 +29,9 @@ def process_picks(picks:list):
             pick['status'] = UPCOMING
                 
         scoreboard = common.pb_get_record('scoreboards', pick['matchup'])
+        if scoreboard.get('code') == 404:
+            continue
+        
         if scoreboard.get('status') == 2:
             pick['status'] = LIVE
             
@@ -42,7 +45,6 @@ def process_picks(picks:list):
                 pick['result'] = 'W'
             else:
                 pick['result'] = 'L'
-        
                 
         if pick != pick_clone:
             print('Updating pick', pick['id'], pick['status'])

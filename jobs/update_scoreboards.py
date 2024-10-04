@@ -55,4 +55,5 @@ def get_job():
     }
 
 if __name__ == '__main__':
-    print(is_matchup_today(date(2024, 11, 16)))
+    update_scoreboards()
+    # print(is_matchup_today(date(2024, 10, 4)))
