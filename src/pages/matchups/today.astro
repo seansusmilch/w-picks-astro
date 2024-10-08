@@ -11,7 +11,7 @@ const codePrefix = getCodePrefixFromDate(new Date());
 
 const matchups = await pb.collection('matchups').getFullList({
   filter: `id ?~ "${codePrefix}"`,
-  sort: 'time_utc',
+  sort: 'time_utc,code',
 });
 ---
 

@@ -14,7 +14,7 @@ if (!isAuthed) {
 
 const allMatchups = await pb
   .collection('matchups')
-  .getFullList({ fields: 'id,code', sort: 'time_utc' });
+  .getFullList({ fields: 'id,code', sort: 'time_utc,code' });
 
 const matchupsByCodePrefix = {};
 for (const m of allMatchups) {
