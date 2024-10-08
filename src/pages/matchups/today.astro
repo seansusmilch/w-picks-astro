@@ -16,7 +16,8 @@ const matchups = await pb.collection('matchups').getFullList({
 ---
 
 <Layout title='W Picks | Today'>
-  <h1 class='text-4xl font-bold'>Today's Matchups</h1>
+  <h1 class='text-4xl py-6 font-bold'>Today's Matchups</h1>
+
   <div class='grid grid-cols-1 gap-2 max-w-md'>
     {
       matchups.length ? (
