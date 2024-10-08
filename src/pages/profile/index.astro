@@ -5,9 +5,11 @@ import ProfileView from '@/components/Profile/ProfileView.astro';
 
 const { user, pb } = Astro.locals;
 user.record.avatar_url = getUserAvatarUrl(user.record.id, user.record.avatar);
-const picks = await pb
-  .collection('picks')
-  .getList(1, 100, { filter: `user="${user.record.id}"`, sort: 'updated' });
+const picks = await pb.collection('picks').getList(1, 100, {
+  filter: `user="${user.record.id}"`,
+  expand: 'matchup',
+  sort: '-matchup',
+});
 
 const stats = await pb
   .collection('stats')

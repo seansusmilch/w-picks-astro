@@ -17,7 +17,6 @@ const { user, picks, stats } = Astro.props;
 const updated = stats?.updated ? moment(stats.updated).fromNow() : 'now';
 
 const winPicks = stats?.win_picks || 0;
-const losePicks = stats?.lose_picks || 0;
 const progressValue = (winPicks / stats?.total_picks) * 100;
 ---
 
