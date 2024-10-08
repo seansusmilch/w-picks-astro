@@ -15,6 +15,10 @@ interface Props {
 const { user, picks, stats } = Astro.props;
 
 const updated = stats?.updated ? moment(stats.updated).fromNow() : 'now';
+
+const winPicks = stats?.win_picks || 0;
+const losePicks = stats?.lose_picks || 0;
+const progressValue = (winPicks / stats?.total_picks) * 100;
 ---
 
 <div class='flex flex-col items-center gap-4'>
@@ -69,22 +73,26 @@ const updated = stats?.updated ? moment(stats.updated).fromNow() : 'now';
 
     <div class='flex flex-row justify-around'>
       <div class='flex flex-col items-center'>
-        <span class='text-3xl font-bold'>{stats?.win_picks || 0}</span>
+        <span class='text-2xl font-bold'>{stats?.win_picks || 0}</span>
         <span class='text-sm'>W Picks</span>
       </div>
       <div class='flex flex-col items-center'>
-        <span class='text-3xl font-bold'>{stats?.lose_picks || 0}</span>
+        <span class='text-2xl font-bold'>{stats?.lose_picks || 0}</span>
         <span class='text-sm'>L Picks</span>
       </div>
       <div class='flex flex-col items-center'>
-        <span class='text-3xl font-bold'>
+        <span class='text-2xl font-bold'>
           {stats?.win_loss_ratio.toFixed(2) || 0}
         </span>
         <span class='text-sm'>W/L Ratio</span>
       </div>
+      <div class='flex flex-col items-center'>
+        <span class='text-2xl font-bold'>{stats?.win_pick_rate || 0}%</span>
+        <span class='text-sm'>W %</span>
+      </div>
     </div>
     <div>
-      <Progress client:load value={(stats?.win_loss_ratio || 0) * 100} />
+      <Progress client:load value={progressValue} />
     </div>
   </div>
 

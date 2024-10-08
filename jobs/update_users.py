@@ -24,12 +24,16 @@ def update_stats(user_id:str):
     lose_picks = list(filter(lambda p: p['result'] == 'L', past_picks['items']))
     total_picks = past_picks['totalItems']
     win_loss_ratio = len(win_picks) / len(lose_picks) if lose_picks else len(win_picks)
+    win_pick_rate = 0
+    if total_picks:
+        win_pick_rate = int(len(win_picks) / total_picks * 100)
     
     latest_stats = {
         'total_picks': total_picks,
         'win_picks': len(win_picks),
         'lose_picks': len(lose_picks),
-        'win_loss_ratio': win_loss_ratio
+        'win_loss_ratio': win_loss_ratio,
+        'win_pick_rate': win_pick_rate
     }
     
     stats_record = common.pb_get_first_item('stats', f'user="{user_id}"')

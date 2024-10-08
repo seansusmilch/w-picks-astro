@@ -68,6 +68,7 @@ export const StatZ = z.object({
   win_picks: z.number().min(0),
   lose_picks: z.number().min(0),
   win_loss_ratio: z.number().min(0),
+  win_pick_rate: z.number().min(0).max(100),
   updated: z.string(),
 });
 
