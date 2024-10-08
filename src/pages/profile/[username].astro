@@ -12,9 +12,11 @@ const user: UserType & { avatar_url: string } = await pb
   .getFirstListItem(`username="${username}"`);
 
 user.avatar_url = getUserAvatarUrl(user.id, user.avatar);
-const picks = await pb
-  .collection('picks')
-  .getList(1, 100, { filter: `user="${user.id}"`, sort: 'updated' });
+const picks = await pb.collection('picks').getList(1, 100, {
+  filter: `user="${user.id}"`,
+  expand: 'matchup',
+  sort: '-matchup',
+});
 
 const stats = await pb
   .collection('stats')
