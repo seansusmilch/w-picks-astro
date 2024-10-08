@@ -1,4 +1,5 @@
 import { POCKETBASE_PUBLIC_URL } from 'astro:env/client';
+import moment from 'moment';
 
 export const getUserAvatarUrl = (user_id: string, filename: string) => {
   return new URL(
@@ -21,5 +22,7 @@ export function getWeekBounds(dt = new Date()) {
 }
 
 export function getCodePrefixFromDate(date: Date) {
-  return date.toISOString().split('T')[0].replace(/-/g, '');
+  const codePrefix = moment(date).format('YYYYMMDD');
+  console.log('date', codePrefix);
+  return codePrefix;
 }
