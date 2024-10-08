@@ -22,5 +22,19 @@
     ],
     "theme_color": "#ffffff",
     "background_color": "#ffffff",
-    "display": "standalone"
+    "display": "standalone",
+    "screenshots": [
+        {
+            "src": "/assets/screenshots/mobile.png",
+            "sizes": "750x1334",
+            "type": "image/png",
+            "form_factor": "narrow"
+        },
+        {
+            "src": "/assets/screenshots/desktop.png",
+            "sizes": "1319x1001",
+            "type": "image/png",
+            "form_factor": "wide"
+        }
+    ]
 }
