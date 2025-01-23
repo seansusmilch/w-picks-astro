@@ -38,15 +38,15 @@ const pathname = Astro.url.pathname;
       </div>
       <MenuItems class='hidden lg:flex'>
         <ul
-          class='flex flex-col gap-2 text-xl p-2 text-right lg:items-center lg:flex-row lg:text-left'
+          class='flex flex-col text-xl p-2 text-right lg:items-center lg:flex-row lg:text-left'
         >
           <li>
             <a
               href='/'
               class:list={[
-                'flex items-center gap-2 ',
+                'flex items-center gap-2 p-2 rounded-lg',
                 pathname === '/'
-                  ? 'bg-secondary text-secondary-foreground p-2 rounded-lg'
+                  ? 'bg-secondary text-secondary-foreground border'
                   : 'hover:text-gray-500',
               ]}
             >
@@ -58,9 +58,9 @@ const pathname = Astro.url.pathname;
             <a
               href='/matchups/today'
               class:list={[
-                'flex items-center gap-2 ',
+                'flex items-center gap-2 p-2 rounded-lg',
                 pathname === '/matchups/today'
-                  ? 'bg-secondary text-secondary-foreground p-2 rounded-lg'
+                  ? 'bg-secondary text-secondary-foreground border'
                   : 'hover:text-gray-500',
               ]}
             >
@@ -72,9 +72,9 @@ const pathname = Astro.url.pathname;
             <a
               href='/matchups'
               class:list={[
-                'flex items-center gap-2 ',
+                'flex items-center gap-2 p-2 rounded-lg',
                 pathname === '/matchups'
-                  ? 'bg-secondary text-secondary-foreground p-2 rounded-lg'
+                  ? 'bg-secondary text-secondary-foreground border'
                   : 'hover:text-gray-500',
               ]}
             >
@@ -90,14 +90,19 @@ const pathname = Astro.url.pathname;
               ) : (
                 <a
                   href='/login'
-                  class='hover:text-primary transition-colors duration-200'
+                  class:list={[
+                    'p-2 rounded-lg',
+                    pathname === '/login'
+                      ? 'bg-secondary text-secondary-foreground border'
+                      : 'hover:text-gray-500',
+                  ]}
                 >
                   Login
                 </a>
               )
             }
           </li>
-          <li class='flex gap-4 justify-end'>
+          <li class='pl-2 flex gap-4 justify-end'>
             {isAuthed && <FeedbackDialog client:load />}
             <ThemeToggle client:load />
           </li>
