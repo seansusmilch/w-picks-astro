@@ -14,6 +14,10 @@ const userStats = await apb.collection('stats').getList(1, 50, {
 const data = expandAvatarUrl(userStats.items);
 
 console.log(JSON.stringify(data, null, 2));
+const pageTitle = 'Leaderboard';
 ---
 
-<Layout title='Home'><Leaderboard data={data} client:only /></Layout>
+<Layout title={pageTitle}>
+  <h1 class='text-3xl py-6 font-bold'>{pageTitle}</h1>
+  <Leaderboard data={data} client:only />
+</Layout>
