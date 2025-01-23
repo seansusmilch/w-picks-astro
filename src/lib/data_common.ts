@@ -1,7 +1,19 @@
 import { POCKETBASE_PUBLIC_URL } from 'astro:env/client';
 import moment from 'moment';
+import type { RecordModel } from 'pocketbase';
+
+export const expandAvatarUrl = (items: RecordModel[]) => {
+  return items.map((item) => {
+    item.expand.user.avatar_url = getUserAvatarUrl(
+      item.expand.user.id,
+      item.expand.user.avatar
+    );
+    return item;
+  });
+};
 
 export const getUserAvatarUrl = (user_id: string, filename: string) => {
+  if (!filename || !user_id) return null;
   return new URL(
     `/api/files/users/${user_id}/${filename}`,
     POCKETBASE_PUBLIC_URL

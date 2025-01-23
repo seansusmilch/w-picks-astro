@@ -69,8 +69,8 @@ importers:
         specifier: ^2.30.1
         version: 2.30.1
       pocketbase:
-        specifier: ^0.21.4
-        version: 0.21.4
+        specifier: ^0.25.1
+        version: 0.25.1
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -2017,8 +2017,8 @@ packages:
     resolution: {integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==}
     engines: {node: '>=8'}
 
-  pocketbase@0.21.4:
-    resolution: {integrity: sha512-WJHyaqdAt95JgZ1OCRD099+DST4IIG0M/jMrCckWYDSN/6ocp61qsz7m6h0xI0J2N79ScBljceEC0fFAaQrrAw==}
+  pocketbase@0.25.1:
+    resolution: {integrity: sha512-2IH0KLI/qMNR/E17C7BGWX2FxW7Tead+igLHOWZ45P56v/NyVT18Jnmddeft+3qWWGL1Hog2F8bc4orWV/+Fcg==}
 
   postcss-import@15.1.0:
     resolution: {integrity: sha512-hpr+J05B2FVYUAXHeK1YyI267J/dDDhMU6B6civm8hSY1jYJnBXxzKDKDswzJmtLHryrjhnDjqqp/49t8FALew==}
@@ -4765,7 +4765,7 @@ snapshots:
     dependencies:
       find-up: 4.1.0
 
-  pocketbase@0.21.4: {}
+  pocketbase@0.25.1: {}
 
   postcss-import@15.1.0(postcss@8.4.41):
     dependencies:

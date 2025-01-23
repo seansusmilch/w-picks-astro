@@ -79,7 +79,7 @@ function DateCell({ date }: { date: Date }) {
 }
 
 function PastPicksTable({ picks }: { picks: PickType[] }) {
-  return (
+  return picks.length ? (
     <Table>
       <TableHeader>
         <TableRow>
@@ -110,11 +110,13 @@ function PastPicksTable({ picks }: { picks: PickType[] }) {
         ))}
       </TableBody>
     </Table>
+  ) : (
+    <NoPicks type='past' />
   );
 }
 
 function LivePicksTable({ picks }: { picks: PickType[] }) {
-  return (
+  return picks.length ? (
     <Table>
       <TableHeader>
         <TableRow>
@@ -133,11 +135,13 @@ function LivePicksTable({ picks }: { picks: PickType[] }) {
         ))}
       </TableBody>
     </Table>
+  ) : (
+    <NoPicks type='live' />
   );
 }
 
 function UpcomingPicksTable({ picks }: { picks: PickType[] }) {
-  return (
+  return picks.length ? (
     <Table>
       <TableHeader>
         <TableRow>
@@ -158,5 +162,13 @@ function UpcomingPicksTable({ picks }: { picks: PickType[] }) {
         ))}
       </TableBody>
     </Table>
+  ) : (
+    <NoPicks type='upcoming' />
+  );
+}
+
+function NoPicks({ type }: { type: 'past' | 'live' | 'upcoming' }) {
+  return (
+    <p className='text-center text-gray-400'>No {type} picks at this time</p>
   );
 }

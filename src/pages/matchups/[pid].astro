@@ -5,7 +5,7 @@ import { PickForm } from '@/components/Picks/PickForm';
 import { TeamMap } from '@/components/NBA/teamMap';
 import { MatchupZ } from '@/lib/definitions';
 import { PickTable } from '@/components/Picks/PickTable';
-import { getUserAvatarUrl } from '@/lib/data_common';
+import { expandAvatarUrl } from '@/lib/data_common';
 
 const { pb, apb, user } = Astro.locals;
 const { pid } = Astro.params;
@@ -29,13 +29,7 @@ const picksResponse = await apb.collection('picks').getList(1, 30, {
   fields: '*,expand.user.id,expand.user.avatar,expand.user.username',
 });
 
-const picksResults = picksResponse.items.map((p) => {
-  p.expand.user.avatar_url = getUserAvatarUrl(
-    p.expand.user.id,
-    p.expand.user.avatar
-  );
-  return p;
-});
+const picksResults = expandAvatarUrl(picksResponse.items);
 
 let userPick = null;
 if (user) {

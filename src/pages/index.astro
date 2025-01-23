@@ -1,8 +1,19 @@
 ---
+import { expandAvatarUrl } from '@/lib/data_common';
 import Layout from '../layouts/Layout.astro';
-import Matchup from '@/components/Matchup/Matchup.astro';
-import { PickForm } from '@/components/Picks/PickForm';
-const pb = Astro.locals.pb;
+import { Leaderboard } from '@/components/Leaderboard';
+const apb = Astro.locals.apb;
+
+const sortedBy = 'win_pick_rate';
+const userStats = await apb.collection('stats').getList(1, 50, {
+  sort: `-${sortedBy}`,
+  expand: 'user',
+  fields: '*,expand.user.id,expand.user.avatar,expand.user.username',
+});
+
+const data = expandAvatarUrl(userStats.items);
+
+console.log(JSON.stringify(data, null, 2));
 ---
 
-<Layout title='Home'> Home page </Layout>
+<Layout title='Home'><Leaderboard data={data} client:only /></Layout>
