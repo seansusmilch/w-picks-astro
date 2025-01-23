@@ -24,7 +24,7 @@ export function UserDropdown({ user }: { user: any }) {
           {user.record.username}
         </span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className>
+      <DropdownMenuContent>
         <DropdownMenuLabel className='text-md'>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
