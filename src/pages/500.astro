@@ -1,14 +1,15 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { Image } from 'astro:assets';
-import Emoji1 from '@/assets/emojis/emoji1.png';
-import Emoji2 from '@/assets/emojis/emoji2.gif';
-import Emoji3 from '@/assets/emojis/emoji3.gif';
-import Emoji4 from '@/assets/emojis/emoji4.png';
-import Emoji5 from '@/assets/emojis/emoji5.gif';
-import Emoji6 from '@/assets/emojis/emoji6.jpg';
 
-const emojis = [Emoji1, Emoji2, Emoji3, Emoji4, Emoji5, Emoji6];
+const emojis = [
+  '/assets/emojis/emoji1.png',
+  '/assets/emojis/emoji2.gif',
+  '/assets/emojis/emoji3.gif',
+  '/assets/emojis/emoji4.png',
+  '/assets/emojis/emoji5.gif',
+  '/assets/emojis/emoji6.jpg',
+];
 
 interface Props {
   error: unknown;
@@ -29,6 +30,8 @@ const selectedEmoji = emojis[Math.floor(Math.random() * emojis.length)];
       class='border rounded-md shadow-lg w-96 h-auto'
       src={selectedEmoji}
       alt='Emoji'
+      width={384}
+      height={384}
     />
   </div>
 </Layout>
