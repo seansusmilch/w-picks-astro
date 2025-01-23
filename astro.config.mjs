@@ -10,28 +10,26 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
-  integrations: [tailwind({ applyBaseStyles: true }), react()],
-  experimental: {
-    serverIslands: true,
-    env: {
-      schema: {
-        POCKETBASE_URL: envField.string({
-          context: 'server',
-          access: 'secret',
-        }),
-        POCKETBASE_PUBLIC_URL: envField.string({
-          context: 'client',
-          access: 'public',
-        }),
-        ADMIN_USER: envField.string({
-          context: 'server',
-          access: 'secret',
-        }),
-        ADMIN_PASSWORD: envField.string({
-          context: 'server',
-          access: 'secret',
-        }),
-      },
+  env: {
+    schema: {
+      POCKETBASE_URL: envField.string({
+        context: 'server',
+        access: 'secret',
+      }),
+      POCKETBASE_PUBLIC_URL: envField.string({
+        context: 'client',
+        access: 'public',
+      }),
+      ADMIN_USER: envField.string({
+        context: 'server',
+        access: 'secret',
+      }),
+      ADMIN_PASSWORD: envField.string({
+        context: 'server',
+        access: 'secret',
+      }),
     },
   },
+  integrations: [tailwind({ applyBaseStyles: true }), react()],
+  experimental: {},
 });
