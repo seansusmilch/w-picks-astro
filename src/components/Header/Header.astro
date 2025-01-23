@@ -5,9 +5,16 @@ import BrandLogo from '@/assets/brand/logo-hires-uncropped.webp';
 import { ThemeToggle } from './ThemeToggle';
 import { UserDropdown } from './UserDropdown';
 import { FeedbackDialog } from '@/components/Feedback/FeedbackDialog';
+import { getUserAvatarUrl } from '@/lib/data_common';
+import {
+  TrophyIcon,
+  ClockIcon,
+  CalendarDaysIcon,
+} from '@heroicons/react/24/outline';
 
 const { pb, user } = Astro.locals;
 const isAuthed = pb.authStore.isValid;
+const pathname = Astro.url.pathname;
 ---
 
 <header class='border-b'>
@@ -31,16 +38,49 @@ const isAuthed = pb.authStore.isValid;
       </div>
       <MenuItems class='hidden lg:flex'>
         <ul
-          class='flex flex-col gap-4 text-xl p-2 text-right lg:items-center lg:flex-row lg:text-left'
+          class='flex flex-col gap-2 text-xl p-2 text-right lg:items-center lg:flex-row lg:text-left'
         >
           <li>
-            <a href='/'>Leaderboard</a>
+            <a
+              href='/'
+              class:list={[
+                'flex items-center gap-2 ',
+                pathname === '/'
+                  ? 'bg-secondary text-secondary-foreground p-2 rounded-lg'
+                  : 'hover:text-gray-500',
+              ]}
+            >
+              <TrophyIcon className='w-6 h-6' />
+              <span>Leaderboard</span>
+            </a>
           </li>
           <li>
-            <a href='/matchups/today'>Today</a>
+            <a
+              href='/matchups/today'
+              class:list={[
+                'flex items-center gap-2 ',
+                pathname === '/matchups/today'
+                  ? 'bg-secondary text-secondary-foreground p-2 rounded-lg'
+                  : 'hover:text-gray-500',
+              ]}
+            >
+              <ClockIcon className='w-6 h-6' />
+              <span>Today</span>
+            </a>
           </li>
           <li>
-            <a href='/matchups'>Matchups</a>
+            <a
+              href='/matchups'
+              class:list={[
+                'flex items-center gap-2 ',
+                pathname === '/matchups'
+                  ? 'bg-secondary text-secondary-foreground p-2 rounded-lg'
+                  : 'hover:text-gray-500',
+              ]}
+            >
+              <CalendarDaysIcon className='w-6 h-6' />
+              <span>Matchups</span>
+            </a>
           </li>
 
           <li>
@@ -48,7 +88,12 @@ const isAuthed = pb.authStore.isValid;
               isAuthed ? (
                 <UserDropdown user={user} client:load />
               ) : (
-                <a href='/login'>Login</a>
+                <a
+                  href='/login'
+                  class='hover:text-primary transition-colors duration-200'
+                >
+                  Login
+                </a>
               )
             }
           </li>
