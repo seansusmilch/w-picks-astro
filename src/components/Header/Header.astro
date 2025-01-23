@@ -10,6 +10,7 @@ import {
   TrophyIcon,
   ClockIcon,
   CalendarDaysIcon,
+  UserIcon,
 } from '@heroicons/react/24/outline';
 
 const { pb, user } = Astro.locals;
@@ -20,7 +21,7 @@ const pathname = Astro.url.pathname;
 <header class='border-b'>
   <div class='lg:flex justify-between p-2 gap-4 mx-auto'>
     <Astronav closeOnClick>
-      <div class='flex w-fulllg:w-auto justify-between items-center'>
+      <div class='flex w-full lg *:w-auto justify-between items-center'>
         <a class='flex flex-row gap-4 items-center' href='/'>
           <Image
             class='rounded-xl w-[50px] h-[50px]'
@@ -38,13 +39,13 @@ const pathname = Astro.url.pathname;
       </div>
       <MenuItems class='hidden lg:flex'>
         <ul
-          class='flex flex-col text-xl p-2 text-right lg:items-center lg:flex-row lg:text-left'
+          class='flex flex-col text-xl text-right lg:items-center lg:flex-row lg:text-left'
         >
           <li>
             <a
               href='/'
               class:list={[
-                'flex items-center gap-2 p-2 rounded-lg',
+                'flex items-center gap-2 py-1 px-2 rounded-lg',
                 pathname === '/'
                   ? 'bg-secondary text-secondary-foreground border'
                   : 'hover:text-gray-500',
@@ -58,7 +59,7 @@ const pathname = Astro.url.pathname;
             <a
               href='/matchups/today'
               class:list={[
-                'flex items-center gap-2 p-2 rounded-lg',
+                'flex items-center gap-2 py-1 px-2 rounded-lg',
                 pathname === '/matchups/today'
                   ? 'bg-secondary text-secondary-foreground border'
                   : 'hover:text-gray-500',
@@ -72,7 +73,7 @@ const pathname = Astro.url.pathname;
             <a
               href='/matchups'
               class:list={[
-                'flex items-center gap-2 p-2 rounded-lg',
+                'flex items-center gap-2 py-1 px-2 rounded-lg',
                 pathname === '/matchups'
                   ? 'bg-secondary text-secondary-foreground border'
                   : 'hover:text-gray-500',
@@ -86,18 +87,21 @@ const pathname = Astro.url.pathname;
           <li>
             {
               isAuthed ? (
-                <UserDropdown user={user} client:load />
+                <div class='flex items-center gap-2 py-1 px-2 rounded-lg'>
+                  <UserDropdown user={user} client:load />
+                </div>
               ) : (
                 <a
                   href='/login'
                   class:list={[
-                    'p-2 rounded-lg',
+                    'flex items-center gap-2 py-1 px-2 rounded-lg',
                     pathname === '/login'
                       ? 'bg-secondary text-secondary-foreground border'
                       : 'hover:text-gray-500',
                   ]}
                 >
-                  Login
+                  <UserIcon className='w-6 h-6' />
+                  <span>Login</span>
                 </a>
               )
             }

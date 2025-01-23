@@ -6,6 +6,10 @@ import MatchupsList from '@/components/Matchup/MatchupsList.astro';
 import { getCodePrefixFromDate } from '@/lib/data_common';
 
 const pb = Astro.locals.pb;
+const isAuthed = pb.authStore.isValid;
+if (!isAuthed) {
+  throw new Error('Please login to view matchups');
+}
 
 const codePrefix = getCodePrefixFromDate(new Date());
 
