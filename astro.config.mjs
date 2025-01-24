@@ -28,6 +28,10 @@ export default defineConfig({
         context: 'server',
         access: 'secret',
       }),
+      CRON_SECRET: envField.string({
+        context: 'server',
+        access: 'secret',
+      }),
     },
   },
   integrations: [tailwind({ applyBaseStyles: true }), react()],

@@ -1,6 +1,7 @@
 import { getAPB } from '@/lib/data';
 import { type APIRoute } from 'astro';
 import moment from 'moment';
+import { CRON_SECRET } from 'astro:env/server';
 
 const PAST_CUTOFF = 3;
 const FUTURE_CUTOFF = 90;
@@ -57,7 +58,11 @@ function parseMatchups(rawData: ScheduleResponse): Matchup[] {
   }));
 }
 
-export const POST: APIRoute = async () => {
+export const POST: APIRoute = async ({ request }) => {
+  if (request.headers.get('Cron-Secret') !== CRON_SECRET) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
   try {
     const pb = await getAPB();
 
