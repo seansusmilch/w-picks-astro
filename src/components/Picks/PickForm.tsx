@@ -4,6 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { type MatchupType, type PickType, PickZ } from '@/lib/definitions';
 import { useState } from 'react';
 import clsx from 'clsx';
+import { actions, isInputError } from 'astro:actions';
 
 export function PickForm({
   matchup,
@@ -22,69 +23,64 @@ export function PickForm({
     matchup: matchup.id,
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     setError('');
     setLoading(true);
     e.preventDefault();
     const formData = new FormData(e.target);
 
+    console.log('formData', Object.fromEntries(formData.entries()));
+
     if (formData.get('win_prediction') === 'indeterminate') {
-      fetch('/api/picks', {
-        method: 'DELETE',
-        body: formData,
-      })
-        .then((res) => res.json())
-        .then(({ success, error }) => {
-          console.log('delete', success, error);
+      const { data, error } = await actions.deletePick(formData);
 
-          if (success) {
-            setFormState({
-              ...formState,
-              win_prediction: 'indeterminate',
-              comment: '',
-              pickId: '',
-            });
-          } else {
-            console.error('Failed to delete pick:', error);
-            setError(error);
-          }
-          setLoading(false);
+      if (data) {
+        setFormState({
+          ...formState,
+          win_prediction: 'indeterminate',
+          comment: '',
+          pickId: '',
         });
-
-      return;
-    }
-
-    fetch('/api/picks', {
-      method: 'POST',
-      body: formData,
-    })
-      .then((res) => res.json())
-      .then(({ success, error, data }) => {
-        console.log('post', success, error, data);
-
-        if (success) {
-          const pickData = PickZ.safeParse(data);
-          if (!pickData.success) {
-            console.error('Invalid pick data:', pickData.error);
-            return;
-          }
-
-          const { win_prediction, comment, id, matchup } = pickData.data;
-          setFormState({ win_prediction, comment, pickId: id, matchup });
+      } else {
+        if (isInputError(error)) {
+          const errorMessage = Object.values(error.fields).flat().join(', ');
+          setError(errorMessage);
         } else {
-          console.error('Failed to save pick:', error);
-          setError(error);
+          console.error('Failed to delete pick:', error);
+          setError(error.message);
+        }
+      }
+    } else {
+      const { data, error } = await actions.submitPick(formData);
+
+      if (data) {
+        const pickData = PickZ.safeParse(data);
+        if (!pickData.success) {
+          console.error('Invalid pick data:', pickData.error);
+          return;
         }
 
-        setLoading(false);
-      });
+        const { win_prediction, comment, id, matchup } = pickData.data;
+        setFormState({ win_prediction, comment, pickId: id, matchup });
+      } else {
+        if (isInputError(error)) {
+          const errorMessage = Object.values(error.fields).flat().join(', ');
+          setError(errorMessage);
+        } else {
+          console.error('Failed to save pick:', error);
+          setError(error.message);
+        }
+      }
+    }
+
+    setLoading(false);
   };
 
   return (
     <form method='POST' onSubmit={handleSubmit}>
       <div className='p-4 text-center max-w-md rounded-xl shadow-md border bg-card'>
         <h1 className='text-xl font-bold'>Your Pick</h1>
-        <input type='hidden' name='pick_id' value={formState.pickId} />
+        <input type='hidden' name='id' value={formState.pickId} />
         <input type='hidden' name='matchup' value={formState.matchup} />
         <TeamPicker
           name='win_prediction'

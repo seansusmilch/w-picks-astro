@@ -13,7 +13,6 @@ const userStats = await apb.collection('stats').getList(1, 50, {
 
 const data = expandAvatarUrl(userStats.items);
 
-console.log(JSON.stringify(data, null, 2));
 const pageTitle = 'Leaderboard';
 ---
 
