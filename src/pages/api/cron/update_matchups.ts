@@ -82,7 +82,7 @@ export const POST: APIRoute = async ({ request }) => {
               .update(matchup.id, matchup, { requestKey: matchup.id })
           )
           .then(() => ({ id: matchup.id, action: 'UPDATED' }))
-          .catch((err) => ({ matchup, action: 'FAILED', error: err }))
+          .catch((err) => ({ matchup, action: 'FAILED', error: err.message }))
       )
     );
 
