@@ -34,7 +34,7 @@ def gen_headers(token: str):
 def auth_pb():
     print("Authenticating with PocketBase")
     response = requests.post(
-        f"{POCKETBASE_URL}/api/_superusers/auth-with-password",
+        f"{POCKETBASE_URL}/api/collections/_superusers/auth-with-password",
         {"identity": ADMIN_USER, "password": ADMIN_PASSWORD},
     )
     if response.status_code != 200:
