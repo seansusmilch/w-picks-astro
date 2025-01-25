@@ -86,13 +86,9 @@ export const POST: APIRoute = async ({ request }) => {
       )
     );
 
-    const createdCount = results.filter(
-      (result) => result.action === 'CREATED'
-    ).length;
-    const updatedCount = results.filter(
-      (result) => result.action === 'UPDATED'
-    ).length;
-    const failed = results.filter((result) => result.action === 'FAILED');
+    const createdCount = results.filter((r) => r.action === 'CREATED').length;
+    const updatedCount = results.filter((r) => r.action === 'UPDATED').length;
+    const failed = results.filter((r) => r.action === 'FAILED');
     console.log('failed', failed);
     const failedCount = failed.length;
 
