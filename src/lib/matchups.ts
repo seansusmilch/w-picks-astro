@@ -60,10 +60,11 @@ export async function getTodayMatchups() {
 
 export async function getWinningTeamByMatchupId(matchupId: string) {
   const matchup = await getMatchupById(matchupId);
-  if (!matchup) return null;
+  if (!matchup) throw new Error('Matchup not found');
+
   const scoreboard = await getScoreboardByCode(matchup.code);
-  if (!scoreboard) return null;
-  if (scoreboard.status !== 3) return null;
+  if (!scoreboard) throw new Error('Scoreboard not found');
+  if (scoreboard.status !== 3) throw new Error('Scoreboard not final');
 
   const homeTeamWins = scoreboard.home_score > scoreboard.away_score;
 

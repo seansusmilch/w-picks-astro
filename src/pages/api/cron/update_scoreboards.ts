@@ -115,8 +115,9 @@ export const POST: APIRoute = async ({ request }) => {
     // Update each scoreboard in PocketBase
     const results = await Promise.all(
       scoreboards.map(async (scoreboard) => {
+        const res = await updateScoreboard(scoreboard);
         await updatePicksStatus(scoreboard);
-        return await updateScoreboard(scoreboard);
+        return res;
       })
     );
 
