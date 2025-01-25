@@ -151,7 +151,7 @@ function UpcomingPicksTable({ picks }: { picks: PickType[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {picks.map((p) => (
+        {picks.reverse().map((p) => (
           <TableRow key={p.id}>
             <DateCell date={p.expand.matchup.time_utc} />
             <MatchupCell matchup={p.expand.matchup} />
