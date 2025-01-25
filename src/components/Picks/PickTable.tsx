@@ -5,9 +5,16 @@ import { z } from 'astro/zod';
 import type { ListResult, RecordModel } from 'pocketbase';
 import { useState, useEffect } from 'react';
 import { getPB } from '@/lib/data_client';
-import { getUserAvatarUrl } from '@/lib/data_common';
+import { expandAvatarUrl, getUserAvatarUrl } from '@/lib/data_common';
 import { UserAvatar } from '@/components/Profile/UserAvatar';
 import { cn } from '@/lib/utils';
+import {
+  useQuery,
+  QueryClientProvider,
+  QueryClient,
+} from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 export function PickTable({
   matchup,
@@ -16,44 +23,36 @@ export function PickTable({
   matchup: MatchupType;
   picks: RecordModel[];
 }) {
-  const [livePicks, setLivePicks] = useState(picks);
-  useEffect(() => {
-    console.log('Adding picks subscription');
-    const pb = getPB();
-    pb.collection('picks').subscribe(
-      '*',
-      (data) => {
-        console.log('Pick updated!', data.action, data.record);
-        if (data.action === 'delete') {
-          // remove the pick from the list
-          setLivePicks((prev) =>
-            prev.filter((pick) => pick.id !== data.record.id)
-          );
-          return;
-        }
+  return (
+    <QueryClientProvider client={queryClient}>
+      <LiveTable matchup={matchup} picks={picks} />
+    </QueryClientProvider>
+  );
+}
 
-        const pick = data.record;
-        pick.expand.user.avatar_url = getUserAvatarUrl(
-          pick.expand.user.id,
-          pick.expand.user.avatar
-        );
-        if (data.action === 'create') {
-          // add the pick to the list with avatar and username
-          setLivePicks((prev) => [...prev, pick]);
-        } else if (data.action === 'update') {
-          // update the pick in the list without changing order
-          setLivePicks((prev) =>
-            prev.map((p) => (p.id === pick.id ? pick : p))
-          );
-        }
-      },
-      {
+function LiveTable({
+  matchup,
+  picks,
+}: {
+  matchup: MatchupType;
+  picks: RecordModel[];
+}) {
+  const { data } = useQuery({
+    queryKey: ['picks', matchup.id],
+    queryFn: async () => {
+      const pb = getPB();
+      const picks = await pb.collection('picks').getFullList({
         filter: pb.filter('matchup = {:id}', { id: matchup.id }),
         expand: 'user',
         fields: '*,expand.user.id,expand.user.avatar,expand.user.username',
-      }
-    );
-  }, []);
+      });
+      const expandedPicks = expandAvatarUrl(picks);
+      return expandedPicks;
+    },
+    initialData: picks,
+    refetchInterval: 3000,
+    staleTime: 3000,
+  });
 
   return (
     <div
@@ -70,14 +69,14 @@ export function PickTable({
         </div>
         <div className='flex flex-row'>
           <div className='w-1/2 flex flex-col border-t border-r'>
-            {livePicks
+            {data
               .filter((p) => p.win_prediction === matchup.away_code)
               .map((pick) => (
                 <Pick key={pick.id} pick={pick} />
               ))}
           </div>
           <div className='w-1/2 flex flex-col border-t'>
-            {livePicks
+            {data
               .filter((p) => p.win_prediction === matchup.home_code)
               .map((pick) => (
                 <Pick key={pick.id} pick={pick} reverse />

@@ -11,6 +11,12 @@ export function validateScoreboard(scoreboard: any) {
   return scoreboardResult.data;
 }
 
+export async function getScoreboardById(id: string) {
+  const pb = getPB();
+  const scoreboardRecord = await pb.collection('scoreboards').getOne(id);
+  return validateScoreboard(scoreboardRecord);
+}
+
 export async function getScoreboardByCode(code: string) {
   const pb = getPB();
   const scoreboardRecord = await pb
