@@ -1,4 +1,3 @@
-import * as React from 'react';
 import {
   Table,
   TableBody,
@@ -13,15 +12,6 @@ import type { RecordModel } from 'pocketbase';
 type SortType = 'winRate' | 'wlRatio';
 
 export function Leaderboard({ data }: { data: RecordModel[] }) {
-  const calculateWLRatio = (wins: number, losses: number) => {
-    return (wins / (losses || 1)).toFixed(2);
-  };
-
-  const calculateWinRate = (wins: number, losses: number) => {
-    const total = wins + losses;
-    return ((wins / total) * 100).toFixed(1);
-  };
-
   return (
     <div className='w-full space-y-4'>
       <Table>
@@ -29,7 +19,8 @@ export function Leaderboard({ data }: { data: RecordModel[] }) {
           <TableRow>
             <TableHead>#</TableHead>
             <TableHead>User</TableHead>
-            <TableHead className='text-right'>Total Wins</TableHead>
+            <TableHead className='text-right'># Wins</TableHead>
+            <TableHead className='text-right'># Picks</TableHead>
             <TableHead className='text-right'>W/L Ratio</TableHead>
             <TableHead className='text-right'>Win Rate %</TableHead>
           </TableRow>
@@ -50,11 +41,12 @@ export function Leaderboard({ data }: { data: RecordModel[] }) {
                 </a>
               </TableCell>
               <TableCell className='text-right'>{entry.win_picks}</TableCell>
+              <TableCell className='text-right'>{entry.total_picks}</TableCell>
               <TableCell className='text-right'>
-                {entry.win_loss_ratio.toFixed(2)}
+                {entry.win_loss_ratio?.toFixed(2) || 0}
               </TableCell>
               <TableCell className='text-right'>
-                {entry.win_pick_rate.toFixed(2)}%
+                {entry.win_pick_rate?.toFixed(2) || 0}%
               </TableCell>
             </TableRow>
           ))}

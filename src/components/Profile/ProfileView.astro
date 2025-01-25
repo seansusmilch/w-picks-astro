@@ -14,8 +14,6 @@ interface Props {
 
 const { user, picks, stats } = Astro.props;
 
-const updated = stats?.updated ? moment(stats.updated).fromNow() : 'now';
-
 const winPicks = stats?.win_picks || 0;
 const progressValue = (winPicks / stats?.total_picks) * 100;
 ---
@@ -67,7 +65,6 @@ const progressValue = (winPicks / stats?.total_picks) * 100;
   >
     <div class='flex justify-between items-center'>
       <h2 class='text-xl font-bold'>User Stats</h2>
-      <p class='text-sm'>Updated {updated}</p>
     </div>
 
     <div class='flex flex-row justify-around'>

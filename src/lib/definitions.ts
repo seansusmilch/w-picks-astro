@@ -68,9 +68,8 @@ export const StatZ = z.object({
   total_picks: z.number().min(0),
   win_picks: z.number().min(0),
   lose_picks: z.number().min(0),
-  win_loss_ratio: z.number().min(0),
-  win_pick_rate: z.number().min(0).max(100),
-  updated: z.string(),
+  win_loss_ratio: z.number().min(0).or(z.null()),
+  win_pick_rate: z.number().min(0).max(100).or(z.null()),
 });
 
 export type StatType = z.infer<typeof StatZ>;
