@@ -2,6 +2,15 @@ import { PickZ, type PickType } from '@/lib/definitions';
 import { getPB, getUser } from '@/lib/data';
 import { isMatchupUpcoming } from '@/lib/matchups';
 
+export function validatePick(pick: any) {
+  const pickResult = PickZ.safeParse(pick);
+  if (!pickResult.success) {
+    console.error('Failed to parse pick:', pickResult.error);
+    throw new Error('Failed to parse pick');
+  }
+  return pickResult.data;
+}
+
 async function checkUserPermission(pickId: string, matchupId: string) {
   console.log('checkUserPermission', pickId, matchupId);
   const pb = getPB();
@@ -80,4 +89,14 @@ export async function getPickById(id: string) {
   }
 
   return pick.data;
+}
+
+export async function getPicksByMatchupId(matchupId: string) {
+  const pb = getPB();
+  const picks = await pb.collection('picks').getFullList({
+    filter: pb.filter('matchup = {:matchupId}', { matchupId }),
+    expand: 'user',
+    fields: '*,expand.user.id,expand.user.avatar,expand.user.username',
+  });
+  return picks;
 }

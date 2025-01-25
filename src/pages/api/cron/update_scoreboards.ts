@@ -21,6 +21,7 @@ interface NBAScoreboardResponse {
       gameCode: string;
       gameStatus: number;
       gameStatusText: string;
+      gameClock: string;
       awayTeam: {
         score: number;
       };
@@ -41,7 +42,9 @@ function parseScoreboards(rawData: NBAScoreboardResponse): Scoreboard[] {
     id: idFromCode(game.gameCode),
     code: game.gameCode,
     status: game.gameStatus,
-    status_text: game.gameStatusText,
+    status_text: [game.gameStatusText, game.gameClock]
+      .map((s) => s.trim())
+      .join(' '),
     away_score: game.awayTeam.score,
     home_score: game.homeTeam.score,
   }));
@@ -55,6 +58,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     // Check if there are matchups today
     const todaysMatchups = await getTodayMatchups();
+    console.log('todaysMatchups', todaysMatchups);
     if (todaysMatchups.length === 0) {
       return new Response(JSON.stringify({ message: 'No matchups today' }), {
         status: 200,
@@ -71,14 +75,16 @@ export const POST: APIRoute = async ({ request }) => {
     const results = await Promise.all(
       scoreboards.map(async (scoreboard) => {
         try {
-          await pb.collection('scoreboards').create(scoreboard);
+          await pb
+            .collection('scoreboards')
+            .create(scoreboard, { requestKey: scoreboard.id });
           return { action: 'CREATED', id: scoreboard.id };
         } catch (error) {
           console.log('error', error);
           try {
             await pb
               .collection('scoreboards')
-              .update(scoreboard.id, scoreboard);
+              .update(scoreboard.id, scoreboard, { requestKey: scoreboard.id });
             return { action: 'UPDATED', id: scoreboard.id };
           } catch (updateError) {
             return {

@@ -6,30 +6,20 @@ import { TeamMap } from '@/components/NBA/teamMap';
 import { MatchupZ } from '@/lib/definitions';
 import { PickTable } from '@/components/Picks/PickTable';
 import { expandAvatarUrl } from '@/lib/data_common';
+import { getMatchupById } from '@/lib/matchups';
+import { getPicksByMatchupId } from '@/lib/picks';
 
-const { pb, apb, user } = Astro.locals;
+const { user } = Astro.locals;
 const { pid } = Astro.params;
 
-const matchupRaw = await pb.collection('matchups').getOne(pid);
-if (!matchupRaw) return Astro.redirect('/404');
+const matchup = await getMatchupById(pid);
+if (!matchup) return Astro.redirect('/404');
 
-const matchupResult = MatchupZ.safeParse(matchupRaw);
-if (!matchupResult.success) {
-  console.error('Invalid matchup data:', matchupResult.error);
-  return;
-}
-const matchup = matchupResult.data;
-
-const { away_code, home_code } = matchupResult.data;
+const { away_code, home_code } = matchup;
 const title = `${TeamMap[away_code]?.name_short || away_code} at ${TeamMap[home_code]?.name_short || home_code}`;
 
-const picksResponse = await apb.collection('picks').getList(1, 30, {
-  filter: pb.filter('matchup = {:id}', { id: matchup.id }),
-  expand: 'user',
-  fields: '*,expand.user.id,expand.user.avatar,expand.user.username',
-});
-
-const picksResults = expandAvatarUrl(picksResponse.items);
+const picksRecords = await getPicksByMatchupId(matchup.id);
+const picksResults = expandAvatarUrl(picksRecords);
 
 let userPick = null;
 if (user) {

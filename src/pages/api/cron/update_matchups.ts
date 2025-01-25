@@ -2,9 +2,10 @@ import { getAPB } from '@/lib/data';
 import { type APIRoute } from 'astro';
 import moment from 'moment';
 import { CRON_SECRET } from 'astro:env/server';
+import { getMatchupByCode } from '@/lib/matchups';
 
 const PAST_CUTOFF = 3;
-const FUTURE_CUTOFF = 90;
+const FUTURE_CUTOFF = 30;
 const NBA_SCHEDULE_URL =
   'https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json';
 
@@ -27,7 +28,6 @@ interface ScheduleResponse {
 }
 
 interface Matchup {
-  id: string;
   code: string;
   time_utc: string;
   away_code: string;
@@ -35,7 +35,7 @@ interface Matchup {
 }
 
 function idFromCode(code: string): string {
-  return code.replace('/', '-');
+  return 'm' + code.replace('/', '').toLowerCase();
 }
 
 function parseMatchups(rawData: ScheduleResponse): Matchup[] {
@@ -50,7 +50,6 @@ function parseMatchups(rawData: ScheduleResponse): Matchup[] {
   const allGames = filteredDates.flatMap((date) => date.games);
   console.log('allGames', allGames.length);
   return allGames.map((game) => ({
-    id: idFromCode(game.gameCode),
     code: game.gameCode,
     time_utc: game.gameDateTimeUTC,
     away_code: game.awayTeam.teamTricode,
@@ -70,21 +69,30 @@ export const POST: APIRoute = async ({ request }) => {
     const matchupsJson = await response.json();
     const matchups = parseMatchups(matchupsJson);
 
-    const results = await Promise.all(
-      matchups.map((matchup) =>
-        pb
-          .collection('matchups')
-          .create(matchup, { requestKey: matchup.id })
-          .then(() => ({ id: matchup.id, action: 'CREATED' }))
-          .catch(() =>
-            pb
-              .collection('matchups')
-              .update(matchup.id, matchup, { requestKey: matchup.id })
-          )
-          .then(() => ({ id: matchup.id, action: 'UPDATED' }))
-          .catch((err) => ({ matchup, action: 'FAILED', error: err.message }))
-      )
-    );
+    const results = [];
+    for (const matchup of matchups) {
+      console.log('matchup', matchup);
+      try {
+        const existingMatchup = await getMatchupByCode(matchup.code);
+        console.log('existingMatchup', existingMatchup);
+        if (existingMatchup) {
+          const newRecord = await pb
+            .collection('matchups')
+            .update(existingMatchup.id, matchup);
+          results.push({ id: newRecord, action: 'UPDATED' });
+        } else {
+          const newRecord = await pb.collection('matchups').create(matchup);
+          results.push({ id: newRecord.id, action: 'CREATED' });
+        }
+      } catch (error) {
+        console.error('Error updating matchup:', error);
+        results.push({
+          matchup: matchup,
+          action: 'FAILED',
+          error: error.message,
+        });
+      }
+    }
 
     const createdCount = results.filter((r) => r.action === 'CREATED').length;
     const updatedCount = results.filter((r) => r.action === 'UPDATED').length;
@@ -94,9 +102,10 @@ export const POST: APIRoute = async ({ request }) => {
 
     return new Response(
       JSON.stringify({
-        createdCount,
-        updatedCount,
-        failedCount,
+        created: createdCount,
+        updated: updatedCount,
+        failed: failedCount,
+        results: results,
       }),
       {
         status: 200,
