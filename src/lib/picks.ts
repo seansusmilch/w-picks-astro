@@ -160,7 +160,7 @@ export async function getPicksByUser(
 
   let filter = pb.filter('user = {:userId}', { userId });
   if (status) {
-    pb.filter('user = {:userId} && status = {:status}', {
+    filter = pb.filter('user = {:userId} && status = {:status}', {
       userId,
       status,
     });
