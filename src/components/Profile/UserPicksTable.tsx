@@ -151,15 +151,18 @@ function UpcomingPicksTable({ picks }: { picks: PickType[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {picks.reverse().map((p) => (
-          <TableRow key={p.id}>
-            <DateCell date={p.expand.matchup.time_utc} />
-            <MatchupCell matchup={p.expand.matchup} />
-            <TableCell className='flex items-start justify-end'>
-              <Logo tricode={p.win_prediction} className='w-12 h-12' />
-            </TableCell>
-          </TableRow>
-        ))}
+        {picks
+          .slice()
+          .reverse()
+          .map((p) => (
+            <TableRow key={p.id}>
+              <DateCell date={p.expand.matchup.time_utc} />
+              <MatchupCell matchup={p.expand.matchup} />
+              <TableCell className='flex items-start justify-end'>
+                <Logo tricode={p.win_prediction} className='w-12 h-12' />
+              </TableCell>
+            </TableRow>
+          ))}
       </TableBody>
     </Table>
   ) : (
