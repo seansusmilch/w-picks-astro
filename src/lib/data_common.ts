@@ -1,9 +1,9 @@
 import { POCKETBASE_PUBLIC_URL } from 'astro:env/client';
 import { DateTime } from 'luxon';
-import moment from 'moment';
 import type { RecordModel } from 'pocketbase';
 
 export const expandAvatarUrl = (items: RecordModel[]) => {
+  console.log(items);
   return items.map((item) => {
     item.expand.user.avatar_url = getUserAvatarUrl(
       item.expand.user.id,

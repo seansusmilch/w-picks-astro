@@ -98,7 +98,7 @@ export async function getPickById(id: string) {
 }
 
 export async function getPicksByMatchupId(matchupId: string) {
-  const pb = getPB();
+  const pb = getAPB();
   const picks = await pb.collection('picks').getFullList({
     filter: pb.filter('matchup = {:matchupId}', { matchupId }),
     expand: 'user',

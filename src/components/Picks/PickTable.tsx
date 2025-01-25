@@ -1,11 +1,8 @@
 import clsx from 'clsx';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { type PickType, PickZ, type MatchupType } from '@/lib/definitions';
-import { z } from 'astro/zod';
-import type { ListResult, RecordModel } from 'pocketbase';
-import { useState, useEffect } from 'react';
+import { type MatchupType } from '@/lib/definitions';
+import type { RecordModel } from 'pocketbase';
 import { getPB } from '@/lib/data_client';
-import { expandAvatarUrl, getUserAvatarUrl } from '@/lib/data_common';
+import { expandAvatarUrl } from '@/lib/data_common';
 import { UserAvatar } from '@/components/Profile/UserAvatar';
 import { cn } from '@/lib/utils';
 import {
@@ -46,6 +43,7 @@ function LiveTable({
         expand: 'user',
         fields: '*,expand.user.id,expand.user.avatar,expand.user.username',
       });
+      console.log('picks', picks);
       const expandedPicks = expandAvatarUrl(picks);
       return expandedPicks;
     },

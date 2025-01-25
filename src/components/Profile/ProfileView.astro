@@ -78,7 +78,7 @@ const progressValue = (winPicks / stats?.total_picks) * 100;
       </div>
       <div class='flex flex-col items-center'>
         <span class='text-2xl font-bold'>
-          {stats?.win_loss_ratio.toFixed(2) || 0}
+          {stats?.win_loss_ratio || 0}
         </span>
         <span class='text-sm'>W/L Ratio</span>
       </div>
