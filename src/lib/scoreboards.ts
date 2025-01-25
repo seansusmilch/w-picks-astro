@@ -1,6 +1,6 @@
-import { getPB } from '@/lib/data';
+import { getAPB, getPB } from '@/lib/data';
 import { ScoreboardZ } from '@/lib/definitions';
-import { getMatchupById } from '@/lib/matchups';
+import { getMatchupByCode, getMatchupById } from '@/lib/matchups';
 
 export function validateScoreboard(scoreboard: any) {
   const scoreboardResult = ScoreboardZ.safeParse(scoreboard);
@@ -30,4 +30,19 @@ export async function getScoreboardByMatchupId(matchupId: string) {
   if (!scoreboardRecord) return null;
 
   return validateScoreboard(scoreboardRecord);
+}
+
+export async function attachMatchupToScoreboard(
+  scoreboardId: string,
+  gameCode: string
+) {
+  const matchup = await getMatchupByCode(gameCode);
+  if (!matchup || matchup.scoreboard === scoreboardId) return;
+
+  console.log('attaching matchup to scoreboard', gameCode, scoreboardId);
+
+  const pb = getAPB();
+  await pb.collection('matchups').update(matchup.id, {
+    scoreboard: scoreboardId,
+  });
 }

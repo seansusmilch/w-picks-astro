@@ -2,8 +2,11 @@ import type { APIRoute } from 'astro';
 import { getAPB } from '@/lib/data';
 import { CRON_SECRET } from 'astro:env/server';
 import { getMatchupByCode, getTodayMatchups } from '@/lib/matchups';
-import { getScoreboardByCode } from '@/lib/scoreboards';
-import { getPicksByMatchupId, updatePicksStatusByCode } from '@/lib/picks';
+import {
+  attachMatchupToScoreboard,
+  getScoreboardByCode,
+} from '@/lib/scoreboards';
+import { updatePicksStatusByCode } from '@/lib/picks';
 
 const NBA_SCOREBOARDS_URL =
   'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json';
@@ -38,38 +41,10 @@ function parseScoreboards(rawData: NBAScoreboardResponse): Scoreboard[] {
   return todaysScoreboards.map((game) => ({
     code: game.gameCode,
     status: game.gameStatus,
-    status_text: [game.gameStatusText, game.gameClock]
-      .map((s) => s.trim())
-      .join(' '),
+    status_text: game.gameStatusText,
     away_score: game.awayTeam.score,
     home_score: game.homeTeam.score,
   }));
-}
-
-async function attachAllExistingMatchupsToScoreboards() {
-  const pb = getAPB();
-  const scoreboards = await pb
-    .collection('scoreboards')
-    .getFullList({ batch: 10000 });
-
-  for (const scoreboard of scoreboards) {
-    await attachMatchupToScoreboard(scoreboard.id, scoreboard.code);
-  }
-}
-
-async function attachMatchupToScoreboard(
-  scoreboardId: string,
-  gameCode: string
-) {
-  const matchup = await getMatchupByCode(gameCode);
-  if (!matchup || matchup.scoreboard === scoreboardId) return;
-
-  console.log('attaching matchup to scoreboard', gameCode, scoreboardId);
-
-  const pb = getAPB();
-  await pb.collection('matchups').update(matchup.id, {
-    scoreboard: scoreboardId,
-  });
 }
 
 async function updatePicksStatus(scoreboard: Scoreboard) {
