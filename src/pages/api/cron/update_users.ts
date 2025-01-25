@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
 import { getAPB } from '@/lib/data';
 import { CRON_SECRET } from 'astro:env/server';
+import { getStatsByUserId } from '@/lib/stats';
+import { getPicksByUser } from '@/lib/picks';
 
 interface UserStats {
   total_picks: number;
@@ -10,16 +12,22 @@ interface UserStats {
   win_pick_rate: number;
 }
 
-async function updateStats(pb: any, userId: string) {
-  try {
-    // Get past picks for user
-    const pastPicks = await pb.collection('picks').getList(1, 1000, {
-      filter: `user="${userId}" && status="past"`,
-    });
+async function attachStatsToUser(userId: string, statsId) {
+  const pb = getAPB();
 
-    const winPicks = pastPicks.items.filter((p: any) => p.result === 'W');
-    const losePicks = pastPicks.items.filter((p: any) => p.result === 'L');
-    const totalPicks = pastPicks.totalItems;
+  await pb.collection('users').update(userId, {
+    stats: statsId,
+  });
+}
+
+async function updateStats(userId: string) {
+  const pb = getAPB();
+  try {
+    const pastPicks = await getPicksByUser(userId, 'past');
+
+    const winPicks = pastPicks.filter((p: any) => p.result === 'W');
+    const losePicks = pastPicks.filter((p: any) => p.result === 'L');
+    const totalPicks = pastPicks.length;
 
     const winLossRatio = losePicks.length
       ? winPicks.length / losePicks.length
@@ -37,23 +45,19 @@ async function updateStats(pb: any, userId: string) {
     };
 
     // Get or create stats record
-    const statsRecord = await pb
-      .collection('stats')
-      .getFirstListItem(`user="${userId}"`);
-
-    if (!statsRecord) {
-      const newStats = await pb.collection('stats').create({
+    const statsRecord = await getStatsByUserId(userId);
+    if (statsRecord) {
+      await pb.collection('stats').update(statsRecord.id, {
         user: userId,
         ...latestStats,
       });
-      await pb.collection('users').update(userId, { stats: newStats.id });
-      console.log('Created stats for user', userId);
-      return { action: 'CREATED', userId };
+      return { action: 'UPDATED', userId };
     }
 
-    await pb.collection('stats').update(statsRecord.id, latestStats);
-    console.log('Updated stats for user', userId);
-    return { action: 'UPDATED', userId };
+    const newStatsRecord = await pb.collection('stats').create(latestStats);
+    await attachStatsToUser(userId, newStatsRecord.id);
+
+    return { action: 'CREATED', userId };
   } catch (error) {
     console.error('Error updating stats for user', userId, error);
     return { action: 'FAILED', userId, error: error.message };
@@ -69,22 +73,12 @@ export const POST: APIRoute = async ({ request }) => {
     const startTime = Date.now();
     const pb = getAPB();
 
-    // Get all users with pagination
-    const perPage = 10;
-    let page = 1;
-    let results: any[] = [];
+    const users = await pb.collection('users').getFullList();
+    const results = [];
 
-    while (true) {
-      const usersPage = await pb.collection('users').getList(page, perPage);
-
-      const pageResults = await Promise.all(
-        usersPage.items.map((user) => updateStats(pb, user.id))
-      );
-
-      results.push(...pageResults);
-
-      if (page >= usersPage.totalPages) break;
-      page++;
+    for (const user of users) {
+      const res = await updateStats(user.id);
+      results.push(res);
     }
 
     const createdCount = results.filter((r) => r.action === 'CREATED').length;

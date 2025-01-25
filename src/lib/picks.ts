@@ -1,6 +1,10 @@
 import { PickZ, type PickType } from '@/lib/definitions';
 import { getAPB, getPB, getUser } from '@/lib/data';
-import { getMatchupByCode, isMatchupUpcoming } from '@/lib/matchups';
+import {
+  getMatchupByCode,
+  getWinningTeamByMatchupId,
+  isMatchupUpcoming,
+} from '@/lib/matchups';
 
 export function validatePick(pick: any) {
   const pickResult = PickZ.safeParse(pick);
@@ -103,6 +107,15 @@ export async function getPicksByMatchupId(matchupId: string) {
   return picks;
 }
 
+export async function isWinningPick(pick: PickType) {
+  const winningTeam = await getWinningTeamByMatchupId(pick.matchup);
+  if (!winningTeam) {
+    throw new Error('No winning team found when checking if pick is winning');
+  }
+
+  return pick.win_prediction === winningTeam;
+}
+
 export async function updatePicksStatusByMatchupId(
   matchupId: string,
   status: 'upcoming' | 'live' | 'past'
@@ -113,9 +126,18 @@ export async function updatePicksStatusByMatchupId(
 
   await Promise.all(
     picks.map(async (pick) => {
-      await pb.collection('picks').update(pick.id, {
-        status: status,
-      });
+      let newData;
+      if (status === 'past') {
+        newData = {
+          status: status,
+          result: (await isWinningPick(pick)) ? 'W' : 'L',
+        };
+      } else {
+        newData = {
+          status: status,
+        };
+      }
+      await pb.collection('picks').update(pick.id, newData);
     })
   );
 }
@@ -128,4 +150,24 @@ export async function updatePicksStatusByCode(
   if (!matchup) return;
 
   await updatePicksStatusByMatchupId(matchup.id, status);
+}
+
+export async function getPicksByUser(
+  userId: string,
+  status?: 'upcoming' | 'live' | 'past'
+) {
+  const pb = getPB();
+
+  let filter = pb.filter('user = {:userId}', { userId });
+  if (status) {
+    pb.filter('user = {:userId} && status = {:status}', {
+      userId,
+      status,
+    });
+  }
+
+  const picks = await pb.collection('picks').getFullList({
+    filter: filter,
+  });
+  return picks;
 }

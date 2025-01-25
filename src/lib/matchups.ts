@@ -1,6 +1,7 @@
 import { getPB, getAPB } from '@/lib/data';
 import { MatchupZ } from '@/lib/definitions';
-import { getCodePrefixFromDate } from './data_common';
+import { getCodePrefixFromDate } from '@/lib/data_common';
+import { getScoreboardByCode } from '@/lib/scoreboards';
 
 export function validateMatchup(matchup: any) {
   const matchupResult = MatchupZ.safeParse(matchup);
@@ -55,4 +56,18 @@ export async function getTodayMatchups() {
   });
 
   return response.items;
+}
+
+export async function getWinningTeamByMatchupId(matchupId: string) {
+  const matchup = await getMatchupById(matchupId);
+  if (!matchup) return null;
+  const scoreboard = await getScoreboardByCode(matchup.code);
+  if (!scoreboard) return null;
+  if (scoreboard.status !== 3) return null;
+
+  const homeTeamWins = scoreboard.home_score > scoreboard.away_score;
+
+  if (homeTeamWins) return matchup.home_code;
+
+  return matchup.away_code;
 }
