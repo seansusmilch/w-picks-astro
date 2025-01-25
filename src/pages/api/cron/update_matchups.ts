@@ -100,15 +100,19 @@ export const POST: APIRoute = async ({ request }) => {
     const failedCount = failed.length;
 
     return new Response(
-      JSON.stringify({
-        message: 'Update matchups job completed',
-        stats: {
-          created: createdCount,
-          updated: updatedCount,
-          failed: failedCount,
+      JSON.stringify(
+        {
+          message: 'Update matchups job completed',
+          stats: {
+            created: createdCount,
+            updated: updatedCount,
+            failed: failedCount,
+          },
+          results: results,
         },
-        results: results,
-      }),
+        null,
+        2
+      ),
       {
         status: 200,
         headers: {

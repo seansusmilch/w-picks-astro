@@ -103,15 +103,19 @@ export const POST: APIRoute = async ({ request }) => {
     console.log('failed', failed);
 
     return new Response(
-      JSON.stringify({
-        message: 'Update scoreboards job completed',
-        stats: {
-          created: createdCount,
-          updated: updatedCount,
-          failed: failedCount,
+      JSON.stringify(
+        {
+          message: 'Update scoreboards job completed',
+          stats: {
+            created: createdCount,
+            updated: updatedCount,
+            failed: failedCount,
+          },
+          results: results,
         },
-        results: results,
-      }),
+        null,
+        4
+      ),
       {
         status: 200,
       }
