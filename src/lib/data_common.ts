@@ -1,4 +1,5 @@
 import { POCKETBASE_PUBLIC_URL } from 'astro:env/client';
+import { DateTime } from 'luxon';
 import moment from 'moment';
 import type { RecordModel } from 'pocketbase';
 
@@ -34,7 +35,8 @@ export function getWeekBounds(dt = new Date()) {
 }
 
 export function getCodePrefixFromDate(date: Date) {
-  const codePrefix = moment(date).format('YYYYMMDD');
-  console.log('date', codePrefix);
+  const codePrefix = DateTime.fromJSDate(date)
+    .setZone('America/New_York')
+    .toFormat('yyyyMMdd');
   return codePrefix;
 }
