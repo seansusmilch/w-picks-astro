@@ -1,6 +1,6 @@
 import { PickZ, type PickType } from '@/lib/definitions';
-import { getPB, getUser } from '@/lib/data';
-import { isMatchupUpcoming } from '@/lib/matchups';
+import { getAPB, getPB, getUser } from '@/lib/data';
+import { getMatchupByCode, isMatchupUpcoming } from '@/lib/matchups';
 
 export function validatePick(pick: any) {
   const pickResult = PickZ.safeParse(pick);
@@ -50,7 +50,9 @@ export async function upsertPick(pick: PickType) {
     } else {
       delete pick.id;
       pick.user = user.record.id;
-      pickResponse = await pb.collection('picks').create(pick);
+      pickResponse = await pb
+        .collection('picks')
+        .create({ ...pick, status: 'upcoming' });
     }
 
     const newPick = PickZ.safeParse(pickResponse);
@@ -99,4 +101,31 @@ export async function getPicksByMatchupId(matchupId: string) {
     fields: '*,expand.user.id,expand.user.avatar,expand.user.username',
   });
   return picks;
+}
+
+export async function updatePicksStatusByMatchupId(
+  matchupId: string,
+  status: 'upcoming' | 'live' | 'past'
+) {
+  const picks = await getPicksByMatchupId(matchupId);
+  if (!picks) return;
+  const pb = getAPB();
+
+  await Promise.all(
+    picks.map(async (pick) => {
+      await pb.collection('picks').update(pick.id, {
+        status: status,
+      });
+    })
+  );
+}
+
+export async function updatePicksStatusByCode(
+  code: string,
+  status: 'upcoming' | 'live' | 'past'
+) {
+  const matchup = await getMatchupByCode(code);
+  if (!matchup) return;
+
+  await updatePicksStatusByMatchupId(matchup.id, status);
 }

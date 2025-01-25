@@ -8,9 +8,11 @@ export const onRequest = defineMiddleware(async ({ locals, request }, next) => {
   locals.apb = getAPB();
 
   try {
-    await locals.apb.admins.authWithPassword(ADMIN_USER, ADMIN_PASSWORD, {
-      requestKey: Date.now().toString(),
-    });
+    await locals.apb
+      .collection('_superusers')
+      .authWithPassword(ADMIN_USER, ADMIN_PASSWORD, {
+        requestKey: Date.now().toString(),
+      });
   } catch (e) {
     console.error('PB: Failed to authenticate as admin.', e.message);
   }

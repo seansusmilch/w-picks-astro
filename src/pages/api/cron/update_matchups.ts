@@ -72,16 +72,12 @@ export const POST: APIRoute = async ({ request }) => {
         if (existingMatchup) {
           const newRecord = await pb
             .collection('matchups')
-            .update(existingMatchup.id, matchup, {
-              requestKey: Date.now().toString(),
-            });
+            .update(existingMatchup.id, matchup);
           results.push({ id: newRecord.id, action: 'UPDATED' });
           continue;
         }
 
-        const newRecord = await pb.collection('matchups').create(matchup, {
-          requestKey: Date.now().toString(),
-        });
+        const newRecord = await pb.collection('matchups').create(matchup);
         results.push({ id: newRecord.id, action: 'CREATED' });
       } catch (error) {
         console.error('Error updating matchup:', error);

@@ -15,6 +15,7 @@ export function getPB() {
   if (!pb) {
     pb = new PocketBase(POCKETBASE_URL);
   }
+  pb.autoCancellation(false);
   return pb;
 }
 
@@ -25,6 +26,7 @@ export function getAPB() {
   if (!apb) {
     apb = new PocketBase(POCKETBASE_URL);
   }
+  apb.autoCancellation(false);
   return apb;
 }
 

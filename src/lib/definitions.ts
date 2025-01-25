@@ -16,6 +16,7 @@ export const MatchupZ = z.object({
   time_utc: z.string(),
   home_code: z.string().length(3),
   away_code: z.string().length(3),
+  scoreboard: z.string().length(15).or(z.literal('')),
 });
 
 export type MatchupType = z.infer<typeof MatchupZ>;

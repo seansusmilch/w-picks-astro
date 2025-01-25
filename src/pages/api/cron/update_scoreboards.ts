@@ -1,8 +1,9 @@
 import type { APIRoute } from 'astro';
 import { getAPB } from '@/lib/data';
 import { CRON_SECRET } from 'astro:env/server';
-import { getTodayMatchups } from '@/lib/matchups';
+import { getMatchupByCode, getTodayMatchups } from '@/lib/matchups';
 import { getScoreboardByCode } from '@/lib/scoreboards';
+import { getPicksByMatchupId, updatePicksStatusByCode } from '@/lib/picks';
 
 const NBA_SCOREBOARDS_URL =
   'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json';
@@ -45,6 +46,78 @@ function parseScoreboards(rawData: NBAScoreboardResponse): Scoreboard[] {
   }));
 }
 
+async function attachAllExistingMatchupsToScoreboards() {
+  const pb = getAPB();
+  const scoreboards = await pb
+    .collection('scoreboards')
+    .getFullList({ batch: 10000 });
+
+  for (const scoreboard of scoreboards) {
+    await attachMatchupToScoreboard(scoreboard.id, scoreboard.code);
+  }
+}
+
+async function attachMatchupToScoreboard(
+  scoreboardId: string,
+  gameCode: string
+) {
+  const matchup = await getMatchupByCode(gameCode);
+  if (!matchup || matchup.scoreboard === scoreboardId) return;
+
+  console.log('attaching matchup to scoreboard', gameCode, scoreboardId);
+
+  const pb = getAPB();
+  await pb.collection('matchups').update(matchup.id, {
+    scoreboard: scoreboardId,
+  });
+}
+
+async function updatePicksStatus(scoreboard: Scoreboard) {
+  console.log('updating picks status', scoreboard.code, scoreboard.status);
+  switch (scoreboard.status) {
+    case 1:
+      await updatePicksStatusByCode(scoreboard.code, 'upcoming');
+      break;
+    case 2:
+      await updatePicksStatusByCode(scoreboard.code, 'live');
+      break;
+    case 3:
+      await updatePicksStatusByCode(scoreboard.code, 'past');
+      break;
+    default:
+      console.log('unknown scoreboard status', scoreboard.status);
+      break;
+  }
+}
+
+async function updateScoreboard(scoreboard: Scoreboard) {
+  const pb = getAPB();
+
+  // await attachAllExistingMatchupsToScoreboards();
+
+  try {
+    const existingScoreboard = await getScoreboardByCode(scoreboard.code);
+    if (existingScoreboard) {
+      const newRec = await pb
+        .collection('scoreboards')
+        .update(existingScoreboard.id, scoreboard);
+      await attachMatchupToScoreboard(existingScoreboard.id, scoreboard.code);
+      return { action: 'UPDATED', id: newRec.id };
+    }
+
+    const newRec = await pb.collection('scoreboards').create(scoreboard);
+    await attachMatchupToScoreboard(newRec.id, scoreboard.code);
+    return { action: 'CREATED', id: newRec.id };
+  } catch (error) {
+    console.log('error', error);
+    return {
+      action: 'FAILED',
+      scoreboard: scoreboard,
+      error: error.message,
+    };
+  }
+}
+
 export const POST: APIRoute = async ({ request }) => {
   if (request.headers.get('Cron-Secret') !== CRON_SECRET) {
     return new Response('Unauthorized', { status: 401 });
@@ -53,7 +126,6 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     // Check if there are matchups today
     const todaysMatchups = await getTodayMatchups();
-    console.log('todaysMatchups', todaysMatchups);
     if (todaysMatchups.length === 0) {
       return new Response(JSON.stringify({ message: 'No matchups today' }), {
         status: 200,
@@ -64,34 +136,12 @@ export const POST: APIRoute = async ({ request }) => {
     const response = await fetch(NBA_SCOREBOARDS_URL);
     const scoreboardsJson = await response.json();
     const scoreboards = parseScoreboards(scoreboardsJson);
-    const pb = getAPB();
 
     // Update each scoreboard in PocketBase
     const results = await Promise.all(
       scoreboards.map(async (scoreboard) => {
-        try {
-          const existingScoreboard = await getScoreboardByCode(scoreboard.code);
-          if (existingScoreboard) {
-            const newRec = await pb
-              .collection('scoreboards')
-              .update(existingScoreboard.id, scoreboard, {
-                requestKey: Date.now().toString(),
-              });
-            return { action: 'UPDATED', id: newRec.id };
-          }
-
-          const newRec = await pb.collection('scoreboards').create(scoreboard, {
-            requestKey: Date.now().toString(),
-          });
-          return { action: 'CREATED', id: newRec.id };
-        } catch (error) {
-          console.log('error', error);
-          return {
-            action: 'FAILED',
-            scoreboard: scoreboard,
-            error: error.message,
-          };
-        }
+        await updatePicksStatus(scoreboard);
+        return await updateScoreboard(scoreboard);
       })
     );
 

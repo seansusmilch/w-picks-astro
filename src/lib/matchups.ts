@@ -5,7 +5,10 @@ import { getCodePrefixFromDate } from './data_common';
 export function validateMatchup(matchup: any) {
   const matchupResult = MatchupZ.safeParse(matchup);
   if (!matchupResult.success) {
-    console.error('Failed to parse matchup:', matchup.error);
+    console.error(
+      'Failed to parse matchup:',
+      JSON.stringify(matchupResult.error.issues)
+    );
     throw new Error('Failed to parse matchup');
   }
   return matchupResult.data;
@@ -27,7 +30,7 @@ export async function getMatchupByCode(code: string) {
   const pb = getAPB();
   const matchupRecord = await pb
     .collection('matchups')
-    .getFirstListItem(pb.filter(`code = {:code}`, { code }))
+    .getFirstListItem(pb.filter('code = {:code}', { code }))
     .catch(() => null);
 
   if (!matchupRecord) return null;
