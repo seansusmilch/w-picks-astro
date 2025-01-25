@@ -2,12 +2,12 @@ import type { APIRoute } from 'astro';
 import { getAPB } from '@/lib/data';
 import { CRON_SECRET } from 'astro:env/server';
 import { getTodayMatchups } from '@/lib/matchups';
+import { getScoreboardByCode } from '@/lib/scoreboards';
 
 const NBA_SCOREBOARDS_URL =
   'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json';
 
 interface Scoreboard {
-  id: string;
   code: string;
   status: number;
   status_text: string;
@@ -32,14 +32,9 @@ interface NBAScoreboardResponse {
   };
 }
 
-function idFromCode(code: string): string {
-  return 's' + code.replace('/', '').toLowerCase();
-}
-
 function parseScoreboards(rawData: NBAScoreboardResponse): Scoreboard[] {
   const todaysScoreboards = rawData.scoreboard.games;
   return todaysScoreboards.map((game) => ({
-    id: idFromCode(game.gameCode),
     code: game.gameCode,
     status: game.gameStatus,
     status_text: [game.gameStatusText, game.gameClock]
@@ -75,24 +70,27 @@ export const POST: APIRoute = async ({ request }) => {
     const results = await Promise.all(
       scoreboards.map(async (scoreboard) => {
         try {
-          await pb
-            .collection('scoreboards')
-            .create(scoreboard, { requestKey: scoreboard.id });
-          return { action: 'CREATED', id: scoreboard.id };
+          const existingScoreboard = await getScoreboardByCode(scoreboard.code);
+          if (existingScoreboard) {
+            const newRec = await pb
+              .collection('scoreboards')
+              .update(existingScoreboard.id, scoreboard, {
+                requestKey: Date.now().toString(),
+              });
+            return { action: 'UPDATED', id: newRec.id };
+          }
+
+          const newRec = await pb.collection('scoreboards').create(scoreboard, {
+            requestKey: Date.now().toString(),
+          });
+          return { action: 'CREATED', id: newRec.id };
         } catch (error) {
           console.log('error', error);
-          try {
-            await pb
-              .collection('scoreboards')
-              .update(scoreboard.id, scoreboard, { requestKey: scoreboard.id });
-            return { action: 'UPDATED', id: scoreboard.id };
-          } catch (updateError) {
-            return {
-              action: 'FAILED',
-              scoreboard: scoreboard,
-              error: updateError.message,
-            };
-          }
+          return {
+            action: 'FAILED',
+            scoreboard: scoreboard,
+            error: error.message,
+          };
         }
       })
     );
@@ -106,12 +104,13 @@ export const POST: APIRoute = async ({ request }) => {
 
     return new Response(
       JSON.stringify({
-        message: 'Scoreboards updated successfully',
+        message: 'Update scoreboards job completed',
         stats: {
           created: createdCount,
           updated: updatedCount,
           failed: failedCount,
         },
+        results: results,
       }),
       {
         status: 200,

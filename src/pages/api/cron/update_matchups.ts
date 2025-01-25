@@ -34,10 +34,6 @@ interface Matchup {
   home_code: string;
 }
 
-function idFromCode(code: string): string {
-  return 'm' + code.replace('/', '').toLowerCase();
-}
-
 function parseMatchups(rawData: ScheduleResponse): Matchup[] {
   const pastCutoff = moment().subtract(PAST_CUTOFF, 'days');
   const futureCutoff = moment().add(FUTURE_CUTOFF, 'days');
@@ -71,19 +67,22 @@ export const POST: APIRoute = async ({ request }) => {
 
     const results = [];
     for (const matchup of matchups) {
-      console.log('matchup', matchup);
       try {
         const existingMatchup = await getMatchupByCode(matchup.code);
-        console.log('existingMatchup', existingMatchup);
         if (existingMatchup) {
           const newRecord = await pb
             .collection('matchups')
-            .update(existingMatchup.id, matchup);
-          results.push({ id: newRecord, action: 'UPDATED' });
-        } else {
-          const newRecord = await pb.collection('matchups').create(matchup);
-          results.push({ id: newRecord.id, action: 'CREATED' });
+            .update(existingMatchup.id, matchup, {
+              requestKey: Date.now().toString(),
+            });
+          results.push({ id: newRecord.id, action: 'UPDATED' });
+          continue;
         }
+
+        const newRecord = await pb.collection('matchups').create(matchup, {
+          requestKey: Date.now().toString(),
+        });
+        results.push({ id: newRecord.id, action: 'CREATED' });
       } catch (error) {
         console.error('Error updating matchup:', error);
         results.push({
@@ -102,9 +101,12 @@ export const POST: APIRoute = async ({ request }) => {
 
     return new Response(
       JSON.stringify({
-        created: createdCount,
-        updated: updatedCount,
-        failed: failedCount,
+        message: 'Update matchups job completed',
+        stats: {
+          created: createdCount,
+          updated: updatedCount,
+          failed: failedCount,
+        },
         results: results,
       }),
       {
