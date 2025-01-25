@@ -8,6 +8,8 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query';
 
+import { DateTime } from 'luxon';
+
 const queryClient = new QueryClient();
 
 export function LiveScore({
@@ -17,6 +19,7 @@ export function LiveScore({
   home_code,
   home_score,
   status_text,
+  status,
 }: {
   id: string;
   away_code: string;
@@ -24,11 +27,13 @@ export function LiveScore({
   home_code: string;
   home_score: number;
   status_text: string;
+  status: number;
 }) {
   const initialScore = {
     away_score,
     home_score,
     status_text,
+    status,
   };
 
   return (
@@ -56,6 +61,7 @@ function Scoreboard({
     away_score: number;
     home_score: number;
     status_text: string;
+    status: number;
   };
 }) {
   const awayTeamShort = TeamMap[away_code]?.name_short || away_code;
@@ -73,6 +79,17 @@ function Scoreboard({
     staleTime: 5000,
   });
 
+  let statusText = data.status_text;
+  if (data.status === 1) {
+    const etTime = DateTime.fromFormat(statusText, "h:mm a 'ET'", {
+      zone: 'America/New_York',
+    });
+    if (etTime.isValid) {
+      const localTime = etTime.toLocal();
+      statusText = localTime.toFormat('h:mm a');
+    }
+  }
+
   return (
     <>
       <div className='basis-1/3 flex flex-col text-center'>
@@ -82,14 +99,14 @@ function Scoreboard({
       <div className='basis-1/3 flex flex-col items-center justify-between text-center'>
         <div className='w-full flex-grow flex flex-row items-center justify-between'>
           <p className={clsx('text-2xl sm:text-4xl font-extrabold')}>
-            {data?.away_score}
+            {data.away_score}
           </p>
           <p className={clsx('text-2xl sm:text-4xl font-extrabold')}>
-            {data?.home_score}
+            {data.home_score}
           </p>
         </div>
         <p className='flex-grow-0 text-sm sm:text-md text-white font-bold rounded-xl px-2 py-1 bg-gradient-to-r from-red-500 to-orange-500'>
-          {data?.status_text}
+          {statusText}
         </p>
       </div>
       <div className='basis-1/3 flex flex-col items-center text-center'>
