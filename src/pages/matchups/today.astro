@@ -3,7 +3,7 @@ import Layout from '@/layouts/Layout.astro';
 import Matchup from '@/components/Matchup/Matchup.astro';
 import { Button } from '@/components/ui/button';
 import MatchupsList from '@/components/Matchup/MatchupsList.astro';
-import { getCodePrefixFromDate } from '@/lib/data_common';
+import { getTodayMatchups } from '@/lib/matchups';
 
 const pb = Astro.locals.pb;
 const isAuthed = pb.authStore.isValid;
@@ -11,12 +11,7 @@ if (!isAuthed) {
   throw new Error('Please login to view matchups');
 }
 
-const codePrefix = getCodePrefixFromDate(new Date());
-
-const matchups = await pb.collection('matchups').getFullList({
-  filter: `id ?~ "${codePrefix}"`,
-  sort: 'time_utc,code',
-});
+const matchups = await getTodayMatchups();
 ---
 
 <Layout title='W Picks | Today'>

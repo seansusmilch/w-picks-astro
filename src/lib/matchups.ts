@@ -1,5 +1,15 @@
-import { getPB } from '@/lib/data';
+import { getPB, getAPB } from '@/lib/data';
 import { MatchupZ } from '@/lib/definitions';
+import { getCodePrefixFromDate } from './data_common';
+
+export function validateMatchup(matchup: any) {
+  const matchupResult = MatchupZ.safeParse(matchup);
+  if (!matchupResult.success) {
+    console.error('Failed to parse matchup:', matchup.error);
+    throw new Error('Failed to parse matchup');
+  }
+  return matchupResult.data;
+}
 
 export async function getMatchupById(id: string) {
   const pb = getPB();
@@ -10,13 +20,19 @@ export async function getMatchupById(id: string) {
 
   if (!matchupRecord) return null;
 
-  const matchup = MatchupZ.safeParse(matchupRecord);
-  if (!matchup.success) {
-    console.error('Failed to parse matchup:', matchup.error);
-    throw new Error('Failed to parse matchup');
-  }
+  return validateMatchup(matchupRecord);
+}
 
-  return matchup.data;
+export async function getMatchupByCode(code: string) {
+  const pb = getAPB();
+  const matchupRecord = await pb
+    .collection('matchups')
+    .getFirstListItem(pb.filter(`code = {:code}`, { code }))
+    .catch(() => null);
+
+  if (!matchupRecord) return null;
+
+  return validateMatchup(matchupRecord);
 }
 
 export async function isMatchupUpcoming(id: string) {
@@ -25,4 +41,15 @@ export async function isMatchupUpcoming(id: string) {
   const now = Date.now();
   const matchupTime = Date.parse(matchup.time_utc);
   return matchupTime > now;
+}
+
+export async function getTodayMatchups() {
+  const pb = getAPB();
+  const codePrefix = getCodePrefixFromDate(new Date());
+
+  const response = await pb.collection('matchups').getList(1, 100, {
+    filter: pb.filter(`code ?~ {:codePrefix}`, { codePrefix }),
+  });
+
+  return response.items;
 }
