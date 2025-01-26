@@ -32,6 +32,14 @@ export default defineConfig({
         context: 'server',
         access: 'secret',
       }),
+      POSTHOG_API_HOST: envField.string({
+        context: 'server',
+        access: 'public',
+      }),
+      POSTHOG_API_TOKEN: envField.string({
+        context: 'server',
+        access: 'public',
+      }),
     },
   },
   integrations: [tailwind({ applyBaseStyles: true }), react()],

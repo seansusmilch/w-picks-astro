@@ -3,6 +3,7 @@ import Header from '@/components/Header/Header.astro';
 import '@fontsource/poppins';
 import '@/globals.css';
 import { ClientRouter } from 'astro:transitions';
+import Posthog from '@/components/Posthog.astro';
 
 interface Props {
   title: string;
@@ -45,6 +46,7 @@ const { title } = Astro.props;
     <meta name='generator' content={Astro.generator} />
     <title>{title ? `${title} | W Picks` : 'W Picks'}</title>
     <ClientRouter />
+    <Posthog />
   </head>
   <body>
     <div class='flex flex-col min-h-[100dvh]'>
