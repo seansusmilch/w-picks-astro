@@ -3,7 +3,6 @@ import { DateTime } from 'luxon';
 import type { RecordModel } from 'pocketbase';
 
 export const expandAvatarUrl = (items: RecordModel[]) => {
-  console.log(items);
   return items.map((item) => {
     item.expand.user.avatar_url = getUserAvatarUrl(
       item.expand.user.id,

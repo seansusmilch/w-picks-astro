@@ -5,17 +5,10 @@ import { POSTHOG_API_HOST, POSTHOG_API_TOKEN } from 'astro:env/server';
 const apiHost = POSTHOG_API_HOST;
 const apiToken = POSTHOG_API_TOKEN;
 
-const cookie = Astro.cookies.get(`ph_${POSTHOG_API_TOKEN}_posthog`);
-let distinctId = cookie?.json().distinct_id;
-if (!distinctId) {
-  console.log('No distinctId found, generating new one');
-  distinctId = crypto.randomUUID();
-}
-
 const posthogClient = PostHogClient();
 posthogClient.capture({
   event: 'server_side_page_view',
-  distinctId,
+  distinctId: Astro.locals.distinctId,
 });
 ---
 
@@ -74,7 +67,7 @@ posthogClient.capture({
     ui_host: 'https://us.posthog.com',
     person_profiles: 'always',
     loaded: function (posthog) {
-      const distinctId = document.querySelector('.did').innerHTML;
+      const distinctId = document.querySelector('.did')?.innerHTML;
       if (
         posthog.get_distinct_id() &&
         posthog.get_distinct_id() !== distinctId
