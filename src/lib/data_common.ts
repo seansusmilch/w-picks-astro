@@ -39,3 +39,16 @@ export function getCodePrefixFromDate(date: Date) {
     .toFormat('yyyyMMdd');
   return codePrefix;
 }
+
+export function getRandomEmoji() {
+  const emojis = [
+    '/assets/emojis/emoji1.png',
+    '/assets/emojis/emoji2.gif',
+    '/assets/emojis/emoji3.gif',
+    '/assets/emojis/emoji4.png',
+    '/assets/emojis/emoji5.gif',
+    '/assets/emojis/emoji6.jpg',
+  ];
+
+  return emojis[Math.floor(Math.random() * emojis.length)];
+}
