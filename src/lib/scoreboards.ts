@@ -58,6 +58,5 @@ export async function getScoreboardsByCodePrefix(codePrefix: string) {
   const scoreboards = await pb.collection('scoreboards').getFullList({
     filter: pb.filter(`code ?~ {:codePrefix}`, { codePrefix }),
   });
-  console.log('scoreboards', scoreboards);
   return scoreboards;
 }
