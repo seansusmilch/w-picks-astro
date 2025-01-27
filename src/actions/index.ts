@@ -6,7 +6,7 @@ import { getMatchupsAndPicksByCodePrefix } from '@/lib/matchups';
 import { getScoreboardsByCodePrefix } from '@/lib/scoreboards';
 import type { GameType } from '@/lib/definitions';
 import { expandAvatarUrl } from '@/lib/data_common';
-import { picksActions } from './picks';
+import { picks } from './picks';
 
 export const server = {
   isFeatureEnabled: defineAction({
@@ -46,5 +46,5 @@ export const server = {
       return games;
     },
   }),
-  picksActions,
+  picks,
 };

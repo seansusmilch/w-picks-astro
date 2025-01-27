@@ -3,7 +3,7 @@ import { deletePick } from '@/lib/picks';
 import { defineAction } from 'astro:actions';
 import { z } from 'astro:schema';
 
-export const picksActions = {
+export const picks = {
   submitPick: defineAction({
     accept: 'form',
     input: z.object({

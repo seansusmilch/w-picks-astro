@@ -32,7 +32,7 @@ export function PickForm({
     console.log('formData', Object.fromEntries(formData.entries()));
 
     if (formData.get('win_prediction') === 'indeterminate') {
-      const { data, error } = await actions.deletePick(formData);
+      const { data, error } = await actions.picks.deletePick(formData);
 
       if (data) {
         setFormState({
@@ -51,7 +51,7 @@ export function PickForm({
         }
       }
     } else {
-      const { data, error } = await actions.submitPick(formData);
+      const { data, error } = await actions.picks.submitPick(formData);
 
       if (data) {
         const pickData = PickZ.safeParse(data);
