@@ -1,5 +1,5 @@
 import { getPB, getAPB } from '@/lib/data';
-import { MatchupZ } from '@/lib/definitions';
+import { MatchupsByCodePrefixZ, MatchupZ } from '@/lib/definitions';
 import { getCodePrefixFromDate } from '@/lib/data_common';
 import { getScoreboardByCode } from '@/lib/scoreboards';
 
@@ -71,4 +71,21 @@ export async function getWinningTeamByMatchupId(matchupId: string) {
   if (homeTeamWins) return matchup.home_code;
 
   return matchup.away_code;
+}
+
+export async function getMatchupsAndPicksByCodePrefix(codePrefix: string) {
+  const pb = getAPB();
+  const matchups = await pb.collection('matchups').getFullList({
+    filter: pb.filter(`code ?~ {:codePrefix}`, { codePrefix }),
+    expand: ['picks_via_matchup', 'picks_via_matchup.user'].join(','),
+  });
+  return matchups;
+}
+
+export async function getCodePrefixes() {
+  const pb = getPB();
+  const matchupsByCodePrefix = await pb
+    .collection('matchups_by_code_prefix')
+    .getFullList();
+  return matchupsByCodePrefix.map((m) => MatchupsByCodePrefixZ.parse(m));
 }
