@@ -1,6 +1,5 @@
 import { PostHog } from 'posthog-node';
 import { POSTHOG_API_HOST, POSTHOG_API_TOKEN } from 'astro:env/server';
-import type { AstroCookies } from 'astro';
 
 let posthogClient = null;
 
