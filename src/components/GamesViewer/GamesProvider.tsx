@@ -27,24 +27,29 @@ export function GamesProvider({
   children: ReactNode;
 }) {
   const [currentPage, setCurrentPage] = useState(codePrefix);
+
   const { data, isLoading, error, refetch } = useQuery<GameType[]>({
     queryKey: ['games', currentPage],
     queryFn: async () => {
       console.log('fetching games', currentPage);
-
       const { data, error } = await actions.getGamesByCodePrefix({
         codePrefix: currentPage,
       });
       if (error) {
-        console.log('Error fetching games', error);
+        throw new Error(error.message);
       }
-      console.log('fetched games', currentPage, data);
       return data;
     },
-    refetchInterval: 5000, // Refetch every 30 seconds
-    staleTime: 500, // Consider data stale after 10 seconds
-    initialData: initialGames,
+    refetchInterval: 2500,
+    staleTime: 30 * 1000, // Data stays fresh for 30 seconds
+    gcTime: 5 * 60 * 1000, // Keep inactive data in cache for 5 minutes
+    refetchOnWindowFocus: true,
   });
+
+  // Create a wrapper for setCurrentPage that also triggers a refetch
+  const handlePageChange = (newPage: string) => {
+    setCurrentPage(newPage);
+  };
 
   return (
     <GamesContext.Provider
@@ -55,7 +60,7 @@ export function GamesProvider({
         refetch,
         pages,
         currentPage,
-        setCurrentPage,
+        setCurrentPage: handlePageChange,
       }}
     >
       {children}
