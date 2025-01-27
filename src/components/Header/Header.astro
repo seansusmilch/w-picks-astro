@@ -1,7 +1,6 @@
 ---
 import { Astronav, MenuItems, MenuIcon } from 'astro-navbar';
 import { Image } from 'astro:assets';
-import BrandLogo from '@/assets/brand/logo-hires-uncropped.webp';
 import { ThemeToggle } from './ThemeToggle';
 import { UserDropdown } from './UserDropdown';
 import { FeedbackDialog } from '@/components/Feedback/FeedbackDialog';
@@ -23,9 +22,9 @@ const pathname = Astro.url.pathname;
     <Astronav closeOnClick>
       <div class='flex w-full lg *:w-auto justify-between items-center'>
         <a class='flex flex-row gap-4 items-center' href='/'>
-          <Image
+          <img
             class='rounded-xl w-[50px] h-[50px]'
-            src={BrandLogo}
+            src='/assets/icons/maskable-icon-512x512.png'
             alt='W Picks Logo'
             width={256}
             height={256}
