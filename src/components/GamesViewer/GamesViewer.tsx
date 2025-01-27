@@ -4,8 +4,8 @@ import { PickTable } from './PickTable';
 import { PickForm } from '@/components/Picks/PickForm';
 import { useGames } from './GamesProvider';
 
-export function GamesViewer({ userId }: { userId: string }) {
-  const { games, isLoading, error } = useGames();
+export function GamesViewer() {
+  const { games, isLoading, error, userId } = useGames();
 
   return isLoading ? (
     <CarouselItem>

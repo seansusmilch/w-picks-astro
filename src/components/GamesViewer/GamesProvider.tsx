@@ -11,20 +11,21 @@ interface GamesContextType {
   pages: PageEntryType[];
   currentPage: string;
   setCurrentPage: (page: string) => void;
+  userId: string;
 }
 
 const GamesContext = createContext<GamesContextType | undefined>(undefined);
 
 export function GamesProvider({
-  initialGames,
   codePrefix,
   pages,
   children,
+  userId,
 }: {
-  initialGames: GameType[];
   codePrefix: string;
   pages: PageEntryType[];
   children: ReactNode;
+  userId: string;
 }) {
   const [currentPage, setCurrentPage] = useState(codePrefix);
 
@@ -61,6 +62,7 @@ export function GamesProvider({
         pages,
         currentPage,
         setCurrentPage: handlePageChange,
+        userId,
       }}
     >
       {children}
