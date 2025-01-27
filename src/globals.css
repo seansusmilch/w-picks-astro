@@ -68,7 +68,7 @@
     @apply bg-background text-foreground;
   }
 
-  html {
+  /* html {
     scrollbar-gutter: stable;
-  }
+  } */
 }
