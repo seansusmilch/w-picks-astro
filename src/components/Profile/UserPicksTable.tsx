@@ -13,7 +13,6 @@ import type { MatchupType, PickType } from '@/lib/definitions';
 import { TeamMap } from '@/components/NBA/teamMap';
 import { Logo } from '@/components/NBA/Logo';
 import moment from 'moment';
-import clsx from 'clsx';
 import { ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
 
 type Flags = {
@@ -176,22 +175,20 @@ function UpcomingPicksTable({
           .slice()
           .reverse()
           .map((p) => (
-            <>
-              <TableRow key={p.id}>
-                <TableCell>
-                  <DateCell date={p.expand.matchup.time_utc} />
-                </TableCell>
-                <TableCell>
-                  <MatchupCell matchup={p.expand.matchup} />
-                  {flags?.commentsInPicksHistory && p.comment && (
-                    <CommentCell comment={p.comment} />
-                  )}
-                </TableCell>
-                <TableCell className='flex items-start justify-end'>
-                  <Logo tricode={p.win_prediction} className='w-12 h-12' />
-                </TableCell>
-              </TableRow>
-            </>
+            <TableRow key={p.id}>
+              <TableCell>
+                <DateCell date={p.expand.matchup.time_utc} />
+              </TableCell>
+              <TableCell>
+                <MatchupCell matchup={p.expand.matchup} />
+                {flags?.commentsInPicksHistory && p.comment && (
+                  <CommentCell comment={p.comment} />
+                )}
+              </TableCell>
+              <TableCell className='flex items-start justify-end'>
+                <Logo tricode={p.win_prediction} className='w-12 h-12' />
+              </TableCell>
+            </TableRow>
           ))}
       </TableBody>
     </Table>
@@ -209,7 +206,7 @@ function NoPicks({ type }: { type: 'past' | 'live' | 'upcoming' }) {
 function CommentCell({ comment }: { comment: string }) {
   return (
     <div className='flex gap-1 text-muted-foreground'>
-      <ChatBubbleBottomCenterTextIcon className='w-4 h-4' />
+      <ChatBubbleBottomCenterTextIcon className='w-4 h-4 shrink-0' />
       <span className='text-sm'>{comment}</span>
     </div>
   );
