@@ -1,11 +1,11 @@
 ---
-import PostHogClient from '@/lib/posthog';
+import { PostHogClient } from '@/lib/posthog';
 import { POSTHOG_API_HOST, POSTHOG_API_TOKEN } from 'astro:env/server';
 
 const apiHost = POSTHOG_API_HOST;
 const apiToken = POSTHOG_API_TOKEN;
 
-const cookie = Astro.cookies.get(`ph_${apiToken}_posthog`);
+const cookie = Astro.cookies.get(`ph_${POSTHOG_API_TOKEN}_posthog`);
 let distinctId = cookie?.json().distinct_id;
 if (!distinctId) {
   console.log('No distinctId found, generating new one');

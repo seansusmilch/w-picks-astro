@@ -4,13 +4,17 @@ import { UserPicksTable } from '@/components/Profile/UserPicksTable';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import type { PickType, UserType, StatType } from '@/lib/definitions';
-import moment from 'moment';
-
+import { isFeatureEnabled } from '@/lib/posthog';
 interface Props {
   user: UserType & { avatar_url: string };
   picks: PickType[];
   stats?: StatType;
 }
+
+const commentsInPicksHistory = await isFeatureEnabled(
+  'comments-in-pick-history',
+  Astro.locals.distinctId
+);
 
 const { user, picks, stats } = Astro.props;
 
@@ -96,6 +100,11 @@ const progressValue = (winPicks / stats?.total_picks) * 100;
     class='flex flex-col w-full max-w-md lg:max-w-xl border rounded-lg shadow-lg p-4 gap-4'
   >
     <h2 class='text-xl font-bold'>Pick History</h2>
-    <UserPicksTable picks={picks} defaultTab='live' client:load />
+    <UserPicksTable
+      flags={{ commentsInPicksHistory }}
+      picks={picks}
+      defaultTab='live'
+      client:load
+    />
   </div>
 </div>

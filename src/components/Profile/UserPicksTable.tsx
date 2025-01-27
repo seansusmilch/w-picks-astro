@@ -13,11 +13,19 @@ import type { MatchupType, PickType } from '@/lib/definitions';
 import { TeamMap } from '@/components/NBA/teamMap';
 import { Logo } from '@/components/NBA/Logo';
 import moment from 'moment';
+import clsx from 'clsx';
+import { ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
+
+type Flags = {
+  commentsInPicksHistory?: boolean;
+};
 
 export function UserPicksTable({
+  flags,
   picks,
   defaultTab,
 }: {
+  flags: Flags;
   picks: PickType[];
   defaultTab: 'past' | 'live' | 'upcoming';
 }) {
@@ -36,13 +44,13 @@ export function UserPicksTable({
       </div>
 
       <TabsContent value='live'>
-        <LivePicksTable picks={livePicks} />
+        <LivePicksTable picks={livePicks} flags={flags} />
       </TabsContent>
       <TabsContent value='upcoming'>
-        <UpcomingPicksTable picks={upcomingPicks} />
+        <UpcomingPicksTable picks={upcomingPicks} flags={flags} />
       </TabsContent>
       <TabsContent value='past'>
-        <PastPicksTable picks={pastPicks} />
+        <PastPicksTable picks={pastPicks} flags={flags} />
       </TabsContent>
     </Tabs>
   );
@@ -54,7 +62,7 @@ function MatchupCell({ matchup }: { matchup: MatchupType }) {
   const homeTeamShort =
     TeamMap[matchup.home_code]?.name_short || matchup.home_code;
   return (
-    <TableCell>
+    <div>
       <a href={`/matchups/${matchup.id}`} className='flex flex-col'>
         <div className='flex gap-4'>
           <Logo tricode={matchup.away_code} className='w-12 h-12' />
@@ -64,21 +72,19 @@ function MatchupCell({ matchup }: { matchup: MatchupType }) {
           {awayTeamShort} at {homeTeamShort}
         </p>
       </a>
-    </TableCell>
+    </div>
   );
 }
 
 function DateCell({ date }: { date: Date }) {
   return (
-    <TableCell>
-      <p className='text-xs text-muted-foreground'>
-        {moment(date).format('MMM D')}
-      </p>
-    </TableCell>
+    <p className='text-xs text-muted-foreground'>
+      {moment(date).format('MMM D')}
+    </p>
   );
 }
 
-function PastPicksTable({ picks }: { picks: PickType[] }) {
+function PastPicksTable({ picks, flags }: { picks: PickType[]; flags: Flags }) {
   return picks.length ? (
     <Table>
       <TableHeader>
@@ -101,11 +107,15 @@ function PastPicksTable({ picks }: { picks: PickType[] }) {
                 {p.result}
               </span>
             </TableCell>
-            <DateCell date={p.expand.matchup.time_utc} />
-            <MatchupCell matchup={p.expand.matchup} />
-            {/* <TableCell className='flex items-start justify-end'>
-              <Logo tricode={p.win_prediction} className='w-12 h-12' />
-            </TableCell> */}
+            <TableCell>
+              <DateCell date={p.expand.matchup.time_utc} />
+            </TableCell>
+            <TableCell>
+              <MatchupCell matchup={p.expand.matchup} />
+              {flags?.commentsInPicksHistory && p.comment && (
+                <CommentCell comment={p.comment} />
+              )}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
@@ -115,7 +125,7 @@ function PastPicksTable({ picks }: { picks: PickType[] }) {
   );
 }
 
-function LivePicksTable({ picks }: { picks: PickType[] }) {
+function LivePicksTable({ picks, flags }: { picks: PickType[]; flags: Flags }) {
   return picks.length ? (
     <Table>
       <TableHeader>
@@ -127,7 +137,12 @@ function LivePicksTable({ picks }: { picks: PickType[] }) {
       <TableBody>
         {picks.map((p) => (
           <TableRow key={p.id}>
-            <MatchupCell matchup={p.expand.matchup} />
+            <TableCell>
+              <MatchupCell matchup={p.expand.matchup} />
+              {flags?.commentsInPicksHistory && p.comment && (
+                <CommentCell comment={p.comment} />
+              )}
+            </TableCell>
             <TableCell className='flex items-start justify-end'>
               <Logo tricode={p.win_prediction} className='w-12 h-12' />
             </TableCell>
@@ -140,7 +155,13 @@ function LivePicksTable({ picks }: { picks: PickType[] }) {
   );
 }
 
-function UpcomingPicksTable({ picks }: { picks: PickType[] }) {
+function UpcomingPicksTable({
+  picks,
+  flags,
+}: {
+  picks: PickType[];
+  flags: Flags;
+}) {
   return picks.length ? (
     <Table>
       <TableHeader>
@@ -155,13 +176,22 @@ function UpcomingPicksTable({ picks }: { picks: PickType[] }) {
           .slice()
           .reverse()
           .map((p) => (
-            <TableRow key={p.id}>
-              <DateCell date={p.expand.matchup.time_utc} />
-              <MatchupCell matchup={p.expand.matchup} />
-              <TableCell className='flex items-start justify-end'>
-                <Logo tricode={p.win_prediction} className='w-12 h-12' />
-              </TableCell>
-            </TableRow>
+            <>
+              <TableRow key={p.id}>
+                <TableCell>
+                  <DateCell date={p.expand.matchup.time_utc} />
+                </TableCell>
+                <TableCell>
+                  <MatchupCell matchup={p.expand.matchup} />
+                  {flags?.commentsInPicksHistory && p.comment && (
+                    <CommentCell comment={p.comment} />
+                  )}
+                </TableCell>
+                <TableCell className='flex items-start justify-end'>
+                  <Logo tricode={p.win_prediction} className='w-12 h-12' />
+                </TableCell>
+              </TableRow>
+            </>
           ))}
       </TableBody>
     </Table>
@@ -173,5 +203,14 @@ function UpcomingPicksTable({ picks }: { picks: PickType[] }) {
 function NoPicks({ type }: { type: 'past' | 'live' | 'upcoming' }) {
   return (
     <p className='text-center text-gray-400'>No {type} picks at this time</p>
+  );
+}
+
+function CommentCell({ comment }: { comment: string }) {
+  return (
+    <div className='flex gap-1 text-muted-foreground'>
+      <ChatBubbleBottomCenterTextIcon className='w-4 h-4' />
+      <span className='text-sm'>{comment}</span>
+    </div>
   );
 }
