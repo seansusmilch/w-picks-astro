@@ -31,8 +31,8 @@ export function SwipePopover() {
         <HelpIcon />
       </PopoverTrigger>
       <PopoverContent
-        className='bg-secondary text-secondary-foreground border-none'
-        side='top'
+        className='bg-secondary text-secondary-foreground border-none text-sm p-2'
+        side='left'
       >
         Swipe left and right to see more matchups
       </PopoverContent>
