@@ -6,12 +6,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { HelpIcon } from '@/components/ui/help-icon';
 
 export function HelpDialog() {
   return (
     <Dialog>
-      <DialogTrigger className='border rounded-lg hover:bg-muted h-full py-2 px-4 font-extrabold'>
-        {/* <LifebuoyIcon className='h-10' /> */}?
+      <DialogTrigger>
+        <HelpIcon />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

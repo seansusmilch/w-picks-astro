@@ -79,7 +79,6 @@ if (matchupCarousel) {
 ---
 
 <Layout title='Matchups'>
-  <h1 class='text-3xl py-6 font-bold'>Matchups</h1>
   {
     matchupCarousel ? (
       <MatchupCarousel
@@ -90,22 +89,25 @@ if (matchupCarousel) {
         client:load
       />
     ) : (
-      <div class='flex flex-col items-start gap-4'>
-        <MatchupsList matchups={matchups} />
-        <div class='w-full max-w-md'>
-          <PaginateControls
-            page={{ title: currentText, href: '#' }}
-            prevPage={{
-              title: 'Prev Page',
-              href: `${base_url}?page=${prevKey}`,
-            }}
-            nextPage={{
-              title: 'Next Page',
-              href: `${base_url}?page=${nextKey}`,
-            }}
-          />
+      <>
+        <h1 class='text-3xl py-6 font-bold'>Matchups</h1>
+        <div class='flex flex-col items-start gap-4'>
+          <MatchupsList matchups={matchups} />
+          <div class='w-full max-w-md'>
+            <PaginateControls
+              page={{ title: currentText, href: '#' }}
+              prevPage={{
+                title: 'Prev Page',
+                href: `${base_url}?page=${prevKey}`,
+              }}
+              nextPage={{
+                title: 'Next Page',
+                href: `${base_url}?page=${nextKey}`,
+              }}
+            />
+          </div>
         </div>
-      </div>
+      </>
     )
   }
 </Layout>
