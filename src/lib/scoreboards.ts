@@ -52,3 +52,12 @@ export async function attachMatchupToScoreboard(
     scoreboard: scoreboardId,
   });
 }
+
+export async function getScoreboardsByCodePrefix(codePrefix: string) {
+  const pb = getAPB();
+  const scoreboards = await pb.collection('scoreboards').getFullList({
+    filter: pb.filter(`code ?~ {:codePrefix}`, { codePrefix }),
+  });
+  console.log('scoreboards', scoreboards);
+  return scoreboards;
+}

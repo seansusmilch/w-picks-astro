@@ -3,7 +3,11 @@ import Layout from '@/layouts/Layout.astro';
 import MatchupsList from '@/components/Matchup/MatchupsList.astro';
 import { getCodePrefixFromDate } from '@/lib/data_common';
 import { PaginateControls } from '@/components/Matchup/PaginateControls';
-import moment from 'moment';
+import { DateTime } from 'luxon';
+import { isFeatureEnabled } from '@/lib/posthog';
+import { MatchupCarousel } from '@/components/GamesViewer/MatchupCarousel';
+import { actions } from 'astro:actions';
+import { getCodePrefixes } from '@/lib/matchups';
 
 const page = Astro.url.searchParams.get('page');
 const { pb } = Astro.locals;
@@ -44,20 +48,64 @@ const matchups = await pb.collection('matchups').getFullList({
   sort: 'time_utc',
 });
 
-const currentText = moment(currentKey).format('ddd, M/D');
+const currentText = DateTime.fromISO(currentKey).toFormat('ccc, M/d');
 const base_url = Astro.url.pathname;
+
+const codePrefixes = await getCodePrefixes();
+const pages = codePrefixes.map((c) => ({
+  date_code: c.date_code,
+  title: DateTime.fromISO(c.date_code as string).toFormat('ccc, M/d'),
+  href: `${base_url}?page=${c.date_code}`,
+}));
+
+const codePrefix =
+  Astro.url.searchParams.get('page') ?? getCodePrefixFromDate(new Date());
+
+const { data: initialGames, error } = await Astro.callAction(
+  actions.getGamesByCodePrefix,
+  {
+    codePrefix,
+  }
+);
+
+const matchupCarousel = await isFeatureEnabled(
+  'matchup-carousel',
+  Astro.locals.distinctId
+);
+
+if (matchupCarousel) {
+  console.log('matchupCarousel', matchupCarousel);
+}
 ---
 
 <Layout title='Matchups'>
   <h1 class='text-3xl py-6 font-bold'>Matchups</h1>
-  <div class='flex flex-col items-start gap-4'>
-    <MatchupsList matchups={matchups} />
-    <div class='w-full max-w-md'>
-      <PaginateControls
-        page={{ title: currentText, href: '#' }}
-        prevPage={{ title: 'Prev Page', href: `${base_url}?page=${prevKey}` }}
-        nextPage={{ title: 'Next Page', href: `${base_url}?page=${nextKey}` }}
+  {
+    matchupCarousel ? (
+      <MatchupCarousel
+        initialGames={initialGames}
+        codePrefix={codePrefix}
+        userId={Astro.locals.user?.record.id}
+        pages={pages}
+        client:load
       />
-    </div>
-  </div>
+    ) : (
+      <div class='flex flex-col items-start gap-4'>
+        <MatchupsList matchups={matchups} />
+        <div class='w-full max-w-md'>
+          <PaginateControls
+            page={{ title: currentText, href: '#' }}
+            prevPage={{
+              title: 'Prev Page',
+              href: `${base_url}?page=${prevKey}`,
+            }}
+            nextPage={{
+              title: 'Next Page',
+              href: `${base_url}?page=${nextKey}`,
+            }}
+          />
+        </div>
+      </div>
+    )
+  }
 </Layout>

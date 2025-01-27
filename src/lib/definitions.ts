@@ -62,6 +62,8 @@ export const ScoreboardZ = z.object({
   away_score: z.number().min(0),
 });
 
+export type ScoreboardType = z.infer<typeof ScoreboardZ>;
+
 export const StatZ = z.object({
   id: z.string().length(15),
   user: z.string().length(15),
@@ -73,3 +75,26 @@ export const StatZ = z.object({
 });
 
 export type StatType = z.infer<typeof StatZ>;
+
+export const GameZ = z.object({
+  matchup: MatchupZ,
+  scoreboard: ScoreboardZ.optional(),
+  picks: z.array(PickZ),
+});
+
+export type GameType = z.infer<typeof GameZ>;
+
+export const PageEntryZ = z.object({
+  date_code: z.union([z.string(), z.number()]),
+  title: z.string(),
+  href: z.string().url(),
+});
+
+export type PageEntryType = z.infer<typeof PageEntryZ>;
+
+export const MatchupsByCodePrefixZ = z.object({
+  date_code: z.union([z.string(), z.number()]),
+  matchup_count: z.number().min(0),
+});
+
+export type MatchupsByCodePrefixType = z.infer<typeof MatchupsByCodePrefixZ>;
