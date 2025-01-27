@@ -7,6 +7,7 @@ import { getScoreboardsByCodePrefix } from '@/lib/scoreboards';
 import type { GameType } from '@/lib/definitions';
 import { expandAvatarUrl } from '@/lib/data_common';
 import { picks } from './picks';
+import { users } from './users';
 
 export const server = {
   isFeatureEnabled: defineAction({
@@ -47,4 +48,5 @@ export const server = {
     },
   }),
   picks,
+  users,
 };

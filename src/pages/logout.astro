@@ -1,6 +1,6 @@
 ---
-const pb = Astro.locals.pb;
+import { actions } from 'astro:actions';
 
-pb.authStore.clear();
+await Astro.callAction(actions.users.logout, {});
 return Astro.redirect('/');
 ---

@@ -1,34 +1,48 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import clsx from 'clsx';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { actions, isInputError } from 'astro:actions';
+import { navigate } from 'astro:transitions/client';
 
-export function LoginSignupForm({ confirm }: { confirm: boolean }) {
+export function LoginSignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [activeTab, setActiveTab] = useState('login');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     setLoading(true);
+    setError('');
     e.preventDefault();
-    const formData = new FormData(e.target);
 
-    fetch('/login', {
-      method: 'POST',
-      body: formData,
-    })
-      .then((res) => {
-        if (res.redirected) {
-          window.location.href = res.url;
+    const formData = new FormData(e.currentTarget);
+    if (activeTab === 'login') {
+      const { error } = await actions.users.login(formData);
+      if (error) {
+        if (isInputError(error)) {
+          setError(error.issues.map((issue) => issue.message).join(', '));
+        } else {
+          setError(error.message);
         }
-        return res.json();
-      })
-      .then(({ error }) => {
-        if (error) {
-          setError(error);
-          setLoading(false);
-        }
-      });
+        setLoading(false);
+        return;
+      }
+
+      setSuccessMessage('Redirecting you...');
+      navigate('/');
+    } else {
+      const { data, error } = await actions.users.signup(formData);
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
+
+      setSuccessMessage(data.message);
+      setLoading(false);
+      setActiveTab('login');
+    }
   };
 
   return (
@@ -41,14 +55,14 @@ export function LoginSignupForm({ confirm }: { confirm: boolean }) {
         Welcome to W Picks
       </h1>
 
-      {confirm && (
+      {successMessage && (
         <div className='text-left text-foreground bg-green-400 dark:bg-green-600 p-2 rounded-md'>
-          <p className='font-semibold'>Error:</p>
-          <p className=''>Confirm your email!</p>
+          <p className='font-semibold'>Success:</p>
+          <p className=''>{successMessage}</p>
         </div>
       )}
 
-      <Tabs defaultValue='login'>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className='flex justify-center'>
           <TabsList>
             <TabsTrigger value='login'>Login</TabsTrigger>
@@ -102,14 +116,16 @@ export function LoginSignupForm({ confirm }: { confirm: boolean }) {
           </div>
         </TabsContent>
       </Tabs>
+
       {error && (
         <div className='text-left text-destructive-foreground bg-destructive p-2 rounded-md'>
           <p className='font-semibold'>Error:</p>
           <p className=''>{error}</p>
         </div>
       )}
+
       <div className='pt-4 flex flex-row justify-end'>
-        <Button className='font-bold' type='submit'>
+        <Button className='font-bold' type='submit' disabled={loading}>
           Let's Goooo
         </Button>
       </div>
