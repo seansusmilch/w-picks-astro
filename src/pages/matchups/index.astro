@@ -10,8 +10,7 @@ import { actions } from 'astro:actions';
 import { getCodePrefixes } from '@/lib/matchups';
 
 const page = Astro.url.searchParams.get('page');
-const { pb } = Astro.locals;
-const isAuthed = pb.authStore.isValid;
+const { pb, isAuthed } = Astro.locals;
 if (!isAuthed) {
   throw new Error('Please login to view matchups');
 }

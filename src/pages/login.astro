@@ -2,8 +2,7 @@
 import Layout from '@/layouts/Layout.astro';
 import { LoginSignupForm } from '@/components/LoginSignupForm';
 
-const { pb } = Astro.locals;
-const isAuthed = pb.authStore.isValid;
+const { isAuthed } = Astro.locals;
 if (isAuthed) {
   throw new Error('Already logged in');
 }

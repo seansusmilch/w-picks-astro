@@ -5,6 +5,7 @@ declare namespace App {
     pb: import('pocketbase').default;
     apb: import('pocketbase').default;
     user: { record: any; token: string };
+    isAuthed: boolean;
     distinctId: string;
   }
 }

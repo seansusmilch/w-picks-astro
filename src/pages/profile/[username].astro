@@ -4,8 +4,12 @@ import { getUserAvatarUrl } from '@/lib/data_common';
 import ProfileView from '@/components/Profile/ProfileView.astro';
 import type { UserType } from '@/lib/definitions';
 
-const { pb } = Astro.locals;
+const { pb, isAuthed } = Astro.locals;
 const { username } = Astro.params;
+
+if (!isAuthed) {
+  throw new Error('Please login to view profile');
+}
 
 const user: UserType & { avatar_url: string } = await pb
   .collection('users')

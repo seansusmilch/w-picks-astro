@@ -40,6 +40,7 @@ export const onRequest = defineMiddleware(
     try {
       // get an up-to-date auth store state by verifying and refreshing the loaded auth model (if any)
       if (locals.pb.authStore.isValid) {
+        locals.isAuthed = true;
         locals.user = await getUser();
       }
     } catch (_) {
