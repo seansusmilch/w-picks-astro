@@ -10,6 +10,7 @@ posthogClient.capture({
   event: 'server_side_page_view',
   distinctId: Astro.locals.distinctId,
   properties: {
+    $current_url: Astro.url,
     $set: {
       email: Astro.locals.user?.record.email,
       username: Astro.locals.user?.record.username,
