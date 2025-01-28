@@ -52,3 +52,8 @@ export function getRandomEmoji() {
 
   return emojis[Math.floor(Math.random() * emojis.length)];
 }
+
+export function getUrlToMatchup(code: string) {
+  const [page, game] = code.split('/');
+  return `/matchups?page=${page}&game=${game}`;
+}

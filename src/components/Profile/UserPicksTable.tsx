@@ -14,6 +14,7 @@ import { TeamMap } from '@/components/NBA/teamMap';
 import { Logo } from '@/components/NBA/Logo';
 import moment from 'moment';
 import { ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
+import { getUrlToMatchup } from '@/lib/data_common';
 
 type Flags = {
   commentsInPicksHistory?: boolean;
@@ -62,7 +63,7 @@ function MatchupCell({ matchup }: { matchup: MatchupType }) {
     TeamMap[matchup.home_code]?.name_short || matchup.home_code;
   return (
     <div>
-      <a href={`/matchups/${matchup.id}`} className='flex flex-col'>
+      <a href={getUrlToMatchup(matchup.code)} className='flex flex-col'>
         <div className='flex gap-4'>
           <Logo tricode={matchup.away_code} className='w-12 h-12' />
           <Logo tricode={matchup.home_code} className='w-12 h-12' />
