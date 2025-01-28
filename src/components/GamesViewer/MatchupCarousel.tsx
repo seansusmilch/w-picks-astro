@@ -1,45 +1,52 @@
 /**
  * This takes a list of matchups and displays them in a carousel.
  */
-import { Carousel, CarouselContent } from '@/components/ui/carousel';
-import type { GameType, PageEntryType } from '@/lib/definitions';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { GamesProvider } from './GamesProvider';
-import { Title, SwipePopover } from './HeaderComponents';
+import {
+  Carousel,
+  CarouselContent,
+  type CarouselApi,
+} from '@/components/ui/carousel';
+import { useGames } from './GamesProvider';
 import { GamesViewer } from './GamesViewer';
-import { Paginator } from './Paginator';
+import { useState, useEffect } from 'react';
 
-const queryClient = new QueryClient();
+export function MatchupCarousel() {
+  const [api, setApi] = useState<CarouselApi>();
+  const [startIndex, setStartIndex] = useState(0);
+  const { games } = useGames();
 
-export function MatchupCarousel({
-  initialGames,
-  codePrefix,
-  userId,
-  pages,
-}: {
-  initialGames: GameType[];
-  codePrefix: string;
-  userId: string;
-  pages: PageEntryType[];
-}) {
+  useEffect(() => {
+    if (!api) return;
+
+    const url = new URL(window.location.href);
+    const pageParam = url.searchParams.get('page');
+    const gameParam = url.searchParams.get('game');
+
+    if (pageParam && gameParam) {
+      const matchupCode = `${pageParam}/${gameParam}`;
+      const idx = games.findIndex((game) => game.matchup.code === matchupCode);
+      setStartIndex(idx);
+    }
+
+    api.on('select', (e) => {
+      const idx = e.selectedScrollSnap();
+      const selectedGame = games[idx];
+      console.log(selectedGame, games);
+
+      // Update the URL search params
+      if (selectedGame) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('game', selectedGame.matchup.code.split('/')[1]);
+        window.history.pushState({}, '', url);
+      }
+    });
+  }, [api, games]);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <GamesProvider
-        initialGames={initialGames}
-        codePrefix={codePrefix}
-        pages={pages}
-      >
-        <div className='flex items-center justify-between pb-2'>
-          <Title />
-          <SwipePopover />
-        </div>
-        <Carousel>
-          <CarouselContent>
-            <GamesViewer userId={userId} />
-          </CarouselContent>
-        </Carousel>
-        <Paginator />
-      </GamesProvider>
-    </QueryClientProvider>
+    <Carousel opts={{ startIndex }} setApi={setApi}>
+      <CarouselContent>
+        <GamesViewer />
+      </CarouselContent>
+    </Carousel>
   );
 }

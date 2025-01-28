@@ -4,6 +4,7 @@
  * 1. Ensure every scoreboard has a corresponding matchup
  * 2. Retroactively fetch scoreboard data for past matchups without scoreboards
  * 3. Update "left behind" picks to have correct status
+ * 4. Delete users who haven't verified their email in the last 30 days
  */
 
 import { getAPB } from '@/lib/data';

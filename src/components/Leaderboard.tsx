@@ -9,8 +9,6 @@ import {
 import { UserAvatar } from '@/components/Profile/UserAvatar';
 import type { RecordModel } from 'pocketbase';
 
-type SortType = 'winRate' | 'wlRatio';
-
 export function Leaderboard({ data }: { data: RecordModel[] }) {
   return (
     <div className='w-full space-y-4'>

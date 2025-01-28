@@ -5,7 +5,7 @@ import { getCodePrefixFromDate } from '@/lib/data_common';
 import { PaginateControls } from '@/components/Matchup/PaginateControls';
 import { DateTime } from 'luxon';
 import { isFeatureEnabled } from '@/lib/posthog';
-import { MatchupCarousel } from '@/components/GamesViewer/MatchupCarousel';
+import { GamesPage } from '@/components/GamesViewer/GamesPage';
 import { actions } from 'astro:actions';
 import { getCodePrefixes } from '@/lib/matchups';
 
@@ -81,8 +81,7 @@ if (matchupCarousel) {
 <Layout title='Matchups'>
   {
     matchupCarousel ? (
-      <MatchupCarousel
-        initialGames={initialGames}
+      <GamesPage
         codePrefix={codePrefix}
         userId={Astro.locals.user?.record.id}
         pages={pages}
