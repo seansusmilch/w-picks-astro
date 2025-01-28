@@ -11,11 +11,15 @@ export function SwipePopover() {
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    const hasSeenPopover = localStorage.getItem('hasSeenPopover');
+    if (hasSeenPopover) return;
     triggerRef.current?.click();
+    localStorage.setItem('hasSeenPopover', 'true');
 
     const timer = setTimeout(() => {
       triggerRef.current?.click();
     }, 2000);
+
     // Cancel the timer if the user clicks anywhere on the page
     document.body.addEventListener('click', () => {
       console.log('clicked');
