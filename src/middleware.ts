@@ -6,8 +6,10 @@ import { defineMiddleware } from 'astro:middleware';
 
 export const onRequest = defineMiddleware(
   async ({ locals, request, cookies }, next) => {
-    locals.pb = getPB();
-    locals.apb = getAPB();
+    // Skip middleware for cron jobs
+    if (request.url.includes('/api/cron')) {
+      return next();
+    }
 
     // get distinctId from posthog cookie
     let posthogCookie = cookies.get(`ph_${POSTHOG_API_TOKEN}_posthog`);
@@ -17,6 +19,10 @@ export const onRequest = defineMiddleware(
       distinctId = crypto.randomUUID();
     }
     locals.distinctId = distinctId;
+
+    // Authenticate Pocketbase
+    locals.pb = getPB();
+    locals.apb = getAPB();
 
     try {
       await locals.apb
