@@ -1,4 +1,4 @@
-import { getPB } from '@/lib/data';
+import { getAPB, getPB } from '@/lib/data';
 import { StatZ } from '@/lib/definitions';
 
 export function validateStats(stats: any) {
@@ -19,4 +19,18 @@ export async function getStatsByUserId(userId: string) {
   if (!stats) return null;
 
   return validateStats(stats);
+}
+
+export async function getAllStats() {
+  const pb = getAPB();
+  const sortedBy = 'win_pick_rate';
+
+  const userStats = await pb.collection('stats').getList(1, 50, {
+    sort: `-${sortedBy}`,
+    expand: 'user',
+    filter: 'user.verified = true',
+    fields: '*,expand.user.id,expand.user.avatar,expand.user.username',
+  });
+
+  return userStats.items;
 }

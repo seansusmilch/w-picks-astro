@@ -2,25 +2,19 @@
 import Layout from '@/layouts/Layout.astro';
 import { getUserAvatarUrl } from '@/lib/data_common';
 import ProfileView from '@/components/Profile/ProfileView.astro';
+import { getPicksByUser } from '@/lib/picks';
+import { getStatsByUserId } from '@/lib/stats';
 
-const { user, pb, isAuthed } = Astro.locals;
+const { user, isAuthed } = Astro.locals;
 if (!isAuthed) {
   throw new Error('Please login to view profile');
 }
 
 user.record.avatar_url = getUserAvatarUrl(user.record.id, user.record.avatar);
-const picks = await pb.collection('picks').getList(1, 100, {
-  filter: `user="${user.record.id}"`,
-  expand: 'matchup',
-  sort: '-matchup',
-});
-
-const stats = await pb
-  .collection('stats')
-  .getFirstListItem(`user="${user.record.id}"`)
-  .catch(() => null);
+const picks = await getPicksByUser(user.record.id);
+const stats = await getStatsByUserId(user.record.id);
 ---
 
 <Layout title='Profile'>
-  <ProfileView user={user.record} picks={picks.items} stats={stats} />
+  <ProfileView user={user.record} picks={picks} stats={stats} />
 </Layout>

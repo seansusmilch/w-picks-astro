@@ -77,6 +77,7 @@ export async function getMatchupsAndPicksByCodePrefix(codePrefix: string) {
   const pb = getAPB();
   const matchups = await pb.collection('matchups').getFullList({
     filter: pb.filter(`code ?~ {:codePrefix}`, { codePrefix }),
+    sort: '+time_utc',
     expand: ['picks_via_matchup', 'picks_via_matchup.user'].join(','),
   });
   return matchups;

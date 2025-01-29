@@ -168,6 +168,7 @@ export async function getPicksByUser(
 
   const picks = await pb.collection('picks').getFullList({
     filter: filter,
+    expand: 'matchup',
   });
   return picks;
 }

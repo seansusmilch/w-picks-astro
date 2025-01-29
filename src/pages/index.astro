@@ -2,17 +2,9 @@
 import { expandAvatarUrl } from '@/lib/data_common';
 import Layout from '../layouts/Layout.astro';
 import { Leaderboard } from '@/components/Leaderboard';
-const apb = Astro.locals.apb;
+import { getAllStats } from '@/lib/stats';
 
-const sortedBy = 'win_pick_rate';
-const userStats = await apb.collection('stats').getList(1, 50, {
-  sort: `-${sortedBy}`,
-  expand: 'user',
-  filter: 'user.verified = true',
-  fields: '*,expand.user.id,expand.user.avatar,expand.user.username',
-});
-
-const data = expandAvatarUrl(userStats.items);
+const data = expandAvatarUrl(await getAllStats());
 
 const pageTitle = 'Leaderboard';
 ---

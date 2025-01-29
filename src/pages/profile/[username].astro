@@ -2,32 +2,34 @@
 import Layout from '@/layouts/Layout.astro';
 import { getUserAvatarUrl } from '@/lib/data_common';
 import ProfileView from '@/components/Profile/ProfileView.astro';
-import type { UserType } from '@/lib/definitions';
+import { getStatsByUserId } from '@/lib/stats';
+import { getPicksByUser } from '@/lib/picks';
+import { actions } from 'astro:actions';
 
-const { pb, isAuthed } = Astro.locals;
+const { isAuthed } = Astro.locals;
 const { username } = Astro.params;
 
 if (!isAuthed) {
   throw new Error('Please login to view profile');
 }
 
-const user: UserType & { avatar_url: string } = await pb
-  .collection('users')
-  .getFirstListItem(`username="${username}"`);
+const { data: user, error } = await Astro.callAction(
+  actions.users.getUserProfile,
+  {
+    username,
+  }
+);
+
+if (error) {
+  console.error(error);
+  throw new Error('User not found');
+}
 
 user.avatar_url = getUserAvatarUrl(user.id, user.avatar);
-const picks = await pb.collection('picks').getList(1, 100, {
-  filter: `user="${user.id}"`,
-  expand: 'matchup',
-  sort: '-matchup',
-});
-
-const stats = await pb
-  .collection('stats')
-  .getFirstListItem(`user="${user.id}"`)
-  .catch(() => null);
+const picks = await getPicksByUser(user.id);
+const stats = await getStatsByUserId(user.id);
 ---
 
 <Layout title='Profile'>
-  <ProfileView user={user} picks={picks.items} stats={stats} />
+  <ProfileView user={user} picks={picks} stats={stats} />
 </Layout>
