@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import type { PickType, UserType, StatType } from '@/lib/definitions';
 import { isFeatureEnabled } from '@/lib/posthog';
 interface Props {
-  user: UserType & { avatar_url: string };
+  user: UserType;
   picks: PickType[];
   stats?: StatType;
 }

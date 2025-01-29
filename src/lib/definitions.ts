@@ -4,8 +4,9 @@ export const UserZ = z.object({
   id: z.string().length(15),
   email: z.string().email(),
   username: z.string(),
-  avatar: z.string().url(),
+  avatar: z.string(),
   bio: z.string(),
+  avatar_url: z.string().url().optional(),
 });
 
 export type UserType = z.infer<typeof UserZ>;

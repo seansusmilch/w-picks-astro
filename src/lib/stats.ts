@@ -20,3 +20,17 @@ export async function getStatsByUserId(userId: string) {
 
   return validateStats(stats);
 }
+
+export async function getAllStats() {
+  const pb = getPB();
+  const sortedBy = 'win_pick_rate';
+
+  const userStats = await pb.collection('stats').getList(1, 50, {
+    sort: `-${sortedBy}`,
+    expand: 'user',
+    filter: 'user.verified = true',
+    fields: '*,expand.user.id,expand.user.avatar,expand.user.username',
+  });
+
+  return userStats.items;
+}

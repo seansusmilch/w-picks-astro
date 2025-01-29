@@ -2,6 +2,7 @@ import { defineAction } from 'astro:actions';
 import { z } from 'astro:schema';
 import { ClientResponseError } from 'pocketbase';
 import { ActionError } from 'astro:actions';
+import { UserZ } from '@/lib/definitions';
 
 export const users = {
   login: defineAction({
@@ -97,6 +98,26 @@ export const users = {
       return {
         redirect: '/',
       };
+    },
+  }),
+  getUserProfile: defineAction({
+    accept: 'json',
+    input: z.object({
+      username: z.string().min(1, 'Username is required'),
+    }),
+    async handler({ username }, { locals }) {
+      const { apb, isAuthed } = locals;
+      if (!isAuthed) {
+        throw new ActionError({
+          message: 'You must be logged in to view this page',
+          code: 'UNAUTHORIZED',
+        });
+      }
+
+      const user = await apb
+        .collection('users')
+        .getFirstListItem(`username="${username}"`);
+      return UserZ.parse(user);
     },
   }),
 };
