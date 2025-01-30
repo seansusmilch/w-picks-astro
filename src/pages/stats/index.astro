@@ -1,0 +1,21 @@
+---
+import { expandAvatarUrl } from '@/lib/data_common';
+import Layout from '@/layouts/Layout.astro';
+import { Leaderboard } from '@/components/Stats/Leaderboard';
+import { getAllStats } from '@/lib/stats';
+import { Button } from '@/components/ui/button';
+
+const data = expandAvatarUrl(await getAllStats());
+
+const pageTitle = 'Leaderboard - All Time';
+---
+
+<Layout title={pageTitle}>
+  <h1 class='text-3xl py-6 font-bold'>{pageTitle}</h1>
+  <div class='flex flex-col items-center gap-4'>
+    <Leaderboard data={data} client:load />
+    <a href='/stats/weekly'>
+      <Button client:load>View Weekly Leaderboard</Button>
+    </a>
+  </div>
+</Layout>

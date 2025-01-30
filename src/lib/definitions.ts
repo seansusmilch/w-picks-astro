@@ -80,8 +80,8 @@ export type StatType = z.infer<typeof StatZ>;
 export const WeeklyStatZ = StatZ.extend({
   year_week: z
     .string()
-    .length(7)
-    .regex(/^\d{4}-\d{2}$/),
+    .length(8)
+    .regex(/^\d{4}-W\d{2}$/),
 });
 
 export type WeeklyStatType = z.infer<typeof WeeklyStatZ>;

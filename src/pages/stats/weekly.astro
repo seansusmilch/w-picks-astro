@@ -3,19 +3,25 @@ import { expandAvatarUrl } from '@/lib/data_common';
 import Layout from '@/layouts/Layout.astro';
 import { WeeklyLeaderboard } from '@/components/Stats/WeeklyLeaderboard';
 import { getWeeklyStats, getWeekList } from '@/lib/stats';
+import { Button } from '@/components/ui/button';
 
 const weekList = await getWeekList();
 const initialWeek = weekList[0];
 const initialData = expandAvatarUrl(await getWeeklyStats(initialWeek));
-const pageTitle = 'Weekly Leaderboard';
+const pageTitle = 'Leaderboard - Weekly';
 ---
 
 <Layout title={pageTitle}>
   <h1 class='text-3xl py-6 font-bold'>{pageTitle}</h1>
-  <WeeklyLeaderboard
-    initialData={initialData}
-    initialWeek={initialWeek}
-    weekList={weekList}
-    client:only
-  />
+  <div class='flex flex-col items-center gap-4'>
+    <WeeklyLeaderboard
+      initialData={initialData}
+      initialWeek={initialWeek}
+      weekList={weekList}
+      client:only
+    />
+    <a href='/stats'>
+      <Button client:load>View All Time Leaderboard</Button>
+    </a>
+  </div>
 </Layout>

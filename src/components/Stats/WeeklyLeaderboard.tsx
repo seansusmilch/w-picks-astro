@@ -6,11 +6,33 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Leaderboard } from './Leaderboard';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { queryClient } from '@/stores/query';
 import { useQuery } from '@tanstack/react-query';
 import { actions } from 'astro:actions';
+import { DateTime } from 'luxon';
+
+function formatWeekDisplay(weekString: string): string {
+  const [year, week] = weekString.split('-W').map((n) => parseInt(n));
+
+  const dt = DateTime.fromObject({
+    weekYear: year,
+    weekNumber: week,
+  }).plus({ week: 1 });
+
+  const firstDay = dt.startOf('week');
+  const lastDay = firstDay.endOf('week');
+
+  // Format the dates
+  const formatDate = (date: DateTime) => {
+    return date.toFormat('LLL d');
+  };
+
+  console.log(weekString, formatDate(firstDay), formatDate(lastDay), dt);
+
+  return `Week ${formatDate(firstDay)} to ${formatDate(lastDay)}`;
+}
 
 export function WeeklyLeaderboard({
   initialData,
@@ -38,12 +60,14 @@ export function WeeklyLeaderboard({
         return data;
       },
       initialData: selectedWeek === initialWeek ? initialData : undefined,
+      staleTime: 1000 * 10,
+      gcTime: 1000 * 60 * 60 * 24,
     },
     client
   );
 
   return (
-    <div className='space-y-4'>
+    <div className='w-full flex flex-col gap-4'>
       <div className='w-full max-w-xs'>
         <Select value={selectedWeek} onValueChange={setSelectedWeek}>
           <SelectTrigger>
@@ -52,7 +76,7 @@ export function WeeklyLeaderboard({
           <SelectContent>
             {weekList.map((option) => (
               <SelectItem key={option} value={option}>
-                <h2 className='text-xl font-semibold'>{option}</h2>
+                <span className='text-lg'>{formatWeekDisplay(option)}</span>
               </SelectItem>
             ))}
           </SelectContent>
