@@ -92,12 +92,10 @@ export const users = {
   }),
   logout: defineAction({
     accept: 'json',
-    async handler(_, { locals }) {
+    async handler(_, { locals, cookies }) {
       const pb = locals.pb;
       pb.authStore.clear();
-      return {
-        redirect: '/',
-      };
+      cookies.delete('pb_auth');
     },
   }),
   getUserProfile: defineAction({
