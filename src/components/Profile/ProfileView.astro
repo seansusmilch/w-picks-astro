@@ -48,18 +48,29 @@ const progressValue = (winPicks / stats?.total_picks) * 100;
           }
         </div>
         <pre
-          class='text-xs lg:text-md text-gray-500 break-words max-w-60 lg:max-w-96 overflow-clip'
+          class='text-xs lg:text-md text-foreground/80 break-words max-w-60 lg:max-w-96 overflow-clip'
           set:text={user.bio}
         />
       </div>
     </div>
     {
       user.id === Astro.locals.user?.record.id ? (
-        <a class='w-full lg:hidden' href='/profile/edit'>
-          <Button client:load className='w-full'>
-            Edit Profile
-          </Button>
-        </a>
+        <div class='flex flex-row gap-2'>
+          <a class='w-full lg:hidden' href='/logout'>
+            <Button
+              client:load
+              className='w-full border-red-500'
+              variant='outline'
+            >
+              Logout
+            </Button>
+          </a>
+          <a class='w-full lg:hidden' href='/profile/edit'>
+            <Button client:load className='w-full' variant='outline'>
+              Edit Profile
+            </Button>
+          </a>
+        </div>
       ) : null
     }
   </div>
