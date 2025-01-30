@@ -66,7 +66,7 @@ export const ScoreboardZ = z.object({
 export type ScoreboardType = z.infer<typeof ScoreboardZ>;
 
 export const StatZ = z.object({
-  id: z.string().length(15),
+  id: z.string(),
   user: z.string().length(15),
   total_picks: z.number().min(0),
   win_picks: z.number().min(0),
@@ -82,6 +82,22 @@ export const GameZ = z.object({
   scoreboard: ScoreboardZ.optional(),
   picks: z.array(PickZ),
 });
+
+export const WeeklyStatZ = z.object({
+  id: z.string(),
+  user: z.string().length(15),
+  year_week: z
+    .string()
+    .length(7)
+    .regex(/^\d{4}-\d{2}$/),
+  total_picks: z.number().min(0),
+  win_picks: z.number().min(0),
+  lose_picks: z.number().min(0),
+  win_pick_rate: z.number().min(0).max(100).nullable(),
+  win_loss_ratio: z.number().min(0).nullable(),
+});
+
+export type WeeklyStatType = z.infer<typeof WeeklyStatZ>;
 
 export type GameType = z.infer<typeof GameZ>;
 
