@@ -29,8 +29,6 @@ function formatWeekDisplay(weekString: string): string {
     return date.toFormat('LLL d');
   };
 
-  console.log(weekString, formatDate(firstDay), formatDate(lastDay), dt);
-
   return `Week ${formatDate(firstDay)} to ${formatDate(lastDay)}`;
 }
 
@@ -56,7 +54,6 @@ export function WeeklyLeaderboard({
         if (error) {
           throw new Error('Failed to fetch weekly stats');
         }
-        console.log('data', data);
         return data;
       },
       initialData: selectedWeek === initialWeek ? initialData : undefined,

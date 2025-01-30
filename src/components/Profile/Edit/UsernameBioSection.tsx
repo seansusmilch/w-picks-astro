@@ -48,6 +48,8 @@ export function UsernameBioSection({ user }: { user: any }) {
             disabled={loading}
             name='bio'
             required
+            className='min-h-[100px] resize-none'
+            rows={user.record.bio?.split('\n').length || 4}
           />
         </div>
         {error && <p className='text-red-500 text-sm'>{error}</p>}

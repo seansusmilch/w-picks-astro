@@ -9,15 +9,18 @@ import {
   CalendarDaysIcon,
   UserIcon,
 } from '@heroicons/react/24/outline';
-
+import { User } from '@/components/Header/User';
+import { getUserAvatarUrl } from '@/lib/data_common';
 const { user, isAuthed } = Astro.locals;
 const pathname = Astro.url.pathname;
+const avatarUrl =
+  isAuthed && getUserAvatarUrl(user.record.id, user.record.avatar);
 ---
 
 <header class='border-b'>
   <div class='lg:flex justify-between p-2 gap-4 mx-auto'>
     <Astronav closeOnClick>
-      <div class='flex w-full lg *:w-auto justify-between items-center'>
+      <div class='flex w-full lg:w-auto justify-between items-center'>
         <a class='flex flex-row gap-4 items-center' href='/'>
           <img
             class='rounded-xl w-[50px] h-[50px]'
@@ -35,7 +38,7 @@ const pathname = Astro.url.pathname;
       </div>
       <MenuItems class='hidden lg:flex'>
         <ul
-          class='flex flex-col text-xl text-right lg:items-center lg:flex-row lg:text-left'
+          class='flex flex-col pt-6 lg:pt-0 text-xl text-right lg:items-center lg:flex-row lg:text-left'
         >
           <li>
             <a
@@ -97,8 +100,23 @@ const pathname = Astro.url.pathname;
           <li>
             {
               isAuthed ? (
-                <div class='flex items-center gap-2 py-1 px-2 rounded-lg'>
-                  <UserDropdown user={user} client:load />
+                <div class='flex py-1 px-2 rounded-lg'>
+                  <div class='hidden lg:block'>
+                    <UserDropdown
+                      username={user.record.username}
+                      avatarUrl={avatarUrl}
+                      client:load
+                    />
+                  </div>
+                  <div class='block lg:hidden'>
+                    <a href='/profile' class='flex items-center gap-2'>
+                      <User
+                        username={user.record.username}
+                        avatarUrl={avatarUrl}
+                        client:load
+                      />
+                    </a>
+                  </div>
                 </div>
               ) : (
                 <a
@@ -116,7 +134,7 @@ const pathname = Astro.url.pathname;
               )
             }
           </li>
-          <li class='pl-2 flex gap-4 justify-end'>
+          <li class='pl-2 flex gap-4'>
             {isAuthed && <FeedbackDialog client:load />}
             <ThemeToggle client:load />
           </li>
