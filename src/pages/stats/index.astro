@@ -13,8 +13,8 @@ const pageTitle = 'Leaderboard - All Time';
 <Layout title={pageTitle}>
   <h1 class='text-3xl py-6 font-bold'>{pageTitle}</h1>
   <div class='flex flex-col items-center gap-4'>
-    <Leaderboard data={data} client:load />
-    <a href='/stats/weekly'>
+    <Leaderboard data={data} client:only />
+    <a href='/'>
       <Button client:load>View Weekly Leaderboard</Button>
     </a>
   </div>
