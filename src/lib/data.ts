@@ -39,7 +39,7 @@ export async function getUser() {
     if (pb.authStore.isValid) {
       user = await pb
         .collection('users')
-        .authRefresh({ requestKey: Date.now().toString() });
+        .authRefresh({ requestKey: crypto.randomUUID() });
       return user;
     }
   } catch (_) {

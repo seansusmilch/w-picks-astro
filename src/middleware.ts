@@ -20,6 +20,10 @@ export const onRequest = defineMiddleware(
     }
     locals.distinctId = distinctId;
 
+    // Set default auth state
+    locals.isAuthed = false;
+    locals.user = null;
+
     // Authenticate Pocketbase
     locals.pb = getPB();
     locals.apb = getAPB();
@@ -28,36 +32,52 @@ export const onRequest = defineMiddleware(
       await locals.apb
         .collection('_superusers')
         .authWithPassword(ADMIN_USER, ADMIN_PASSWORD, {
-          requestKey: Date.now().toString(),
+          requestKey: crypto.randomUUID(),
         });
     } catch (e) {
       console.error('PB: Failed to authenticate as admin.', e.message);
     }
 
+    // Clear any existing auth store before loading new cookie
+    locals.pb.authStore.clear();
+
     // load the store data from the request cookie string
-    locals.pb.authStore.loadFromCookie(request.headers.get('cookie') || '');
+    const cookieString = request.headers.get('cookie') || '';
+    locals.pb.authStore.loadFromCookie(cookieString);
 
     try {
-      // get an up-to-date auth store state by verifying and refreshing the loaded auth model (if any)
+      // Verify and refresh the token first
       if (locals.pb.authStore.isValid) {
-        locals.isAuthed = true;
         locals.user = await getUser();
+        locals.isAuthed = locals.pb.authStore.isValid;
+        console.log(
+          'PB: Authenticated as user',
+          locals.isAuthed,
+          locals.user?.record.username
+        );
       }
     } catch (_) {
       // clear the auth store on failed refresh
       locals.pb.authStore.clear();
+      locals.isAuthed = false;
+      locals.user = null;
+      console.log('PB: Auth store cleared');
     }
 
     const response = await next();
 
-    // send back the default 'pb_auth' cookie to the client with the latest store state
-    response.headers.append(
-      'set-cookie',
-      locals.pb.authStore.exportToCookie({
-        secure: request.url.startsWith('https://'),
-        httpOnly: false,
-      })
-    );
+    // Only set the cookie if the auth store is valid
+    if (locals.pb.authStore.isValid) {
+      response.headers.append(
+        'set-cookie',
+        locals.pb.authStore.exportToCookie({
+          secure: request.url.startsWith('https://'),
+          httpOnly: true,
+          sameSite: 'strict',
+          path: '/',
+        })
+      );
+    }
 
     return response;
   }
