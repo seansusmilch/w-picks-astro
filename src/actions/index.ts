@@ -1,4 +1,4 @@
-import { defineAction } from 'astro:actions';
+import { ActionError, defineAction } from 'astro:actions';
 import { z } from 'astro/zod';
 import { PostHogClient } from '@/lib/posthog';
 import { POSTHOG_API_TOKEN } from 'astro:env/server';
@@ -49,4 +49,26 @@ export const server = {
   }),
   picks,
   users,
+  submitFeedback: defineAction({
+    accept: 'form',
+    input: z.object({
+      name: z.string(),
+      feedback: z.string(),
+      page: z.string().url(),
+    }),
+    async handler({ name, feedback, page }, { locals }) {
+      const pb = locals.pb;
+      const data = { name, feedback, page };
+
+      try {
+        await pb.collection('feedback').create(data);
+      } catch (error) {
+        console.error('Error submitting feedback:', error);
+        throw new ActionError({
+          message: 'Failed to submit feedback',
+          code: 'INTERNAL_SERVER_ERROR',
+        });
+      }
+    },
+  }),
 };

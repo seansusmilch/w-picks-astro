@@ -1,30 +1,31 @@
 import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { getPB } from '@/lib/data_client';
+import { actions } from 'astro:actions';
 
 export function FeedbackForm({ onSubmit }: { onSubmit?: () => void }) {
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     setLoading(true);
     e.preventDefault();
     const formData = new FormData(e.target);
+    formData.set('page', window.location.href);
 
-    const data = {
-      name: formData.get('name'),
-      feedback: formData.get('feedback'),
-      page: window.location.href,
-    };
-    const pb = getPB();
+    try {
+      const { error } = await actions.submitFeedback(formData);
+      if (error) {
+        console.error('Error submitting feedback:', error);
+        setErrorMessage('Failed to submit feedback. Please try again.');
+        return;
+      }
 
-    pb.collection('feedback')
-      .create(data)
-      .then(() => {
-        setLoading(false);
-        onSubmit?.();
-      });
+      setErrorMessage(null);
+      onSubmit?.();
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,6 +45,12 @@ export function FeedbackForm({ onSubmit }: { onSubmit?: () => void }) {
           <label htmlFor='feedback'>Your feedback</label>
           <Textarea disabled={loading} id='feedback' name='feedback' required />
         </div>
+
+        {errorMessage && (
+          <div className='bg-red-500 text-white p-2 rounded-md'>
+            {errorMessage}
+          </div>
+        )}
       </div>
     </form>
   );
