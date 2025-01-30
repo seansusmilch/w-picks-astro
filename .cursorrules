@@ -57,9 +57,6 @@
             "enabled": true,
             "rules": [
                 {
-                    "description": "Code must start with path/filename as a one-line comment."
-                },
-                {
                     "description": "Comments should describe purpose, not effect."
                 },
                 {
