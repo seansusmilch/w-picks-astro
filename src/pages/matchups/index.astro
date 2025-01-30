@@ -84,7 +84,7 @@ if (matchupCarousel) {
         codePrefix={codePrefix}
         userId={Astro.locals.user?.record.id}
         pages={pages}
-        client:load
+        client:only
       />
     ) : (
       <>

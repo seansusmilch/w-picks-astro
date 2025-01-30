@@ -1,7 +1,6 @@
 import { defineConfig, envField } from 'astro/config';
 import node from '@astrojs/node';
 import tailwind from '@astrojs/tailwind';
-
 import react from '@astrojs/react';
 
 // https://astro.build/config
@@ -10,6 +9,11 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
+  integrations: [tailwind({ applyBaseStyles: true }), react()],
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'tap',
+  },
   env: {
     schema: {
       POCKETBASE_URL: envField.string({
@@ -42,6 +46,4 @@ export default defineConfig({
       }),
     },
   },
-  integrations: [tailwind({ applyBaseStyles: true }), react()],
-  experimental: {},
 });

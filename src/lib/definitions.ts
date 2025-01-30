@@ -77,27 +77,20 @@ export const StatZ = z.object({
 
 export type StatType = z.infer<typeof StatZ>;
 
+export const WeeklyStatZ = StatZ.extend({
+  year_week: z
+    .string()
+    .length(8)
+    .regex(/^\d{4}-W\d{2}$/),
+});
+
+export type WeeklyStatType = z.infer<typeof WeeklyStatZ>;
+
 export const GameZ = z.object({
   matchup: MatchupZ,
   scoreboard: ScoreboardZ.optional(),
   picks: z.array(PickZ),
 });
-
-export const WeeklyStatZ = z.object({
-  id: z.string(),
-  user: z.string().length(15),
-  year_week: z
-    .string()
-    .length(7)
-    .regex(/^\d{4}-\d{2}$/),
-  total_picks: z.number().min(0),
-  win_picks: z.number().min(0),
-  lose_picks: z.number().min(0),
-  win_pick_rate: z.number().min(0).max(100).nullable(),
-  win_loss_ratio: z.number().min(0).nullable(),
-});
-
-export type WeeklyStatType = z.infer<typeof WeeklyStatZ>;
 
 export type GameType = z.infer<typeof GameZ>;
 
