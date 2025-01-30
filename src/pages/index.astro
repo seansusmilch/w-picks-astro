@@ -1,7 +1,7 @@
 ---
 import { expandAvatarUrl } from '@/lib/data_common';
 import Layout from '@/layouts/Layout.astro';
-import { Leaderboard } from '@/components/Leaderboard';
+import { Leaderboard } from '@/components/Stats/Leaderboard';
 import { getAllStats } from '@/lib/stats';
 
 const data = expandAvatarUrl(await getAllStats());
@@ -11,5 +11,5 @@ const pageTitle = 'Leaderboard';
 
 <Layout title={pageTitle}>
   <h1 class='text-3xl py-6 font-bold'>{pageTitle}</h1>
-  <Leaderboard data={data} client:only />
+  <Leaderboard data={data} client:load />
 </Layout>

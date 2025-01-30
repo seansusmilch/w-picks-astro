@@ -1,0 +1,21 @@
+---
+import { expandAvatarUrl } from '@/lib/data_common';
+import Layout from '@/layouts/Layout.astro';
+import { WeeklyLeaderboard } from '@/components/Stats/WeeklyLeaderboard';
+import { getWeeklyStats, getWeekList } from '@/lib/stats';
+
+const weekList = await getWeekList();
+const initialWeek = weekList[0];
+const initialData = expandAvatarUrl(await getWeeklyStats(initialWeek));
+const pageTitle = 'Weekly Leaderboard';
+---
+
+<Layout title={pageTitle}>
+  <h1 class='text-3xl py-6 font-bold'>{pageTitle}</h1>
+  <WeeklyLeaderboard
+    initialData={initialData}
+    initialWeek={initialWeek}
+    weekList={weekList}
+    client:only
+  />
+</Layout>

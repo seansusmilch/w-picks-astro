@@ -53,6 +53,20 @@ const pathname = Astro.url.pathname;
           </li>
           <li>
             <a
+              href='/stats/weekly'
+              class:list={[
+                'flex items-center gap-2 py-1 px-2 rounded-lg',
+                pathname === '/stats/weekly'
+                  ? 'bg-secondary text-secondary-foreground border'
+                  : 'hover:text-gray-500',
+              ]}
+            >
+              <TrophyIcon className='w-6 h-6' />
+              <span>Weekly</span>
+            </a>
+          </li>
+          <li>
+            <a
               href='/matchups/today'
               class:list={[
                 'flex items-center gap-2 py-1 px-2 rounded-lg',
