@@ -1,7 +1,14 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  type ReactNode,
+  useEffect,
+} from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { GameType, PageEntryType } from '@/lib/definitions';
 import { actions } from 'astro:actions';
+import type { CarouselApi } from '@/components/ui/carousel';
 
 interface GamesContextType {
   games: GameType[];
@@ -12,6 +19,10 @@ interface GamesContextType {
   currentPage: string;
   setCurrentPage: (page: string) => void;
   userId: string;
+  carouselApi: CarouselApi | undefined;
+  setCarouselApi: (api: CarouselApi) => void;
+  startIndex: number;
+  selectedGameIndex: number;
 }
 
 const GamesContext = createContext<GamesContextType | undefined>(undefined);
@@ -28,28 +39,68 @@ export function GamesProvider({
   userId: string;
 }) {
   const [currentPage, setCurrentPage] = useState(codePrefix);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [startIndex, setStartIndex] = useState(0);
+  const [selectedGameIndex, setSelectedGameIndex] = useState(0);
 
   const { data, isLoading, error, refetch } = useQuery<GameType[]>({
     queryKey: ['games', currentPage],
     queryFn: async () => {
-      console.log('fetching games', currentPage);
       const { data, error } = await actions.getGamesByCodePrefix({
         codePrefix: currentPage,
       });
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw new Error(error.message);
       return data;
     },
     refetchInterval: 2500,
-    staleTime: 30 * 1000, // Data stays fresh for 30 seconds
-    gcTime: 5 * 60 * 1000, // Keep inactive data in cache for 5 minutes
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
   });
 
-  // Create a wrapper for setCurrentPage that also triggers a refetch
+  // Handle URL state
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const params = url.searchParams;
+
+    // Set initial page param if not present
+    if (!params.get('page')) {
+      params.set('page', codePrefix);
+      window.history.replaceState(null, '', `?${params.toString()}`);
+    }
+
+    // Handle initial game selection
+    const pageParam = params.get('page');
+    const gameParam = params.get('game');
+    if (pageParam && gameParam && data) {
+      const matchupCode = `${pageParam}/${gameParam}`;
+      const idx = data.findIndex((game) => game.matchup.code === matchupCode);
+      if (idx !== -1) setStartIndex(idx);
+    }
+  }, [codePrefix, data]);
+
+  // Handle carousel navigation
+  useEffect(() => {
+    if (!carouselApi || !data) return;
+
+    carouselApi.on('select', (e) => {
+      const idx = e.selectedScrollSnap();
+      setSelectedGameIndex(idx);
+      const selectedGame = data[idx];
+
+      if (selectedGame) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('game', selectedGame.matchup.code.split('/')[1]);
+        window.history.pushState({}, '', url);
+      }
+    });
+  }, [carouselApi, data]);
+
   const handlePageChange = (newPage: string) => {
     setCurrentPage(newPage);
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', newPage);
+    window.history.pushState({}, '', url);
   };
 
   return (
@@ -63,6 +114,10 @@ export function GamesProvider({
         currentPage,
         setCurrentPage: handlePageChange,
         userId,
+        carouselApi,
+        setCarouselApi,
+        startIndex,
+        selectedGameIndex,
       }}
     >
       {children}

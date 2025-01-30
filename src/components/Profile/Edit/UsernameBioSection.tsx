@@ -2,34 +2,38 @@ import { useState, useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { actions } from 'astro:actions';
 
 export function UsernameBioSection({ user }: { user: any }) {
   const [loading, setLoading] = useState(false);
-  const usernameRef = useRef<HTMLInputElement>(null);
-  const bioRef = useRef<HTMLTextAreaElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e) => {
-    setLoading(true);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    setLoading(true);
+    setError(null);
 
-    fetch('/api/profiles', {
-      method: 'POST',
-      body: formData,
-    }).then((res) => {
-      if (res.ok) {
-        setLoading(false);
+    const formData = new FormData(e.currentTarget);
+
+    try {
+      const { error } = await actions.users.updateProfile(formData);
+
+      if (error) {
+        setError(error.message);
       }
-    });
+    } catch (err) {
+      setError('Failed to update profile');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <form method='POST' onSubmit={handleSubmit} autoComplete='off'>
+    <form onSubmit={handleSubmit} autoComplete='off'>
       <div className='flex flex-col gap-4 text-lg'>
         <div>
           <label htmlFor='username'>Username</label>
           <Input
-            ref={usernameRef}
             defaultValue={user.record.username}
             disabled={loading}
             name='username'
@@ -40,15 +44,17 @@ export function UsernameBioSection({ user }: { user: any }) {
         <div>
           <label htmlFor='bio'>Bio</label>
           <Textarea
-            ref={bioRef}
             defaultValue={user.record.bio}
             disabled={loading}
             name='bio'
             required
           />
         </div>
+        {error && <p className='text-red-500 text-sm'>{error}</p>}
         <div className='flex justify-end'>
-          <Button className='w-full lg:w-auto'>Save</Button>
+          <Button className='w-full lg:w-auto' disabled={loading}>
+            {loading ? 'Saving...' : 'Save'}
+          </Button>
         </div>
       </div>
     </form>

@@ -167,6 +167,7 @@ export async function getPicksByUser(
   }
 
   const picks = await pb.collection('picks').getFullList({
+    sort: '-matchup.time_utc',
     filter: filter,
     expand: 'matchup',
   });

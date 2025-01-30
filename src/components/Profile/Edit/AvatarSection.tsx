@@ -1,32 +1,40 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect, useRef } from 'react';
-import { UserAvatar } from '../UserAvatar';
+import { useState, useRef } from 'react';
+import { UserAvatar } from '@/components/Profile/UserAvatar';
+import { actions } from 'astro:actions';
 
 export function AvatarSection({ user }: { user: any }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [avatar, setAvatar] = useState(user.record.avatar_url);
 
-  const handleSubmit = (e) => {
-    setLoading(true);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    fetch('/api/profiles', {
-      method: 'POST',
-      body: formData,
-    }).then((res) => {
-      if (res.ok) {
-        inputRef.current.value = '';
-        setLoading(false);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const { error } = await actions.users.updateProfile(formData);
+
+      if (error) {
+        setError(error.message);
+      } else {
+        inputRef.current!.value = '';
       }
-    });
+    } catch (err) {
+      setError('Failed to upload avatar');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className='flex flex-row gap-4'>
       <UserAvatar className='h-20 w-20 lg:h-36 lg:w-36' avatar_url={avatar} />
-      <form action='POST' onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <div className='flex flex-col gap-4'>
           <p className='text-lg'>Change Avatar</p>
           <Input
@@ -37,8 +45,9 @@ export function AvatarSection({ user }: { user: any }) {
             accept={['image/png', 'image/jpeg', 'image/gif', 'image/webp'].join(
               ','
             )}
-            onChange={(e) => setAvatar(URL.createObjectURL(e.target.files[0]))}
+            onChange={(e) => setAvatar(URL.createObjectURL(e.target.files![0]))}
           />
+          {error && <p className='text-red-500 text-sm'>{error}</p>}
           {inputRef.current?.files?.length > 0 && (
             <div className='flex flex-row w-full gap-2'>
               <Button
@@ -47,14 +56,14 @@ export function AvatarSection({ user }: { user: any }) {
                 type='button'
                 disabled={loading}
                 onClick={() => {
-                  inputRef.current.value = '';
+                  inputRef.current!.value = '';
                   setAvatar(user.record.avatar_url);
                 }}
               >
                 Cancel
               </Button>
               <Button className='basis-1/2' type='submit' disabled={loading}>
-                Upload
+                {loading ? 'Uploading...' : 'Upload'}
               </Button>
             </div>
           )}
