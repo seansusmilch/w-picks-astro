@@ -42,15 +42,14 @@ export function UserPicksTable({
           <TabsTrigger value='upcoming'>Upcoming</TabsTrigger>
         </TabsList>
       </div>
-
+      <TabsContent value='past'>
+        <PastPicksTable picks={pastPicks} flags={flags} />
+      </TabsContent>
       <TabsContent value='live'>
         <LivePicksTable picks={livePicks} flags={flags} />
       </TabsContent>
       <TabsContent value='upcoming'>
         <UpcomingPicksTable picks={upcomingPicks} flags={flags} />
-      </TabsContent>
-      <TabsContent value='past'>
-        <PastPicksTable picks={pastPicks} flags={flags} />
       </TabsContent>
     </Tabs>
   );
@@ -89,24 +88,14 @@ function PastPicksTable({ picks, flags }: { picks: PickType[]; flags: Flags }) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>W/L</TableHead>
           <TableHead className='pr-4'>Date</TableHead>
-          <TableHead>Matchup</TableHead>
-          {/* <TableHead>Prediction</TableHead> */}
+          <TableHead className='w-full'>Matchup</TableHead>
+          <TableHead>W/L</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {picks.map((p) => (
           <TableRow key={p.id}>
-            <TableCell>
-              <span
-                className={`font-bold ${
-                  p.result === 'W' ? 'text-green-500' : 'text-red-500'
-                }`}
-              >
-                {p.result}
-              </span>
-            </TableCell>
             <TableCell>
               <DateCell date={p.expand.matchup.time_utc} />
             </TableCell>
@@ -115,6 +104,15 @@ function PastPicksTable({ picks, flags }: { picks: PickType[]; flags: Flags }) {
               {flags?.commentsInPicksHistory && p.comment && (
                 <CommentCell comment={p.comment} />
               )}
+            </TableCell>
+            <TableCell>
+              <span
+                className={`font-bold ${
+                  p.result === 'W' ? 'text-green-500' : 'text-red-500'
+                }`}
+              >
+                {p.result}
+              </span>
             </TableCell>
           </TableRow>
         ))}
@@ -203,12 +201,13 @@ function NoPicks({ type }: { type: 'past' | 'live' | 'upcoming' }) {
     <p className='text-center text-gray-400'>No {type} picks at this time</p>
   );
 }
-
 function CommentCell({ comment }: { comment: string }) {
   return (
     <div className='flex gap-1 text-muted-foreground'>
       <ChatBubbleBottomCenterTextIcon className='w-4 h-4 shrink-0' />
-      <span className='text-sm'>{comment}</span>
+      <span className='text-sm break-words whitespace-pre-wrap max-w-[200px] lg:max-w-[425px]'>
+        {comment}
+      </span>
     </div>
   );
 }
