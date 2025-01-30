@@ -12,6 +12,7 @@ export default defineConfig({
   integrations: [tailwind({ applyBaseStyles: true }), react()],
   prefetch: {
     prefetchAll: true,
+    defaultStrategy: 'tap',
   },
   env: {
     schema: {
