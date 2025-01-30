@@ -7,9 +7,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { UserAvatar } from '@/components/Profile/UserAvatar';
-import type { RecordModel } from 'pocketbase';
+import type { StatType } from '@/lib/definitions';
 
-export function Leaderboard({ data }: { data: RecordModel[] }) {
+export function Leaderboard({ data }: { data: StatType[] }) {
   return (
     <div className='w-full space-y-4'>
       <Table>

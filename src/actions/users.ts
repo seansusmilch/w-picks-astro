@@ -120,4 +120,47 @@ export const users = {
       return UserZ.parse(user);
     },
   }),
+  updateProfile: defineAction({
+    accept: 'form',
+    input: z.object({
+      username: z.string().min(1, 'Username is required').optional(),
+      bio: z.string().optional(),
+      avatar: z.instanceof(File).optional(),
+    }),
+    async handler(data, { locals }) {
+      const { isAuthed } = locals;
+
+      if (!isAuthed) {
+        throw new ActionError({
+          message: 'You must be logged in to update your profile',
+          code: 'UNAUTHORIZED',
+        });
+      }
+
+      try {
+        const { apb, user } = locals;
+        // Remove null values to avoid updating with empty values
+        for (const key in data) {
+          if (!data[key]) delete data[key];
+        }
+        const updatedUser = await apb
+          .collection('users')
+          .update(user.record.id, data);
+        return UserZ.parse(updatedUser);
+      } catch (e) {
+        if (e instanceof ClientResponseError) {
+          if (e.status === 400) {
+            throw new ActionError({
+              message: e.message,
+              code: 'BAD_REQUEST',
+            });
+          }
+        }
+        throw new ActionError({
+          message: 'Failed to update profile',
+          code: 'INTERNAL_SERVER_ERROR',
+        });
+      }
+    },
+  }),
 };
