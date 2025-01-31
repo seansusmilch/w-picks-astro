@@ -34,7 +34,7 @@ export function UserDropdown({
           </a>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <a className='text-md' href='/logout'>
+          <a className='text-md' href='/logout' data-astro-prefetch='false'>
             Logout
           </a>
         </DropdownMenuItem>

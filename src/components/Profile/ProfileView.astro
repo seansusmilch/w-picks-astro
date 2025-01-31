@@ -56,7 +56,11 @@ const progressValue = (winPicks / stats?.total_picks) * 100;
     {
       user.id === Astro.locals.user?.record.id ? (
         <div class='flex flex-row gap-2'>
-          <a class='w-full lg:hidden' href='/logout'>
+          <a
+            class='w-full lg:hidden'
+            href='/logout'
+            data-astro-prefetch='false'
+          >
             <Button
               client:load
               className='w-full border-red-500'
