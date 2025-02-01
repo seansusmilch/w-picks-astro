@@ -1,11 +1,73 @@
-import { getPB, getAPB, getUser } from '@/lib/data';
+import { getPB, getAPB, getUser, cookieSettings } from '@/lib/data';
 import { ADMIN_USER, ADMIN_PASSWORD } from 'astro:env/server';
 import { POSTHOG_API_TOKEN } from 'astro:env/server';
-import { defineMiddleware } from 'astro:middleware';
+import { defineMiddleware, sequence } from 'astro:middleware';
 
-export const onRequest = defineMiddleware(
+const auth = defineMiddleware(async ({ locals, request, cookies }, next) => {
+  // Set default auth state
+  locals.isAuthed = false;
+  locals.user = null;
+
+  // Authenticate Pocketbase
+  locals.pb = getPB();
+  locals.apb = getAPB();
+
+  try {
+    if (!locals.apb.authStore.isValid || !locals.apb.authStore.isSuperuser) {
+      await locals.apb
+        .collection('_superusers')
+        .authWithPassword(ADMIN_USER, ADMIN_PASSWORD, {
+          requestKey: crypto.randomUUID(),
+        });
+      console.log('PB: Authenticated as admin');
+    }
+  } catch (e) {
+    console.error('PB: Failed to authenticate as admin.', e.message);
+  }
+
+  // Clear any existing auth store before loading new cookie
+  locals.pb.authStore.clear();
+
+  // load the store data from the request cookie string
+  const token = cookies.get('pb_auth');
+  if (!token) {
+    return next();
+  }
+
+  locals.pb.authStore.save(token.value);
+
+  try {
+    // Verify and refresh the token first
+    if (locals.pb.authStore.isValid) {
+      locals.user = await getUser();
+      locals.isAuthed = locals.pb.authStore.isValid;
+      cookies.set(
+        'pb_auth',
+        locals.user.token,
+        cookieSettings({
+          requestUrl: request.url,
+        })
+      );
+      console.log(
+        'PB: Authenticated as user',
+        locals.isAuthed,
+        locals.user.record.username
+      );
+    }
+  } catch (_) {
+    // clear the auth store on failed refresh
+    locals.pb.authStore.clear();
+    locals.isAuthed = false;
+    locals.user = null;
+    console.log('PB: Auth store cleared');
+  }
+
+  return next();
+});
+
+export const posthog = defineMiddleware(
   async ({ locals, request, cookies }, next) => {
-    // Skip middleware for cron jobs
+    // Skip posthog for cron jobs
     if (request.url.includes('/api/cron')) {
       return next();
     }
@@ -19,65 +81,8 @@ export const onRequest = defineMiddleware(
     }
     locals.distinctId = distinctId;
 
-    // Set default auth state
-    locals.isAuthed = false;
-    locals.user = null;
-
-    // Authenticate Pocketbase
-    locals.pb = getPB();
-    locals.apb = getAPB();
-
-    try {
-      await locals.apb
-        .collection('_superusers')
-        .authWithPassword(ADMIN_USER, ADMIN_PASSWORD, {
-          requestKey: crypto.randomUUID(),
-        });
-    } catch (e) {
-      console.error('PB: Failed to authenticate as admin.', e.message);
-    }
-
-    // Clear any existing auth store before loading new cookie
-    locals.pb.authStore.clear();
-
-    // load the store data from the request cookie string
-    const cookieString = request.headers.get('cookie') || '';
-    locals.pb.authStore.loadFromCookie(cookieString);
-
-    try {
-      // Verify and refresh the token first
-      if (locals.pb.authStore.isValid) {
-        locals.user = await getUser();
-        locals.isAuthed = locals.pb.authStore.isValid;
-        console.log(
-          'PB: Authenticated as user',
-          locals.isAuthed,
-          locals.user?.record.username
-        );
-      }
-    } catch (_) {
-      // clear the auth store on failed refresh
-      locals.pb.authStore.clear();
-      locals.isAuthed = false;
-      locals.user = null;
-      console.log('PB: Auth store cleared');
-    }
-
-    const response = await next();
-
-    // Only set the cookie if the auth store is valid
-    if (locals.pb.authStore.isValid) {
-      response.headers.append(
-        'set-cookie',
-        locals.pb.authStore.exportToCookie({
-          secure: request.url.startsWith('https://'),
-          httpOnly: true,
-          sameSite: 'strict',
-          path: '/',
-        })
-      );
-    }
-
-    return response;
+    return next();
   }
 );
+
+export const onRequest = sequence(auth, posthog);

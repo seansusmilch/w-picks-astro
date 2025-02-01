@@ -3,6 +3,7 @@ import PocketBase, {
   type RecordModel,
 } from 'pocketbase';
 import { POCKETBASE_URL } from 'astro:env/server';
+import type { AstroCookieSetOptions } from 'astro';
 
 let pb: PocketBase;
 let apb: PocketBase;
@@ -17,6 +18,15 @@ export function getPB() {
   }
   pb.autoCancellation(false);
   return pb;
+}
+
+export function cookieSettings({ requestUrl }: { requestUrl: string }) {
+  return {
+    secure: requestUrl.startsWith('https://'),
+    httpOnly: true,
+    sameSite: 'strict',
+    path: '/',
+  } as AstroCookieSetOptions;
 }
 
 /**
