@@ -1,3 +1,10 @@
 {
-  "cSpell.words": ["cachetools", "clsx", "luxon", "matchups", "POSTHOG"]
+  "cSpell.words": [
+    "cachetools",
+    "clsx",
+    "luxon",
+    "matchups",
+    "nanostores",
+    "POSTHOG"
+  ]
 }
