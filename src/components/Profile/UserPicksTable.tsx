@@ -16,11 +16,16 @@ import moment from 'moment';
 import { ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
 import { getUrlToMatchup } from '@/lib/data_common';
 
+type Flags = {
+  commentsInPicksHistory?: boolean;
+};
+
 export function UserPicksTable({
   flags,
   picks,
   defaultTab,
 }: {
+  flags: Flags;
   picks: PickType[];
   defaultTab: 'past' | 'live' | 'upcoming';
 }) {
@@ -39,13 +44,13 @@ export function UserPicksTable({
       </div>
 
       <TabsContent value='live'>
-        <LivePicksTable picks={livePicks} />
+        <LivePicksTable picks={livePicks} flags={flags} />
       </TabsContent>
       <TabsContent value='upcoming'>
-        <UpcomingPicksTable picks={upcomingPicks} />
+        <UpcomingPicksTable picks={upcomingPicks} flags={flags} />
       </TabsContent>
       <TabsContent value='past'>
-        <PastPicksTable picks={pastPicks} />
+        <PastPicksTable picks={pastPicks} flags={flags} />
       </TabsContent>
     </Tabs>
   );
@@ -79,7 +84,7 @@ function DateCell({ date }: { date: Date }) {
   );
 }
 
-function PastPicksTable({ picks }: { picks: PickType[] }) {
+function PastPicksTable({ picks, flags }: { picks: PickType[]; flags: Flags }) {
   return picks.length ? (
     <Table>
       <TableHeader>
@@ -107,7 +112,9 @@ function PastPicksTable({ picks }: { picks: PickType[] }) {
             </TableCell>
             <TableCell>
               <MatchupCell matchup={p.expand.matchup} />
-              {p.comment && <CommentCell comment={p.comment} />}
+              {flags?.commentsInPicksHistory && p.comment && (
+                <CommentCell comment={p.comment} />
+              )}
             </TableCell>
           </TableRow>
         ))}
@@ -118,7 +125,7 @@ function PastPicksTable({ picks }: { picks: PickType[] }) {
   );
 }
 
-function LivePicksTable({ picks }: { picks: PickType[] }) {
+function LivePicksTable({ picks, flags }: { picks: PickType[]; flags: Flags }) {
   return picks.length ? (
     <Table>
       <TableHeader>
@@ -132,7 +139,9 @@ function LivePicksTable({ picks }: { picks: PickType[] }) {
           <TableRow key={p.id}>
             <TableCell>
               <MatchupCell matchup={p.expand.matchup} />
-              {p.comment && <CommentCell comment={p.comment} />}
+              {flags?.commentsInPicksHistory && p.comment && (
+                <CommentCell comment={p.comment} />
+              )}
             </TableCell>
             <TableCell className='flex items-start justify-end'>
               <Logo tricode={p.win_prediction} className='w-12 h-12' />
@@ -146,7 +155,13 @@ function LivePicksTable({ picks }: { picks: PickType[] }) {
   );
 }
 
-function UpcomingPicksTable({ picks }: { picks: PickType[] }) {
+function UpcomingPicksTable({
+  picks,
+  flags,
+}: {
+  picks: PickType[];
+  flags: Flags;
+}) {
   return picks.length ? (
     <Table>
       <TableHeader>
@@ -167,7 +182,9 @@ function UpcomingPicksTable({ picks }: { picks: PickType[] }) {
               </TableCell>
               <TableCell>
                 <MatchupCell matchup={p.expand.matchup} />
-                {p.comment && <CommentCell comment={p.comment} />}
+                {flags?.commentsInPicksHistory && p.comment && (
+                  <CommentCell comment={p.comment} />
+                )}
               </TableCell>
               <TableCell className='flex items-start justify-end'>
                 <Logo tricode={p.win_prediction} className='w-12 h-12' />
