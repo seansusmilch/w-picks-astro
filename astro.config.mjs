@@ -44,6 +44,11 @@ export default defineConfig({
         context: 'server',
         access: 'public',
       }),
+      ENVIRONMENT: envField.string({
+        default: 'development',
+        context: 'server',
+        access: 'public',
+      }),
     },
   },
 });

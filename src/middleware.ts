@@ -1,13 +1,17 @@
 import { getPB, getAPB, getUser } from '@/lib/data';
-import { ADMIN_USER, ADMIN_PASSWORD } from 'astro:env/server';
+import { ADMIN_USER, ADMIN_PASSWORD, ENVIRONMENT } from 'astro:env/server';
 import { POSTHOG_API_TOKEN } from 'astro:env/server';
-// @ts-ignore
 import { defineMiddleware } from 'astro:middleware';
 
 export const onRequest = defineMiddleware(
   async ({ locals, request, cookies }, next) => {
     // Skip middleware for cron jobs
     if (request.url.includes('/api/cron')) {
+      if (ENVIRONMENT !== 'production') {
+        return new Response('Cron jobs are only enabled in production', {
+          status: 403,
+        });
+      }
       return next();
     }
 
