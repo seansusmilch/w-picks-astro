@@ -1,53 +1,15 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import MatchupsList from '@/components/Matchup/MatchupsList.astro';
 import { getCodePrefixFromDate } from '@/lib/data_common';
-import { PaginateControls } from '@/components/Matchup/PaginateControls';
 import { DateTime } from 'luxon';
-import { isFeatureEnabled } from '@/lib/posthog';
 import { GamesPage } from '@/components/GamesViewer/GamesPage';
-import { actions } from 'astro:actions';
 import { getCodePrefixes } from '@/lib/matchups';
 
-const page = Astro.url.searchParams.get('page');
-const { pb, isAuthed } = Astro.locals;
+const { isAuthed } = Astro.locals;
 if (!isAuthed) {
   throw new Error('Please login to view matchups');
 }
 
-const allMatchups = await pb
-  .collection('matchups')
-  .getFullList({ fields: 'id,code', sort: 'time_utc,code' });
-
-const matchupsByCodePrefix = {};
-for (const m of allMatchups) {
-  const codePrefix = m.code.split('/')[0];
-  if (!matchupsByCodePrefix[codePrefix]) {
-    matchupsByCodePrefix[codePrefix] = [];
-  }
-  matchupsByCodePrefix[codePrefix].push(m.id);
-}
-
-// ascending order
-const sortedKeys = Object.keys(matchupsByCodePrefix).sort();
-
-const givenKey = page || getCodePrefixFromDate(new Date());
-let currentKey = sortedKeys.find((key) => key === givenKey);
-if (!currentKey) {
-  // find the closest key after the given key
-  currentKey = sortedKeys.find((key) => key > givenKey);
-}
-const prevKey = sortedKeys.filter((key) => key < currentKey).pop();
-const nextKey = sortedKeys.filter((key) => key > currentKey).shift();
-
-const ids = matchupsByCodePrefix[currentKey];
-
-const matchups = await pb.collection('matchups').getFullList({
-  filter: ids.map((id) => `id="${id}"`).join('||'),
-  sort: 'time_utc',
-});
-
-const currentText = DateTime.fromISO(currentKey).toFormat('ccc, M/d');
 const base_url = Astro.url.pathname;
 
 const codePrefixes = await getCodePrefixes();
@@ -59,53 +21,13 @@ const pages = codePrefixes.map((c) => ({
 
 const codePrefix =
   Astro.url.searchParams.get('page') ?? getCodePrefixFromDate(new Date());
-
-const { data: initialGames, error } = await Astro.callAction(
-  actions.getGamesByCodePrefix,
-  {
-    codePrefix,
-  }
-);
-
-const matchupCarousel = await isFeatureEnabled(
-  'matchup-carousel',
-  Astro.locals.distinctId
-);
-
-if (matchupCarousel) {
-  console.log('matchupCarousel', matchupCarousel);
-}
 ---
 
 <Layout title='Matchups'>
-  {
-    matchupCarousel ? (
-      <GamesPage
-        codePrefix={codePrefix}
-        userId={Astro.locals.user?.record.id}
-        pages={pages}
-        client:only
-      />
-    ) : (
-      <>
-        <h1 class='text-3xl py-6 font-bold'>Matchups</h1>
-        <div class='flex flex-col items-start gap-4'>
-          <MatchupsList matchups={matchups} />
-          <div class='w-full max-w-md'>
-            <PaginateControls
-              page={{ title: currentText, href: '#' }}
-              prevPage={{
-                title: 'Prev Page',
-                href: `${base_url}?page=${prevKey}`,
-              }}
-              nextPage={{
-                title: 'Next Page',
-                href: `${base_url}?page=${nextKey}`,
-              }}
-            />
-          </div>
-        </div>
-      </>
-    )
-  }
+  <GamesPage
+    codePrefix={codePrefix}
+    userId={Astro.locals.user?.record.id}
+    pages={pages}
+    client:only
+  />
 </Layout>
