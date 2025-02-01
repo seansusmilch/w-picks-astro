@@ -3,7 +3,7 @@ import { z } from 'astro:schema';
 import { ClientResponseError } from 'pocketbase';
 import { ActionError } from 'astro:actions';
 import { UserZ } from '@/lib/definitions';
-
+import { cookieSettings } from '@/lib/data';
 export const users = {
   login: defineAction({
     accept: 'form',
@@ -11,10 +11,20 @@ export const users = {
       email: z.string().email('Email is invalid').trim(),
       password: z.string().min(1, 'Password is required'),
     }),
-    async handler({ email, password }, { locals }) {
+    async handler({ email, password }, { locals, cookies, request }) {
       const { pb } = locals;
       try {
-        await pb.collection('users').authWithPassword(email, password);
+        const auth = await pb
+          .collection('users')
+          .authWithPassword(email, password);
+        cookies.set(
+          'pb_auth',
+          auth.token,
+          cookieSettings({
+            requestUrl: request.url,
+          })
+        );
+
         return {
           redirect: '/',
         };

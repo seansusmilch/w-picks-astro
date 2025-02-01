@@ -109,6 +109,6 @@ const progressValue = (winPicks / stats?.total_picks) * 100;
     class='flex flex-col w-full max-w-md lg:max-w-xl border rounded-lg shadow-lg p-4 gap-4'
   >
     <h2 class='text-xl font-bold'>Pick History</h2>
-    <UserPicksTable picks={picks} defaultTab='live' client:load />
+    <UserPicksTable picks={picks} defaultTab='live' client:only />
   </div>
 </div>
