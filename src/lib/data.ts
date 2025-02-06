@@ -26,7 +26,7 @@ export function cookieSettings({ requestUrl }: { requestUrl: string }) {
     httpOnly: true,
     sameSite: 'strict',
     path: '/',
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 1209600,
   } as AstroCookieSetOptions;
 }
 
