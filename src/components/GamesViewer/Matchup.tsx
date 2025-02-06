@@ -47,7 +47,7 @@ export function Matchup({
           />
         )}
       </div>
-      {picks?.length > 0 && (
+      {picks !== undefined && (
         <>
           {/* <Separator className='w-full my-1' /> */}
           <div className='h-px bg-border self-stretch my-1' />
