@@ -25,8 +25,20 @@ export function UserPicksTable({
   const livePicks = picks.filter((p) => p.status === 'live');
   const upcomingPicks = picks.filter((p) => p.status === 'upcoming');
 
+  // Load saved tab from localStorage or use defaultTab
+  const savedTab =
+    typeof window !== 'undefined' ? localStorage.getItem('userPicksTab') : null;
+  const initialTab =
+    savedTab === 'past' || savedTab === 'live' || savedTab === 'upcoming'
+      ? savedTab
+      : defaultTab;
+
+  const handleTabChange = (value: string) => {
+    localStorage.setItem('userPicksTab', value);
+  };
+
   return (
-    <Tabs defaultValue={defaultTab}>
+    <Tabs defaultValue={initialTab} onValueChange={handleTabChange}>
       <div className='flex justify-center'>
         <TabsList>
           <TabsTrigger value='past'>Past</TabsTrigger>
