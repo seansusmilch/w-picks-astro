@@ -1,50 +1,59 @@
-import type { MatchupType, ScoreboardType } from '@/lib/definitions';
+import type { MatchupType, PickType, ScoreboardType } from '@/lib/definitions';
 import clsx from 'clsx';
 import { Logo } from '../NBA/Logo';
 import { TimeTooltip } from '../ui/TimeTooltip';
 import { TeamMap } from '../NBA/teamMap';
 import { DateTime } from 'luxon';
+import { Separator } from '@/components/ui/separator';
+import { PicksSummary } from '../Picks/PicksSummary';
 
 export function Matchup({
   matchup,
   scoreboard,
+  picks,
 }: {
   matchup: MatchupType;
   scoreboard?: ScoreboardType;
+  picks?: PickType[];
 }) {
   const gameStatus = scoreboard?.status || 0;
   return (
-    <div
-      className={clsx(
-        'p-3 flex flex-row justify-between max-w-md h-36',
-        'border rounded-xl shadow-md'
-      )}
-    >
-      {gameStatus === 0 && (
-        <PreGame
-          away_code={matchup.away_code}
-          home_code={matchup.home_code}
-          time_utc={matchup.time_utc}
-        />
-      )}
-      {[1, 2].includes(gameStatus) && (
-        <LiveScore
-          away_code={matchup.away_code}
-          away_score={scoreboard.away_score}
-          home_code={matchup.home_code}
-          home_score={scoreboard.home_score}
-          status_text={scoreboard.status_text}
-          status={gameStatus}
-        />
-      )}
-      {gameStatus === 3 && (
-        <PostGame
-          away_code={matchup.away_code}
-          away_score={scoreboard?.away_score}
-          home_code={matchup.home_code}
-          home_score={scoreboard?.home_score}
-          status_text={scoreboard?.status_text}
-        />
+    <div className='p-0.5 sm:p-2 flex flex-col border rounded-xl shadow-md'>
+      <div className={clsx('flex flex-row justify-between')}>
+        {gameStatus === 0 && (
+          <PreGame
+            away_code={matchup.away_code}
+            home_code={matchup.home_code}
+            time_utc={matchup.time_utc}
+          />
+        )}
+        {[1, 2].includes(gameStatus) && (
+          <LiveScore
+            away_code={matchup.away_code}
+            away_score={scoreboard.away_score}
+            home_code={matchup.home_code}
+            home_score={scoreboard.home_score}
+            status_text={scoreboard.status_text}
+            status={gameStatus}
+          />
+        )}
+        {gameStatus === 3 && (
+          <PostGame
+            away_code={matchup.away_code}
+            away_score={scoreboard?.away_score}
+            home_code={matchup.home_code}
+            home_score={scoreboard?.home_score}
+            status_text={scoreboard?.status_text}
+          />
+        )}
+      </div>
+      {picks !== undefined && (
+        <>
+          {/* <Separator className='w-full my-1' /> */}
+          <div className='h-px bg-border self-stretch my-1' />
+
+          <PicksSummary matchup={matchup} picks={picks} />
+        </>
       )}
     </div>
   );
@@ -75,31 +84,36 @@ export function LiveScore({
     });
     if (etTime.isValid) {
       const localTime = etTime.toLocal();
-      statusText = localTime.toFormat('h:mm a');
+      statusText = localTime.toFormat('h:mma');
     }
   }
   return (
     <>
       <div className='basis-1/3 flex flex-col text-center'>
-        <Logo tricode={away_code} className='h-20 sm:h-24' />
-        <p className='sm:text-xl font-bold'>{awayTeamShort}</p>
+        <Logo tricode={away_code} className='h-14 sm:h-16 md:h-20' />
+        <p className='hidden sm:block text-sm sm:text-base md:text-lg font-bold'>
+          {awayTeamShort}
+        </p>
       </div>
       <div className='basis-1/3 flex flex-col items-center justify-between text-center'>
         <div className='w-full flex-grow flex flex-row items-center justify-between'>
-          <p className={clsx('text-2xl sm:text-4xl font-extrabold')}>
+          <p className='text-xl sm:text-2xl md:text-3xl font-extrabold'>
             {away_score}
           </p>
-          <p className={clsx('text-2xl sm:text-4xl font-extrabold')}>
+          <p className='text-xl sm:text-2xl md:text-3xl font-extrabold'>
             {home_score}
           </p>
         </div>
-        <p className='flex-grow-0 text-sm sm:text-md text-white font-bold rounded-xl px-2 py-1 bg-gradient-to-r from-red-500 to-orange-500'>
+        <span className='flex-grow-0 text-xs sm:text-sm text-white font-bold rounded-lg py-0.5 px-1 bg-gradient-to-r from-red-500 to-orange-500'>
           {statusText}
-        </p>
+        </span>
       </div>
+
       <div className='basis-1/3 flex flex-col items-center text-center'>
-        <Logo tricode={home_code} className='h-20 sm:h-24' />
-        <p className='sm:text-xl font-bold'>{homeTeamShort}</p>
+        <Logo tricode={home_code} className='h-14 sm:h-16 md:h-20' />
+        <p className='hidden sm:block text-sm sm:text-base md:text-lg font-bold'>
+          {homeTeamShort}
+        </p>
       </div>
     </>
   );
@@ -120,15 +134,19 @@ function PreGame({
   return (
     <>
       <div className='basis-5/12 flex flex-col text-center'>
-        <Logo tricode={away_code} className='h-20 sm:h-24' />
-        <p className='sm:text-xl font-bold'>{awayTeamShort}</p>
+        <Logo tricode={away_code} className='h-14 sm:h-16 md:h-20' />
+        <p className='hidden sm:block text-sm sm:text-base md:text-lg font-bold'>
+          {awayTeamShort}
+        </p>
       </div>
       <div className='basis-2/12 flex flex-col items-center justify-center text-center'>
         <TimeTooltip time={gameTime} />
       </div>
       <div className='basis-5/12 flex flex-col items-center text-center'>
-        <Logo tricode={home_code} className='h-20 sm:h-24' />
-        <p className='sm:text-xl font-bold'>{homeTeamShort}</p>
+        <Logo tricode={home_code} className='h-14 sm:h-16 md:h-20' />
+        <p className='hidden sm:block text-sm sm:text-base md:text-lg font-bold'>
+          {homeTeamShort}
+        </p>
       </div>
     </>
   );
@@ -152,14 +170,16 @@ function PostGame({
   return (
     <>
       <div className='basis-1/3 grow flex flex-col text-center'>
-        <Logo tricode={away_code} className='h-20 sm:h-24' />
-        <p className='sm:text-xl font-bold'>{awayTeamShort}</p>
+        <Logo tricode={away_code} className='h-14 sm:h-16 md:h-20' />
+        <p className='hidden sm:block text-sm sm:text-base md:text-lg font-bold'>
+          {awayTeamShort}
+        </p>
       </div>
       <div className='basis-1/3 flex flex-col items-center justify-between text-center'>
         <div className='w-full flex-grow flex flex-row items-center justify-between'>
           <p
             className={clsx(
-              'text-2xl sm:text-4xl font-extrabold',
+              'text-md sm:text-2xl md:text-3xl font-extrabold',
               away_score > home_score ? 'text-green-500' : 'text-destructive'
             )}
           >
@@ -167,20 +187,23 @@ function PostGame({
           </p>
           <p
             className={clsx(
-              'text-2xl sm:text-4xl font-extrabold',
+              'text-md sm:text-2xl md:text-3xl font-extrabold',
               home_score > away_score ? 'text-green-500' : 'text-destructive'
             )}
           >
             {home_score}
           </p>
         </div>
-        <p className='flex-grow-0 text-sm sm:text-md text-white font-bold rounded-xl px-2 py-1 bg-gradient-to-r from-cyan-500 to-purple-500'>
+        <span className='flex-grow-0 text-xs sm:text-sm text-white font-bold rounded-lg px-1 py-0.5 bg-gradient-to-r from-cyan-500 to-purple-500'>
           {status_text}
-        </p>
+        </span>
       </div>
+
       <div className='basis-1/3 flex flex-col items-center text-center'>
-        <Logo tricode={home_code} className='h-20 sm:h-24' />
-        <p className='sm:text-xl font-bold'>{homeTeamShort}</p>
+        <Logo tricode={home_code} className='h-14 sm:h-16 md:h-20' />
+        <p className='hidden sm:block text-sm sm:text-base md:text-lg font-bold'>
+          {homeTeamShort}
+        </p>
       </div>
     </>
   );

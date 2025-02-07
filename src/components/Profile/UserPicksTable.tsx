@@ -28,10 +28,9 @@ export function UserPicksTable({
   // Load saved tab from localStorage or use defaultTab
   const savedTab =
     typeof window !== 'undefined' ? localStorage.getItem('userPicksTab') : null;
-  const initialTab =
-    savedTab === 'past' || savedTab === 'live' || savedTab === 'upcoming'
-      ? savedTab
-      : defaultTab;
+  const initialTab = ['past', 'live', 'upcoming'].includes(savedTab || '')
+    ? savedTab
+    : defaultTab;
 
   const handleTabChange = (value: string) => {
     localStorage.setItem('userPicksTab', value);

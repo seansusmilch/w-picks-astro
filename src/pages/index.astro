@@ -2,6 +2,7 @@
 import { expandAvatarUrl } from '@/lib/data_common';
 import Layout from '@/layouts/Layout.astro';
 import { WeeklyLeaderboard } from '@/components/Stats/WeeklyLeaderboard';
+import { WeeklyStatsView } from '@/components/Views/WeeklyStatsView';
 import { getWeeklyStats, getWeekList } from '@/lib/stats';
 import { Button } from '@/components/ui/button';
 
@@ -14,14 +15,11 @@ const pageTitle = 'Leaderboard - Weekly';
 <Layout title={pageTitle}>
   <h1 class='text-3xl py-6 font-bold'>{pageTitle}</h1>
   <div class='flex flex-col items-center gap-4'>
-    <WeeklyLeaderboard
+    <WeeklyStatsView
       initialData={initialData}
       initialWeek={initialWeek}
       weekList={weekList}
       client:only
     />
-    <a href='/stats'>
-      <Button client:load>View All Time Leaderboard</Button>
-    </a>
   </div>
 </Layout>
