@@ -5,6 +5,8 @@ import { type MatchupType, type PickType, PickZ } from '@/lib/definitions';
 import { useState } from 'react';
 import clsx from 'clsx';
 import { actions, isInputError } from 'astro:actions';
+import { queryClient } from '@/stores/query';
+import { useStore } from '@nanostores/react';
 
 export function PickForm({
   matchup,
@@ -13,6 +15,7 @@ export function PickForm({
   matchup: MatchupType;
   pick?: PickType;
 }) {
+  const client = useStore(queryClient);
   const { home_code, away_code } = matchup;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -41,6 +44,7 @@ export function PickForm({
           comment: '',
           pickId: '',
         });
+        client.invalidateQueries({ queryKey: ['games'] });
       } else {
         if (isInputError(error)) {
           const errorMessage = Object.values(error.fields).flat().join(', ');
@@ -62,6 +66,7 @@ export function PickForm({
 
         const { win_prediction, comment, id, matchup } = pickData.data;
         setFormState({ win_prediction, comment, pickId: id, matchup });
+        client.invalidateQueries({ queryKey: ['games'] });
       } else {
         if (isInputError(error)) {
           const errorMessage = Object.values(error.fields).flat().join(', ');

@@ -3,9 +3,32 @@ import { Matchup } from './Matchup';
 import { PickTable } from './PickTable';
 import { PickForm } from '@/components/Picks/PickForm';
 import { useGames } from './GamesProvider';
+import { useStore } from '@nanostores/react';
+import { queryClient } from '@/stores/query';
 
 export function GamesViewer() {
   const { games, isLoading, error, userId } = useGames();
+  const $queryClient = useStore(queryClient);
+
+  if (error) {
+    return (
+      <CarouselItem>
+        <div className='flex flex-col items-center justify-center gap-4 p-4'>
+          <p className='text-destructive'>
+            Error loading games: {error.message}
+          </p>
+          <button
+            onClick={() =>
+              $queryClient.invalidateQueries({ queryKey: ['games'] })
+            }
+            className='text-sm text-muted-foreground hover:text-primary'
+          >
+            Retry
+          </button>
+        </div>
+      </CarouselItem>
+    );
+  }
 
   return isLoading ? (
     <CarouselItem>

@@ -9,11 +9,12 @@ import { useQuery } from '@tanstack/react-query';
 import type { GameType, PageEntryType } from '@/lib/definitions';
 import { actions } from 'astro:actions';
 import type { CarouselApi } from '@/components/ui/carousel';
+import { queryClient } from '@/stores/query';
+import { useStore } from '@nanostores/react';
 
 interface GamesContextType {
   games: GameType[];
   isLoading: boolean;
-  refetch: () => void;
   error: Error | null;
   pages: PageEntryType[];
   currentPage: string;
@@ -42,21 +43,25 @@ export function GamesProvider({
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [startIndex, setStartIndex] = useState(0);
   const [selectedGameIndex, setSelectedGameIndex] = useState(0);
+  const client = useStore(queryClient);
 
-  const { data, isLoading, error, refetch } = useQuery<GameType[]>({
-    queryKey: ['games', currentPage],
-    queryFn: async () => {
-      const { data, error } = await actions.getGamesByCodePrefix({
-        codePrefix: currentPage,
-      });
-      if (error) throw new Error(error.message);
-      return data;
+  const { data, isLoading, error } = useQuery<GameType[]>(
+    {
+      queryKey: ['games', currentPage],
+      queryFn: async () => {
+        const { data, error } = await actions.getGamesByCodePrefix({
+          codePrefix: currentPage,
+        });
+        if (error) throw new Error(error.message);
+        return data;
+      },
+      refetchInterval: 2500,
+      staleTime: 30 * 1000,
+      gcTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: true,
     },
-    refetchInterval: 2500,
-    staleTime: 30 * 1000,
-    gcTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true,
-  });
+    client
+  );
 
   // Handle URL state
   useEffect(() => {
@@ -109,7 +114,6 @@ export function GamesProvider({
         games: data || [],
         isLoading,
         error: error as Error | null,
-        refetch,
         pages,
         currentPage,
         setCurrentPage: handlePageChange,
