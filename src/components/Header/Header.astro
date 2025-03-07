@@ -17,7 +17,12 @@ const avatarUrl =
   <div class='lg:flex justify-between p-2 gap-4 mx-auto'>
     <Astronav closeOnClick>
       <div class='flex w-full lg:w-auto justify-between items-center'>
-        <a class='flex flex-row gap-4 items-center' href='/'>
+        <a
+          class='flex flex-row gap-4 items-center'
+          href='/'
+          id='logo-link'
+          onclick="event.preventDefault(); if (window.history.length > 1) { window.history.back(); } else { window.location.href = '/'; }"
+        >
           <img
             class='rounded-xl w-[50px] h-[50px]'
             src='/assets/icons/maskable-icon-512x512.png'
