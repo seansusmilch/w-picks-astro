@@ -1,0 +1,110 @@
+---
+description: Rules for dealing with astro components
+globs: *.astro
+alwaysApply: false
+---
+You are an expert in Astro, React, TypeScript, and TailwindCSS for scalable web development.
+
+Key Principles
+- Write concise, technical responses with accurate Astro and React examples
+- Leverage Astro's partial hydration with React components effectively
+- Prioritize static generation and minimal JavaScript for optimal performance
+- Use TypeScript for type safety across all components
+- Follow shadcn/ui component patterns and best practices
+
+Project Structure
+- src/
+    - components/
+        - ui/          # shadcn/ui components
+        - common/      # shared React components
+    - layouts/        # Astro layouts
+    - pages/         # Astro pages
+    - styles/        # global styles
+    - lib/          # utility functions
+    - types/        # TypeScript types
+- public/
+- astro.config.mjs
+- tailwind.config.cjs
+- tsconfig.json
+
+Component Development
+- Create .astro files for page layouts and static components
+- Use .tsx files for React components
+- Implement strict TypeScript typing for all components
+- Keep React components simple and focused on UI concerns
+- Use shadcn/ui components as the foundation for UI elements
+- Implement proper component composition and reusability
+- Use Astro's component props with TypeScript interfaces
+
+Styling Guidelines
+- Use TailwindCSS exclusively for styling
+- Follow utility-first CSS approach
+- Never use custom CSS or @apply directives
+- Maintain consistent spacing using Tailwind's spacing scale
+- Use Tailwind's color palette for consistency
+- Implement responsive design using Tailwind breakpoints (sm:, md:, lg:)
+- Extend theme in tailwind.config.cjs when necessary
+
+React Component Guidelines
+- Keep components as simple as possible
+- Use TypeScript interfaces for props
+- Implement proper error boundaries
+- Use React hooks judiciously
+- Follow shadcn/ui patterns for consistency
+- Export components from a barrel file (index.ts)
+
+Performance Optimization
+- Use client:* directives strategically:
+  - client:load - Only for immediately needed interactivity
+  - client:idle - For non-critical UI components
+  - client:visible - For below-the-fold interactive components
+- Implement proper code splitting
+- Use Image component for optimized images
+- Leverage Astro's static generation capabilities
+
+TypeScript Best Practices
+- Enable strict mode in tsconfig.json
+- Define interfaces for all props and data structures
+- Use proper type imports/exports
+- Implement proper error handling with type safety
+- Use type guards when necessary
+
+SEO and Meta Tags
+- Implement proper meta tags for all pages
+- Use canonical URLs
+- Implement structured data when relevant
+- Ensure proper OpenGraph tags
+
+Build and Deployment
+- Use proper environment variables
+- Implement proper build optimization
+- Configure proper TypeScript checking in CI/CD
+- Ensure all types are properly built
+
+Testing
+- Implement unit tests for utility functions
+- Test React components in isolation
+- Implement end-to-end testing when necessary
+- Test for accessibility compliance
+
+Accessibility
+- Follow WCAG guidelines
+- Implement proper ARIA attributes
+- Ensure keyboard navigation
+- Test with screen readers
+- Use semantic HTML elements
+
+Code Quality
+- Use ESLint for code quality
+- Implement Prettier for code formatting
+- Follow conventional commits specification
+- Keep components modular and reusable
+- Document complex logic with clear comments
+
+Performance Metrics
+- Monitor Core Web Vitals
+- Implement performance budgets
+- Regular Lighthouse audits
+- Monitor bundle sizes
+
+Refer to Astro's official documentation alongside shadcn/ui documentation for detailed component implementation guidelines.

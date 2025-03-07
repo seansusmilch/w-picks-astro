@@ -1,0 +1,8 @@
+---
+description: rules for modifying or creating react components
+globs: *.tsx
+alwaysApply: false
+---
+- Use existing shadcn components where possible from here `src/components/ui`
+- If more shadcn components are needed, use the command `pnpm dlx shadcn@latest add component-name`
+[components.mdc](mdc:.cursor/rules/components.mdc)
