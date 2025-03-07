@@ -41,7 +41,7 @@ export function FeedbackDialog() {
         <DialogFooter>
           <Button
             form='feedback-form'
-            className='text-white font-bold text-lg bg-gradient-to-r from-cyan-500 to-purple-500'
+            className='text-white font-bold text-lg bg-linear-to-r from-cyan-500 to-purple-500'
             type='submit'
           >
             Submit

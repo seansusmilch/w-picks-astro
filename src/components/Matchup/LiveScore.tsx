@@ -97,7 +97,7 @@ function Scoreboard({
         <p className='sm:text-xl font-bold'>{awayTeamShort}</p>
       </div>
       <div className='basis-1/3 flex flex-col items-center justify-between text-center'>
-        <div className='w-full flex-grow flex flex-row items-center justify-between'>
+        <div className='w-full grow flex flex-row items-center justify-between'>
           <p className={clsx('text-2xl sm:text-4xl font-extrabold')}>
             {data.away_score}
           </p>
@@ -105,7 +105,7 @@ function Scoreboard({
             {data.home_score}
           </p>
         </div>
-        <p className='flex-grow-0 text-sm sm:text-md text-white font-bold rounded-xl px-2 py-1 bg-gradient-to-r from-red-500 to-orange-500'>
+        <p className='grow-0 text-sm sm:text-md text-white font-bold rounded-xl px-2 py-1 bg-linear-to-r from-red-500 to-orange-500'>
           {statusText}
         </p>
       </div>

@@ -60,9 +60,9 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
           className={clsx(
             // 'border-2',
 
-            'inline-flex items-center justify-center whitespace-nowrap rounded-xl px-2 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+            'inline-flex items-center justify-center whitespace-nowrap rounded-xl px-2 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
             {
-              'bg-background text-foreground shadow':
+              'bg-background text-foreground shadow-sm':
                 selectedOption === option.name,
             }
           )}

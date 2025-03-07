@@ -1,7 +1,7 @@
 import { defineConfig, envField } from 'astro/config';
 import node from '@astrojs/node';
-import tailwind from '@astrojs/tailwind';
 import react from '@astrojs/react';
+import tailwind from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
@@ -9,7 +9,10 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
-  integrations: [tailwind({ applyBaseStyles: true }), react()],
+  vite: {
+    plugins: [tailwind()],
+  },
+  integrations: [react()],
   prefetch: {
     prefetchAll: true,
     defaultStrategy: 'tap',

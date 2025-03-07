@@ -78,8 +78,8 @@ const DayTabs = ({
   buttonRefs,
 }: DayTabsProps) => (
   <div className='relative'>
-    <div className='absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-background to-transparent z-10' />
-    <div className='absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-background to-transparent z-10' />
+    <div className='absolute left-0 top-0 bottom-0 w-4 bg-linear-to-r from-background to-transparent z-10' />
+    <div className='absolute right-0 top-0 bottom-0 w-4 bg-linear-to-l from-background to-transparent z-10' />
     <div className='flex gap-2 overflow-x-auto py-2 px-4 no-scrollbar snap-x snap-mandatory'>
       {DAYS_OF_WEEK.map((day) => (
         <DayTab

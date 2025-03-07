@@ -95,7 +95,7 @@ export function LiveScore({
         </p>
       </div>
       <div className='basis-1/3 flex flex-col items-center justify-between text-center'>
-        <div className='w-full flex-grow flex flex-row items-center justify-between'>
+        <div className='w-full grow flex flex-row items-center justify-between'>
           <p className='text-xl sm:text-2xl md:text-3xl font-extrabold'>
             {away_score}
           </p>
@@ -103,7 +103,7 @@ export function LiveScore({
             {home_score}
           </p>
         </div>
-        <span className='flex-grow-0 text-xs sm:text-sm text-white font-bold rounded-lg py-0.5 px-1 bg-gradient-to-r from-red-500 to-orange-500'>
+        <span className='grow-0 text-xs sm:text-sm text-white font-bold rounded-lg py-0.5 px-1 bg-linear-to-r from-red-500 to-orange-500'>
           {statusText}
         </span>
       </div>
