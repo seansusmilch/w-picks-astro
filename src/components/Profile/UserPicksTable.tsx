@@ -196,7 +196,7 @@ function NoPicks({ type }: { type: 'past' | 'live' | 'upcoming' }) {
 function CommentCell({ comment }: { comment: string }) {
   return (
     <div className='flex gap-1 text-muted-foreground'>
-      <ChatBubbleBottomCenterTextIcon className='w-4 h-4 shrink-0' />
+      <MessageCircleIcon className='w-4 h-4 shrink-0' />
       <span className='text-sm break-words whitespace-pre-wrap max-w-[200px] lg:max-w-[425px]'>
         {comment}
       </span>

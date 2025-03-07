@@ -29,3 +29,5 @@ export const navigationItems: NavItem[] = [
     icon: CalendarDaysIcon,
   },
 ];
+
+export const postLoginRedirect = '/stats/weekly';
