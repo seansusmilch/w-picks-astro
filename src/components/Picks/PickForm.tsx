@@ -134,7 +134,7 @@ export function PickForm({
               type='submit'
               disabled={loading}
               className={clsx(
-                'p-2 grow rounded-lg text-white font-bold bg-gradient-to-r from-cyan-500 to-purple-500',
+                'p-2 grow rounded-lg text-white font-bold bg-linear-to-r from-cyan-500 to-purple-500',
                 { 'opacity-70': loading }
               )}
             >

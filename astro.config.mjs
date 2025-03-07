@@ -1,7 +1,7 @@
 import { defineConfig, envField } from 'astro/config';
 import node from '@astrojs/node';
-import tailwind from '@astrojs/tailwind';
 import react from '@astrojs/react';
+import tailwind from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
@@ -9,7 +9,10 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
-  integrations: [tailwind({ applyBaseStyles: true }), react()],
+  vite: {
+    plugins: [tailwind()],
+  },
+  integrations: [react()],
   prefetch: {
     prefetchAll: true,
     defaultStrategy: 'tap',
@@ -18,7 +21,7 @@ export default defineConfig({
     schema: {
       POCKETBASE_URL: envField.string({
         context: 'server',
-        access: 'secret',
+        access: 'public',
       }),
       POCKETBASE_PUBLIC_URL: envField.string({
         context: 'client',
@@ -26,15 +29,15 @@ export default defineConfig({
       }),
       ADMIN_USER: envField.string({
         context: 'server',
-        access: 'secret',
+        access: 'public',
       }),
       ADMIN_PASSWORD: envField.string({
         context: 'server',
-        access: 'secret',
+        access: 'public',
       }),
       CRON_SECRET: envField.string({
         context: 'server',
-        access: 'secret',
+        access: 'public',
       }),
       POSTHOG_API_HOST: envField.string({
         context: 'server',

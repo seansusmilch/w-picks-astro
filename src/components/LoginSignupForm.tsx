@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { actions, isInputError } from 'astro:actions';
 import { navigate } from 'astro:transitions/client';
-
+import { postLoginRedirect } from '@/lib/constants';
 export function LoginSignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -30,7 +30,7 @@ export function LoginSignupForm() {
       }
 
       setSuccessMessage('Redirecting you...');
-      navigate('/');
+      navigate(postLoginRedirect);
     } else {
       const { data, error } = await actions.users.signup(formData);
       if (error) {

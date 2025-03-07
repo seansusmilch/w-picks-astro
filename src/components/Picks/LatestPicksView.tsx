@@ -10,10 +10,7 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui/card';
-import {
-  CalendarIcon,
-  ChatBubbleBottomCenterTextIcon,
-} from '@heroicons/react/24/outline';
+import { CalendarIcon, MessageCircleIcon } from 'lucide-react';
 import moment from 'moment';
 import { cn } from '@/lib/utils';
 import type { PickType } from '@/lib/definitions';
@@ -72,7 +69,7 @@ function PickCard({ pick }: { pick: any }) {
         {pick.comment && (
           <div className='text-sm bg-muted/30 p-2 rounded-md'>
             <div className='flex items-start gap-1'>
-              <ChatBubbleBottomCenterTextIcon className='h-4 w-4 mt-0.5 flex-shrink-0 text-muted-foreground' />
+              <MessageCircleIcon className='h-4 w-4 mt-0.5 shrink-0 text-muted-foreground' />
               <p>{pick.comment}</p>
             </div>
           </div>

@@ -1,4 +1,9 @@
 ---
+description: 
+globs: 
+alwaysApply: false
+---
+---
 description: working with Astro layouts
 globs: src/layouts/*.astro
 alwaysApply: false

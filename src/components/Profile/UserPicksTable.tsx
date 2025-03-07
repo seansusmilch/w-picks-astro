@@ -11,7 +11,7 @@ import type { MatchupType, PickType } from '@/lib/definitions';
 import { TeamMap } from '@/components/NBA/teamMap';
 import { Logo } from '@/components/NBA/Logo';
 import moment from 'moment';
-import { ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
+import { MessageCircleIcon } from 'lucide-react';
 import { getUrlToMatchup } from '@/lib/data_common';
 
 export function UserPicksTable({
@@ -196,7 +196,7 @@ function NoPicks({ type }: { type: 'past' | 'live' | 'upcoming' }) {
 function CommentCell({ comment }: { comment: string }) {
   return (
     <div className='flex gap-1 text-muted-foreground'>
-      <ChatBubbleBottomCenterTextIcon className='w-4 h-4 shrink-0' />
+      <MessageCircleIcon className='w-4 h-4 shrink-0' />
       <span className='text-sm break-words whitespace-pre-wrap max-w-[200px] lg:max-w-[425px]'>
         {comment}
       </span>

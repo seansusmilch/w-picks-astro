@@ -3,14 +3,10 @@ import { Astronav, MenuItems, MenuIcon } from 'astro-navbar';
 import { ThemeToggle } from './ThemeToggle';
 import { UserDropdown } from './UserDropdown';
 import { FeedbackDialog } from '@/components/Feedback/FeedbackDialog';
-import {
-  TrophyIcon,
-  ClockIcon,
-  CalendarDaysIcon,
-  UserIcon,
-} from '@heroicons/react/24/outline';
+import { UserIcon } from 'lucide-react';
 import { User } from '@/components/Header/User';
 import { getUserAvatarUrl } from '@/lib/data_common';
+import { navigationItems } from '@/lib/constants';
 const { user, isAuthed } = Astro.locals;
 const pathname = Astro.url.pathname;
 const avatarUrl =
@@ -21,7 +17,12 @@ const avatarUrl =
   <div class='lg:flex justify-between p-2 gap-4 mx-auto'>
     <Astronav closeOnClick>
       <div class='flex w-full lg:w-auto justify-between items-center'>
-        <a class='flex flex-row gap-4 items-center' href='/'>
+        <a
+          class='flex flex-row gap-4 items-center'
+          href='/'
+          id='logo-link'
+          onclick="event.preventDefault(); if (window.history.length > 1) { window.history.back(); } else { window.location.href = '/'; }"
+        >
           <img
             class='rounded-xl w-[50px] h-[50px]'
             src='/assets/icons/maskable-icon-512x512.png'
@@ -40,63 +41,30 @@ const avatarUrl =
         <ul
           class='flex flex-col pt-6 lg:pt-0 text-xl text-right lg:items-center lg:flex-row lg:text-left'
         >
-          <li>
-            <a
-              href='/'
-              class:list={[
-                'flex items-center gap-2 py-1 px-2 rounded-lg',
-                pathname === '/stats/weekly'
-                  ? 'bg-secondary text-secondary-foreground border'
-                  : 'hover:text-gray-500',
-              ]}
-            >
-              <TrophyIcon className='w-6 h-6' />
-              <span>Weekly</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href='/stats'
-              class:list={[
-                'flex items-center gap-2 py-1 px-2 rounded-lg',
-                pathname === '/stats'
-                  ? 'bg-secondary text-secondary-foreground border'
-                  : 'hover:text-gray-500',
-              ]}
-            >
-              <TrophyIcon className='w-6 h-6' />
-              <span class='whitespace-nowrap'>All Time</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href='/matchups/today'
-              class:list={[
-                'flex items-center gap-2 py-1 px-2 rounded-lg',
-                pathname === '/matchups/today'
-                  ? 'bg-secondary text-secondary-foreground border'
-                  : 'hover:text-gray-500',
-              ]}
-            >
-              <ClockIcon className='w-6 h-6' />
-              <span>Today</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href='/matchups'
-              class:list={[
-                'flex items-center gap-2 py-1 px-2 rounded-lg',
-                pathname === '/matchups'
-                  ? 'bg-secondary text-secondary-foreground border'
-                  : 'hover:text-gray-500',
-              ]}
-            >
-              <CalendarDaysIcon className='w-6 h-6' />
-              <span>Matchups</span>
-            </a>
-          </li>
-
+          {
+            navigationItems.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class:list={[
+                    'flex items-center gap-2 py-1 px-2 rounded-lg',
+                    pathname === item.href
+                      ? 'bg-secondary text-secondary-foreground border'
+                      : 'hover:text-gray-500',
+                  ]}
+                >
+                  <item.icon className='w-6 h-6' />
+                  <span
+                    class:list={[
+                      item.label.includes(' ') && 'whitespace-nowrap',
+                    ]}
+                  >
+                    {item.label}
+                  </span>
+                </a>
+              </li>
+            ))
+          }
           <li>
             {
               isAuthed ? (

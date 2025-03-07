@@ -4,7 +4,7 @@ import { AvatarSection } from '@/components/Profile/Edit/AvatarSection';
 import { getUserAvatarUrl } from '@/lib/data_common';
 import { UsernameBioSection } from '@/components/Profile/Edit/UsernameBioSection';
 import { Button } from '@/components/ui/button';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon } from 'lucide-react';
 
 const { user } = Astro.locals;
 user.record.avatar_url = getUserAvatarUrl(user.record.id, user.record.avatar);
@@ -15,7 +15,7 @@ const pageTitle = 'Edit Profile';
   <div class='flex flex-col items-center gap-4'>
     <h1 class='text-2xl font-bold'>{pageTitle}</h1>
     <a href='/profile'>
-      <Button client:load>
+      <Button>
         <ArrowLeftIcon className='h-5 w-5' />Back to profile
       </Button>
     </a>

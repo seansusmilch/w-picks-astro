@@ -1,4 +1,9 @@
 ---
+description: 
+globs: 
+alwaysApply: false
+---
+---
 description: generic rules for working with components
 globs: 
 alwaysApply: false
@@ -6,4 +11,4 @@ alwaysApply: false
 - React components should live in the `src/components` folder
 - Keep components dumb and reusable
 - Keep components simple
-- Use tailwind css for styling
+- always use tailwind css for styling

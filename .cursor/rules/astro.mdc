@@ -1,8 +1,14 @@
 ---
+description: 
+globs: 
+alwaysApply: false
+---
+---
 description: Rules for dealing with astro components
 globs: *.astro
 alwaysApply: false
 ---
+[components.mdc](mdc:.cursor/rules/components.mdc)
 You are an expert in Astro, React, TypeScript, and TailwindCSS for scalable web development.
 
 Key Principles

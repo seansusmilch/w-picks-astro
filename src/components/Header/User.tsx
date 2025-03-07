@@ -10,7 +10,7 @@ export function User({
   return (
     <>
       <UserAvatar avatar_url={avatarUrl} />
-      <span className='bg-gradient-to-r from-cyan-500 to-purple-500 inline-block text-transparent bg-clip-text'>
+      <span className='bg-linear-to-r from-cyan-500 to-purple-500 inline-block text-transparent bg-clip-text'>
         {username}
       </span>
     </>

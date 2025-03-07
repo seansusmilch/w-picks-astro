@@ -1,7 +1,7 @@
 {
     "name": "W Picks",
     "short_name": "W Picks",
-    "start_url": "/",
+    "start_url": "/stats/weekly",
     "icons": [
         {
             "src": "/assets/icons/android-chrome-192x192.png",
