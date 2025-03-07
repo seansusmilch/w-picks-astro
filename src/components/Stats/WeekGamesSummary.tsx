@@ -29,8 +29,8 @@ export function WeekGamesSummary({ games }: { games: GameType[] }) {
   return daysOrder.map((day) => {
     return (
       <div key={day}>
-        <h2 className='font-bold'>{day}</h2>
-        <div className='grid grid-cols-2 sm:grid-cols-3 gap-1'>
+        <h2 className='font-bold text-lg'>{day}</h2>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-1'>
           {gamesByDay[day]?.map((game) => {
             const [pageParam, gameParam] = game.matchup.code.split('/');
 

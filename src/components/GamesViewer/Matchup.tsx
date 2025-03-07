@@ -4,7 +4,6 @@ import { Logo } from '../NBA/Logo';
 import { TimeTooltip } from '../ui/TimeTooltip';
 import { TeamMap } from '../NBA/teamMap';
 import { DateTime } from 'luxon';
-import { Separator } from '@/components/ui/separator';
 import { PicksSummary } from '../Picks/PicksSummary';
 
 export function Matchup({
@@ -132,23 +131,28 @@ function PreGame({
   const homeTeamShort = TeamMap[home_code]?.name_short || home_code;
   const awayTeamShort = TeamMap[away_code]?.name_short || away_code;
   return (
-    <>
-      <div className='basis-5/12 flex flex-col text-center'>
-        <Logo tricode={away_code} className='h-14 sm:h-16 md:h-20' />
-        <p className='hidden sm:block text-sm sm:text-base md:text-lg font-bold'>
-          {awayTeamShort}
-        </p>
+    <div className='w-full flex items-center justify-between px-2 py-3'>
+      {/* Away Team */}
+      <div className='flex flex-col items-center'>
+        <Logo tricode={away_code} className='h-10 w-10' />
+        <div className='mt-1 text-center w-24 sm:w-20'>
+          <p className='font-bold text-sm truncate'>{awayTeamShort}</p>
+        </div>
       </div>
-      <div className='basis-2/12 flex flex-col items-center justify-center text-center'>
+
+      {/* Game Time */}
+      <div className='flex flex-col items-center justify-center flex-1 mx-4'>
         <TimeTooltip time={gameTime} />
       </div>
-      <div className='basis-5/12 flex flex-col items-center text-center'>
-        <Logo tricode={home_code} className='h-14 sm:h-16 md:h-20' />
-        <p className='hidden sm:block text-sm sm:text-base md:text-lg font-bold'>
-          {homeTeamShort}
-        </p>
+
+      {/* Home Team */}
+      <div className='flex flex-col items-center'>
+        <Logo tricode={home_code} className='h-10 w-10' />
+        <div className='mt-1 text-center w-24 sm:w-20'>
+          <p className='font-bold text-sm truncate'>{homeTeamShort}</p>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -167,44 +171,41 @@ function PostGame({
 }) {
   const awayTeamShort = TeamMap[away_code]?.name_short || away_code;
   const homeTeamShort = TeamMap[home_code]?.name_short || home_code;
+
   return (
-    <>
-      <div className='basis-1/3 grow flex flex-col text-center'>
-        <Logo tricode={away_code} className='h-14 sm:h-16 md:h-20' />
-        <p className='hidden sm:block text-sm sm:text-base md:text-lg font-bold'>
-          {awayTeamShort}
-        </p>
-      </div>
-      <div className='basis-1/3 flex flex-col items-center justify-between text-center'>
-        <div className='w-full flex-grow flex flex-row items-center justify-between'>
-          <p
-            className={clsx(
-              'text-md sm:text-2xl md:text-3xl font-extrabold',
-              away_score > home_score ? 'text-green-500' : 'text-destructive'
-            )}
-          >
-            {away_score}
-          </p>
-          <p
-            className={clsx(
-              'text-md sm:text-2xl md:text-3xl font-extrabold',
-              home_score > away_score ? 'text-green-500' : 'text-destructive'
-            )}
-          >
-            {home_score}
-          </p>
+    <div className='w-full flex items-center justify-between px-2 py-3'>
+      {/* Away Team */}
+      <div className='flex flex-col items-center'>
+        <Logo tricode={away_code} className='h-10 w-10' />
+        <div className='mt-1 text-center w-24 sm:w-20'>
+          <p className='font-bold text-sm truncate'>{awayTeamShort}</p>
         </div>
-        <span className='flex-grow-0 text-xs sm:text-sm text-white font-bold rounded-lg px-1 py-0.5 bg-gradient-to-r from-cyan-500 to-purple-500'>
-          {status_text}
-        </span>
       </div>
 
-      <div className='basis-1/3 flex flex-col items-center text-center'>
-        <Logo tricode={home_code} className='h-14 sm:h-16 md:h-20' />
-        <p className='hidden sm:block text-sm sm:text-base md:text-lg font-bold'>
-          {homeTeamShort}
-        </p>
+      {/* Score */}
+      <div className='flex flex-col items-center'>
+        <div className='flex items-center justify-center'>
+          <span className='text-3xl font-bold w-12 text-center tabular-nums'>
+            {away_score}
+          </span>
+          <div className='flex flex-col items-center w-14 sm:w-16 mx-1 sm:mx-2'>
+            <span className='text-xs font-semibold text-gray-500 uppercase'>
+              {status_text}
+            </span>
+          </div>
+          <span className='text-3xl font-bold w-12 text-center tabular-nums'>
+            {home_score}
+          </span>
+        </div>
       </div>
-    </>
+
+      {/* Home Team */}
+      <div className='flex flex-col items-center'>
+        <Logo tricode={home_code} className='h-10 w-10' />
+        <div className='mt-1 text-center w-24 sm:w-20'>
+          <p className='font-bold text-sm truncate'>{homeTeamShort}</p>
+        </div>
+      </div>
+    </div>
   );
 }

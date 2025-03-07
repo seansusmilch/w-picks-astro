@@ -12,21 +12,18 @@ export function TimeTooltip({ time }: { time: Date }) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger>
-          <p className='text-md font-bold'>
-            {datetime
-              ?.toLocaleString('en-US', { weekday: 'short' })
-              .toUpperCase()}
-          </p>
-          <p className='text-sm font-semibold'>
-            {datetime
-              ?.toLocaleString('en-US', {
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true,
-              })
-              .replace(' AM', 'a')
-              .replace(' PM', 'p')}
-          </p>
+          <div className='text-center'>
+            <p className='text-3xl font-bold tracking-tight'>
+              {datetime
+                ?.toLocaleString('en-US', {
+                  hour: 'numeric',
+                  minute: 'numeric',
+                  hour12: true,
+                })
+                .replace(' AM', 'a')
+                .replace(' PM', 'p')}
+            </p>
+          </div>
         </TooltipTrigger>
         <TooltipContent>{datetime?.toLocaleString('en-US')}</TooltipContent>
       </Tooltip>
