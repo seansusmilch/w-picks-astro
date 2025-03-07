@@ -21,7 +21,7 @@ export default defineConfig({
     schema: {
       POCKETBASE_URL: envField.string({
         context: 'server',
-        access: 'secret',
+        access: 'public',
       }),
       POCKETBASE_PUBLIC_URL: envField.string({
         context: 'client',
@@ -29,15 +29,15 @@ export default defineConfig({
       }),
       ADMIN_USER: envField.string({
         context: 'server',
-        access: 'secret',
+        access: 'public',
       }),
       ADMIN_PASSWORD: envField.string({
         context: 'server',
-        access: 'secret',
+        access: 'public',
       }),
       CRON_SECRET: envField.string({
         context: 'server',
-        access: 'secret',
+        access: 'public',
       }),
       POSTHOG_API_HOST: envField.string({
         context: 'server',
