@@ -1,0 +1,7 @@
+---
+description: working with Astro layouts
+globs: src/layouts/*.astro
+alwaysApply: false
+---
+[astro.mdc](mdc:.cursor/rules/astro.mdc)
+- Make the user experience generic and streamlined

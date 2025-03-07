@@ -1,0 +1,8 @@
+---
+description: rules for fetching data in react
+globs: *.tsx
+alwaysApply: false
+---
+- Use the existing react query nano store from here [query.ts](mdc:src/stores/query.ts)
+- Every react query should be pointing to an Astro Action
+- Astro Actions can be found in `src/actions/*`

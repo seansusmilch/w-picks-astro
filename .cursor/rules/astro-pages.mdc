@@ -1,0 +1,6 @@
+---
+description: Rules for modifying and creating new pages in the app
+globs: src/pages/**/*.astro
+alwaysApply: false
+---
+[astro.mdc](mdc:.cursor/rules/astro.mdc)

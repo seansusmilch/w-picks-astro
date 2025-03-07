@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { MoonIcon, SunIcon } from '@heroicons/react/24/outline';
 
 import { Button } from '@/components/ui/button';
@@ -10,23 +10,34 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export function ThemeToggle() {
-  const [theme, setThemeState] = React.useState<
-    'theme-light' | 'dark' | 'system'
-  >('theme-light');
+  const isInitialRender = useRef(true);
+  const [theme, setThemeState] = useState<'theme-light' | 'dark' | 'system'>(
+    'theme-light'
+  );
 
-  const [dropOpen, setDropOpen] = React.useState(false);
+  const [dropOpen, setDropOpen] = useState(false);
 
-  React.useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains('dark');
-    setThemeState(isDarkMode ? 'dark' : 'theme-light');
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme) {
+      setThemeState(storedTheme as 'theme-light' | 'dark' | 'system');
+    } else {
+      const isDarkMode = document.documentElement.classList.contains('dark');
+      setThemeState(isDarkMode ? 'dark' : 'theme-light');
+    }
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
     const isDark =
       theme === 'dark' ||
       (theme === 'system' &&
         window.matchMedia('(prefers-color-scheme: dark)').matches);
-    document.documentElement.classList[isDark ? 'add' : 'remove']('dark');
+    document.documentElement.classList.toggle('dark', isDark);
+    localStorage.setItem('theme', theme);
   }, [theme]);
 
   return (

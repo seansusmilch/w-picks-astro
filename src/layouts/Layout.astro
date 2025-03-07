@@ -1,6 +1,6 @@
 ---
 import Header from '@/components/Header/Header.astro';
-import '@fontsource/poppins';
+import '@fontsource/inter';
 import '@/globals.css';
 import { ClientRouter } from 'astro:transitions';
 import Posthog from '@/components/Posthog.astro';
@@ -11,22 +11,6 @@ interface Props {
 
 const { title } = Astro.props;
 ---
-
-<script is:inline>
-  // This script runs immediately to avoid flash of incorrect theme
-  const getThemePreference = () => {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-      return localStorage.getItem('theme');
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
-  };
-
-  // Apply the theme immediately
-  const theme = getThemePreference();
-  document.documentElement.className = theme;
-</script>
 
 <html lang='en'>
   <head>
@@ -44,43 +28,26 @@ const { title } = Astro.props;
       defer
       src='https://umuumi.ipv64.de/script.js'
       data-website-id='c0d26e2f-d316-4d61-9606-9b047134846a'></script>
+    <!-- Prevent theme flash -->
+    <script is:inline>
+      const theme = (() => {
+        if (localStorage?.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return 'dark';
+        }
+        return 'theme-light';
+      })();
+
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
   </head>
   <body>
-    <script>
-      // This script handles theme changes and persistence
-      function handleThemeChange() {
-        const observer = new MutationObserver(() => {
-          const isDark = document.documentElement.classList.contains('dark');
-          localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        });
-
-        observer.observe(document.documentElement, {
-          attributes: true,
-          attributeFilter: ['class'],
-        });
-      }
-
-      function applyStoredTheme() {
-        const theme = localStorage.getItem('theme') || 'light';
-        document.documentElement.classList[theme === 'dark' ? 'add' : 'remove'](
-          'dark'
-        );
-      }
-
-      // Initialize theme handling when the page loads
-      document.addEventListener('astro:page-load', () => {
-        applyStoredTheme();
-        handleThemeChange();
-      });
-
-      // Handle theme during page transitions
-      document.addEventListener('astro:after-swap', () => {
-        applyStoredTheme();
-      });
-
-      // Also initialize on first load
-      handleThemeChange();
-    </script>
     <div class='flex flex-col min-h-[100dvh]'>
       <Header />
       <div class='flex justify-center flex-grow'>

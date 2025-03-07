@@ -1,0 +1,9 @@
+---
+description: generic rules for working with components
+globs: 
+alwaysApply: false
+---
+- React components should live in the `src/components` folder
+- Keep components dumb and reusable
+- Keep components simple
+- Use tailwind css for styling
