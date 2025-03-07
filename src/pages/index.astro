@@ -1,6 +1,14 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { Button } from '@/components/ui/button';
+import {
+  Calendar,
+  Trophy,
+  MessageSquare,
+  Users,
+  BarChart,
+  Download,
+} from 'lucide-react';
 ---
 
 <Layout title='W Picks - NBA Prediction App'>
@@ -14,15 +22,10 @@ import { Button } from '@/components/ui/button';
       height={96}
     />
     <h1 class='text-4xl font-bold mb-2'>W Picks</h1>
-    <p class='text-xl text-muted-foreground mb-6'>
-      Your NBA Prediction Companion
-    </p>
+    <p class='text-xl text-muted-foreground mb-6'>NBA Pick 'Ems</p>
     <div class='flex flex-col sm:flex-row gap-4 w-full max-w-xs'>
       <a href='/login' class='w-full'>
         <Button size='lg' client:load>Get Started</Button>
-      </a>
-      <a href='/stats/weekly' class='w-full'>
-        <Button variant='outline' size='lg' client:load>This Week</Button>
       </a>
     </div>
   </section>
@@ -36,32 +39,11 @@ import { Button } from '@/components/ui/button';
         class='rounded-xl border bg-card text-card-foreground shadow-sm p-4 flex flex-col items-center text-center'
       >
         <div class='h-12 w-12 mb-2 text-primary'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='100%'
-            height='100%'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            stroke-width='2'
-            stroke-linecap='round'
-            stroke-linejoin='round'
-            ><rect width='18' height='18' x='3' y='4' rx='2' ry='2'></rect><line
-              x1='16'
-              x2='16'
-              y1='2'
-              y2='6'></line><line x1='8' x2='8' y1='2' y2='6'></line><line
-              x1='3'
-              x2='21'
-              y1='10'
-              y2='10'></line><path d='M8 14h.01'></path><path d='M12 14h.01'
-            ></path><path d='M16 14h.01'></path><path d='M8 18h.01'></path><path
-              d='M12 18h.01'></path><path d='M16 18h.01'></path></svg
-          >
+          <Calendar className='w-full h-full' />
         </div>
         <h3 class='text-lg font-semibold mb-1'>View NBA Matchups</h3>
         <p class='text-muted-foreground'>
-          Stay updated with all NBA games and matchups in real-time
+          Stay updated with all NBA games and with data from NBA.com
         </p>
       </div>
 
@@ -69,24 +51,7 @@ import { Button } from '@/components/ui/button';
         class='rounded-xl border bg-card text-card-foreground shadow-sm p-4 flex flex-col items-center text-center'
       >
         <div class='h-12 w-12 mb-2 text-primary'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='100%'
-            height='100%'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            stroke-width='2'
-            stroke-linecap='round'
-            stroke-linejoin='round'
-            ><path d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6'></path><path
-              d='M18 9h1.5a2.5 2.5 0 0 0 0-5H18'></path><path d='M4 22h16'
-            ></path><path
-              d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22'
-            ></path><path
-              d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22'
-            ></path><path d='M18 2H6v7a6 6 0 0 0 12 0V2Z'></path></svg
-          >
+          <Trophy className='w-full h-full' />
         </div>
         <h3 class='text-lg font-semibold mb-1'>Make Your Picks</h3>
         <p class='text-muted-foreground'>
@@ -98,24 +63,11 @@ import { Button } from '@/components/ui/button';
         class='rounded-xl border bg-card text-card-foreground shadow-sm p-4 flex flex-col items-center text-center'
       >
         <div class='h-12 w-12 mb-2 text-primary'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='100%'
-            height='100%'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            stroke-width='2'
-            stroke-linecap='round'
-            stroke-linejoin='round'
-            ><path
-              d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'
-            ></path></svg
-          >
+          <MessageSquare className='w-full h-full' />
         </div>
         <h3 class='text-lg font-semibold mb-1'>Share Your Thoughts</h3>
         <p class='text-muted-foreground'>
-          Add comments explaining your picks and strategy
+          Add comments explaining your picks...or say something funny
         </p>
       </div>
 
@@ -123,22 +75,7 @@ import { Button } from '@/components/ui/button';
         class='rounded-xl border bg-card text-card-foreground shadow-sm p-4 flex flex-col items-center text-center'
       >
         <div class='h-12 w-12 mb-2 text-primary'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='100%'
-            height='100%'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            stroke-width='2'
-            stroke-linecap='round'
-            stroke-linejoin='round'
-            ><path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'></path><circle
-              cx='9'
-              cy='7'
-              r='4'></circle><path d='M22 21v-2a4 4 0 0 0-3-3.87'></path><path
-              d='M16 3.13a4 4 0 0 1 0 7.75'></path></svg
-          >
+          <Users className='w-full h-full' />
         </div>
         <h3 class='text-lg font-semibold mb-1'>See Community Picks</h3>
         <p class='text-muted-foreground'>
@@ -150,19 +87,7 @@ import { Button } from '@/components/ui/button';
         class='rounded-xl border bg-card text-card-foreground shadow-sm p-4 flex flex-col items-center text-center'
       >
         <div class='h-12 w-12 mb-2 text-primary'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='100%'
-            height='100%'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            stroke-width='2'
-            stroke-linecap='round'
-            stroke-linejoin='round'
-            ><path d='M3 3v18h18'></path><path d='M18 17V9'></path><path
-              d='M13 17V5'></path><path d='M8 17v-3'></path></svg
-          >
+          <BarChart className='w-full h-full' />
         </div>
         <h3 class='text-lg font-semibold mb-1'>Track Your Stats</h3>
         <p class='text-muted-foreground'>
@@ -178,35 +103,18 @@ import { Button } from '@/components/ui/button';
   <section class='py-8 px-4'>
     <h2 class='text-2xl font-bold mb-6 text-center'>Install the App</h2>
 
-    <div class='rounded-xl border bg-card text-card-foreground shadow-sm p-6 mb-6'>
+    <div
+      class='rounded-xl border bg-card text-card-foreground shadow-sm p-6 mb-6'
+    >
       <div class='flex items-start mb-4'>
         <div class='h-8 w-8 mr-4 text-primary shrink-0 mt-1'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='100%'
-            height='100%'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            stroke-width='2'
-            stroke-linecap='round'
-            stroke-linejoin='round'
-            ><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'
-            ></path><polyline points='7 10 12 15 17 10'></polyline><line
-              x1='12'
-              x2='12'
-              y1='15'
-              y2='3'></line></svg
-          >
+          <Download className='w-full h-full' />
         </div>
         <div>
           <h3 class='text-lg font-semibold mb-2'>
             Install W Picks on Your Phone
           </h3>
-          <p class='text-muted-foreground mb-4'>
-            Get the full app experience with offline capabilities and
-            notifications.
-          </p>
+          <p class='text-muted-foreground mb-4'>Get the full app experience.</p>
 
           <div class='space-y-4'>
             <div>
@@ -214,14 +122,14 @@ import { Button } from '@/components/ui/button';
               <ol
                 class='list-decimal list-inside text-sm space-y-1 text-muted-foreground'
               >
-                <li>Tap the <span class='font-medium'>Share</span> button</li>
+                <li>Tap the <span class='font-semibold'>Share</span> button</li>
                 <li>
-                  Scroll down and select <span class='font-medium'
+                  Scroll down and select <span class='font-semibold'
                     >Add to Home Screen</span
                   >
                 </li>
                 <li>
-                  Tap <span class='font-medium'>Add</span> in the top-right corner
+                  Tap <span class='font-semibold'>Add</span> in the top-right corner
                 </li>
               </ol>
             </div>
@@ -231,10 +139,12 @@ import { Button } from '@/components/ui/button';
               <ol
                 class='list-decimal list-inside text-sm space-y-1 text-muted-foreground'
               >
-                <li>Tap the <span class='font-medium'>⋮</span> menu button</li>
                 <li>
-                  Select <span class='font-medium'>Install app</span> or <span
-                    class='font-medium'>Add to Home Screen</span
+                  Tap the <span class='font-semibold'>⋮</span> menu button
+                </li>
+                <li>
+                  Select <span class='font-semibold'>Install app</span> or <span
+                    class='font-semibold'>Add to Home Screen</span
                   >
                 </li>
                 <li>Follow the on-screen instructions</li>
