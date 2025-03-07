@@ -5,6 +5,7 @@ import {
   getWinningTeamByMatchupId,
   isMatchupUpcoming,
 } from '@/lib/matchups';
+import { expandAvatarUrl } from './data_common';
 
 export function validatePick(pick: any) {
   const pickResult = PickZ.safeParse(pick);
@@ -172,4 +173,25 @@ export async function getPicksByUser(
     expand: 'matchup',
   });
   return picks;
+}
+
+export async function getLatestPicks(limit: number = 10) {
+  const pb = getAPB();
+
+  try {
+    const picks = await pb.collection('picks').getList(1, limit, {
+      sort: '-created', // Sort by creation date, newest first
+      expand: 'user,matchup', // Expand user and matchup data
+      fields:
+        '*,expand.user.id,expand.user.avatar,expand.user.username,expand.matchup.home_code,expand.matchup.away_code,expand.matchup.code',
+    });
+
+    // Expand avatar URLs for user profiles
+    const expandedPicks = expandAvatarUrl(picks.items);
+
+    return expandedPicks;
+  } catch (error) {
+    console.error('Error fetching latest picks:', error);
+    return [];
+  }
 }
