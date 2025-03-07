@@ -155,10 +155,10 @@ export function WeekGamesSummary({ games }: { games: GameType[] }) {
   useEffect(() => {
     if (!api) return;
 
-    api.scrollTo(todayIndex);
     buttonRefs.current[today]?.scrollIntoView({
       behavior: 'instant',
       inline: 'center',
+      block: 'nearest',
     });
 
     const handleSelect = () => {
@@ -167,6 +167,7 @@ export function WeekGamesSummary({ games }: { games: GameType[] }) {
       buttonRefs.current[day]?.scrollIntoView({
         behavior: 'smooth',
         inline: 'center',
+        block: 'nearest',
       });
     };
 
@@ -174,7 +175,7 @@ export function WeekGamesSummary({ games }: { games: GameType[] }) {
     return () => {
       api.off('select', handleSelect);
     };
-  }, [api, today, todayIndex]);
+  }, [api, today]);
 
   const handleDaySelect = (day: string) => {
     if (!api) return;
@@ -183,6 +184,7 @@ export function WeekGamesSummary({ games }: { games: GameType[] }) {
     buttonRefs.current[day]?.scrollIntoView({
       behavior: 'smooth',
       inline: 'center',
+      block: 'nearest',
     });
     api.scrollTo(index);
   };
@@ -193,13 +195,15 @@ export function WeekGamesSummary({ games }: { games: GameType[] }) {
 
   return (
     <div className='space-y-4'>
-      <DaySelector
-        selectedDay={selectedDay}
-        today={today}
-        gamesByDay={gamesByDay}
-        onDaySelect={handleDaySelect}
-        buttonRefs={getButtonRef}
-      />
+      <div className='sticky top-0 bg-background z-10'>
+        <DaySelector
+          selectedDay={selectedDay}
+          today={today}
+          gamesByDay={gamesByDay}
+          onDaySelect={handleDaySelect}
+          buttonRefs={getButtonRef}
+        />
+      </div>
 
       <Carousel className='w-full' setApi={setApi} opts={{ skipSnaps: false }}>
         <CarouselContent>
