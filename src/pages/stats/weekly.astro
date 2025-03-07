@@ -1,0 +1,31 @@
+---
+import { expandAvatarUrl } from '@/lib/data_common';
+import Layout from '@/layouts/Layout.astro';
+import { WeeklyStatsView } from '@/components/Views/WeeklyStatsView';
+import { LatestPicksView } from '@/components/Picks/LatestPicksView';
+import { getWeeklyStats, getWeekList } from '@/lib/stats';
+import { getLatestPicks } from '@/lib/picks';
+
+const picks = await getLatestPicks();
+
+const weekList = await getWeekList();
+const initialWeek = weekList[0];
+const initialData = expandAvatarUrl(await getWeeklyStats(initialWeek));
+const pageTitle = 'Leaderboard - Weekly';
+---
+
+<Layout title={pageTitle}>
+  <h1 class='text-3xl py-6 font-bold'>{pageTitle}</h1>
+  <div class='flex flex-col items-center gap-8'>
+    <WeeklyStatsView
+      initialData={initialData}
+      initialWeek={initialWeek}
+      weekList={weekList}
+      client:only
+    />
+
+    <div class='w-full max-w-2xl'>
+      <LatestPicksView picks={picks} client:only />
+    </div>
+  </div>
+</Layout>

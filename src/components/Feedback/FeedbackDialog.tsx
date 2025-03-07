@@ -9,7 +9,7 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import { FeedbackForm } from './FeedbackForm';
-import { ChatBubbleOvalLeftIcon } from '@heroicons/react/24/outline';
+import { MessageCircleIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRef } from 'react';
 
@@ -24,7 +24,7 @@ export function FeedbackDialog() {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant='outline' size='icon' className='hover:text-pink-400'>
-          <ChatBubbleOvalLeftIcon className='h-[1.2rem] w-[1.2rem]' />
+          <MessageCircleIcon className='h-[1.2rem] w-[1.2rem]' />
           <span className='sr-only'>Open feedback dialog</span>
         </Button>
       </DialogTrigger>

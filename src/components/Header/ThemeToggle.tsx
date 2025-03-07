@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MoonIcon, SunIcon } from '@heroicons/react/24/outline';
-
+import { MoonIcon, SunIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,

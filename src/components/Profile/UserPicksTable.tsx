@@ -11,7 +11,7 @@ import type { MatchupType, PickType } from '@/lib/definitions';
 import { TeamMap } from '@/components/NBA/teamMap';
 import { Logo } from '@/components/NBA/Logo';
 import moment from 'moment';
-import { ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
+import { MessageCircleIcon } from 'lucide-react';
 import { getUrlToMatchup } from '@/lib/data_common';
 
 export function UserPicksTable({
