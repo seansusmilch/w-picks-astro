@@ -10,6 +10,8 @@ import {
   Download,
   ArrowRight,
 } from 'lucide-react';
+
+const isAuthed = Astro.locals.isAuthed;
 ---
 
 <Layout title='W Picks - NBA Prediction App'>
@@ -43,7 +45,7 @@ import {
     </p>
 
     <div class='flex flex-col sm:flex-row gap-4 w-full max-w-xs'>
-      <a href='/login' class='w-full group'>
+      <a href={isAuthed ? '/stats/weekly' : '/login'} class='w-full group'>
         <Button
           size='lg'
           className='w-full group-hover:shadow-md transition-all duration-300 flex items-center justify-center gap-2'
@@ -244,7 +246,7 @@ import {
             Join the community and start predicting NBA games today. Track your
             success and compete with friends!
           </p>
-          <a href='/login'>
+          <a href={isAuthed ? '/stats/weekly' : '/login'}>
             <Button
               variant='secondary'
               size='lg'
