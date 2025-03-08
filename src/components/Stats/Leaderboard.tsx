@@ -57,11 +57,11 @@ export function Leaderboard({ data }: { data: StatType[] }) {
 export function LeaderboardSkeleton() {
   return (
     <div className='space-y-2'>
-      <div className='h-12 w-full rounded-md bg-gray-200 animate-pulse' />
-      <div className='h-12 w-full rounded-md bg-gray-200 animate-pulse' />
-      <div className='h-12 w-full rounded-md bg-gray-200 animate-pulse' />
-      <div className='h-12 w-full rounded-md bg-gray-200 animate-pulse' />
-      <div className='h-12 w-full rounded-md bg-gray-200 animate-pulse' />
+      <div className='h-12 w-full rounded-md bg-muted animate-pulse' />
+      <div className='h-12 w-full rounded-md bg-muted animate-pulse' />
+      <div className='h-12 w-full rounded-md bg-muted animate-pulse' />
+      <div className='h-12 w-full rounded-md bg-muted animate-pulse' />
+      <div className='h-12 w-full rounded-md bg-muted animate-pulse' />
     </div>
   );
 }

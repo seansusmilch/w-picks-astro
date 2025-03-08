@@ -191,6 +191,7 @@ export function WeekGamesSummary({ games }: { games: GameType[] }) {
 
   return (
     <div className='space-y-4'>
+      <h2 className='text-2xl font-bold'>This Week</h2>
       <div className='sticky top-0 bg-background z-10'>
         <DayTabs
           selectedDay={selectedDay}
@@ -206,12 +207,6 @@ export function WeekGamesSummary({ games }: { games: GameType[] }) {
           {DAYS_OF_WEEK.map((day) => (
             <CarouselItem key={day}>
               <div className='p-1'>
-                <h2 className='font-bold text-lg mb-4'>
-                  {day}
-                  {day === today && (
-                    <span className='text-primary'> (Today)</span>
-                  )}
-                </h2>
                 <GamesList
                   day={day}
                   isToday={day === today}
