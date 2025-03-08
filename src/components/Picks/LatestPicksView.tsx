@@ -71,8 +71,6 @@ export function LatestPicksViewSkeleton() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className='left-0' />
-        <CarouselNext className='right-0' />
       </Carousel>
     </div>
   );
@@ -116,11 +114,6 @@ export function LatestPicksView({
     if (!isAutoScrollingRef.current) {
       stopAutoScroll();
     }
-  }, [stopAutoScroll]);
-
-  // Handle button clicks directly
-  const handleButtonClick = useCallback(() => {
-    stopAutoScroll();
   }, [stopAutoScroll]);
 
   useEffect(() => {
@@ -180,8 +173,6 @@ export function LatestPicksView({
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className='left-0' onClick={handleButtonClick} />
-          <CarouselNext className='right-0' onClick={handleButtonClick} />
         </Carousel>
       )}
     </div>
@@ -191,7 +182,6 @@ export function LatestPicksView({
 function PickCard({ pick }: { pick: any }) {
   const user = pick.expand.user;
   const matchup = pick.expand.matchup;
-  const isPredictionHome = pick.win_prediction === matchup.home_code;
   const teamCode = pick.win_prediction;
   const teamName = TeamMap[teamCode]?.name || teamCode;
   const matchupUrl = getUrlToMatchup(matchup.code);

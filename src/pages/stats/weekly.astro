@@ -23,7 +23,7 @@ const pageTitle = 'Leaderboard - Weekly';
 <Layout title={pageTitle}>
   <div class='w-full max-w-2xl pt-6'>
     <h2 class='text-2xl font-bold'>Latest Picks</h2>
-    <LatestPicksView picks={picks} client:only>
+    <LatestPicksView picks={picks} client:load>
       <LatestPicksViewSkeleton slot='fallback' />
     </LatestPicksView>
   </div>
@@ -33,7 +33,7 @@ const pageTitle = 'Leaderboard - Weekly';
       initialData={initialData}
       initialWeek={initialWeek}
       weekList={weekList}
-      client:only
+      client:load
     >
       <WeeklyStatsViewSkeleton slot='fallback' />
     </WeeklyStatsView>

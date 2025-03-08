@@ -6,7 +6,7 @@ import { FeedbackDialog } from '@/components/Feedback/FeedbackDialog';
 import { UserIcon } from 'lucide-react';
 import { User } from '@/components/Header/User';
 import { getUserAvatarUrl } from '@/lib/data_common';
-import { navigationItems } from '@/lib/constants';
+import { navigationItems, postLoginRedirect } from '@/lib/constants';
 const { user, isAuthed } = Astro.locals;
 const pathname = Astro.url.pathname;
 const avatarUrl =
@@ -19,9 +19,8 @@ const avatarUrl =
       <div class='flex w-full lg:w-auto justify-between items-center'>
         <a
           class='flex flex-row gap-4 items-center'
-          href='/'
+          href={isAuthed ? postLoginRedirect : '/'}
           id='logo-link'
-          onclick="event.preventDefault(); if (window.history.length > 1) { window.history.back(); } else { window.location.href = '/'; }"
         >
           <img
             class='rounded-xl w-[50px] h-[50px]'
