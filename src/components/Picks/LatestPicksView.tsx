@@ -21,7 +21,70 @@ import { CalendarIcon, MessageCircleIcon } from 'lucide-react';
 import moment from 'moment';
 import type { PickType } from '@/lib/definitions';
 
-export function LatestPicksView({ picks }: { picks: PickType[] }) {
+// Skeleton component for loading state
+function PickCardSkeleton() {
+  return (
+    <Card className='animate-pulse'>
+      <CardHeader className='pb-2 pt-4'>
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-3'>
+            <div className='w-10 h-10 rounded-full bg-muted' />
+            <div className='h-4 w-24 bg-muted rounded' />
+          </div>
+          <div className='h-3 w-20 bg-muted rounded' />
+        </div>
+      </CardHeader>
+
+      <CardContent className='space-y-3'>
+        <div className='flex items-center gap-2'>
+          <div className='h-4 w-12 bg-muted rounded' />
+          <div className='flex items-center gap-1'>
+            <div className='h-5 w-5 bg-muted rounded-full' />
+            <div className='h-4 w-20 bg-muted rounded' />
+          </div>
+          <div className='h-4 w-12 bg-muted rounded' />
+        </div>
+
+        <div className='h-16 bg-muted/30 p-2 rounded-md'>
+          <div className='flex items-start gap-1'>
+            <div className='h-4 w-4 bg-muted rounded mt-0.5' />
+            <div className='h-4 w-full bg-muted rounded' />
+          </div>
+        </div>
+      </CardContent>
+
+      <CardFooter className='pt-0'>
+        <div className='h-3 w-24 bg-muted rounded' />
+      </CardFooter>
+    </Card>
+  );
+}
+
+export function LatestPicksViewSkeleton() {
+  return (
+    <div className='w-full max-w-2xl mx-auto'>
+      <Carousel className='w-full'>
+        <CarouselContent>
+          {[1, 2, 3].map((index) => (
+            <CarouselItem key={index} className='md:basis-full'>
+              <PickCardSkeleton />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className='left-0' />
+        <CarouselNext className='right-0' />
+      </Carousel>
+    </div>
+  );
+}
+
+export function LatestPicksView({
+  picks,
+  isLoading,
+}: {
+  picks: PickType[];
+  isLoading?: boolean;
+}) {
   const [api, setApi] = useState<any>(null);
   const intervalRef = useRef<number | null>(null);
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
@@ -69,7 +132,7 @@ export function LatestPicksView({ picks }: { picks: PickType[] }) {
       }
 
       // Set up auto-scrolling every 4 seconds
-      intervalRef.current = setInterval(scrollNext, 6000) as unknown as number;
+      intervalRef.current = setInterval(scrollNext, 5000) as unknown as number;
 
       // Clean up interval on unmount
       return () => {
@@ -89,6 +152,11 @@ export function LatestPicksView({ picks }: { picks: PickType[] }) {
       api.off('select', handleManualNavigation);
     };
   }, [api, handleManualNavigation]);
+
+  // Show skeleton while loading
+  if (isLoading) {
+    return <LatestPicksViewSkeleton />;
+  }
 
   return (
     <div className='w-full max-w-2xl mx-auto'>

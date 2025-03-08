@@ -1,8 +1,14 @@
 ---
 import { expandAvatarUrl } from '@/lib/data_common';
 import Layout from '@/layouts/Layout.astro';
-import { WeeklyStatsView } from '@/components/Views/WeeklyStatsView';
-import { LatestPicksView } from '@/components/Picks/LatestPicksView';
+import {
+  WeeklyStatsView,
+  WeeklyStatsViewSkeleton,
+} from '@/components/Views/WeeklyStatsView';
+import {
+  LatestPicksView,
+  LatestPicksViewSkeleton,
+} from '@/components/Picks/LatestPicksView';
 import { getWeeklyStats, getWeekList } from '@/lib/stats';
 import { getLatestPicks } from '@/lib/picks';
 
@@ -17,7 +23,9 @@ const pageTitle = 'Leaderboard - Weekly';
 <Layout title={pageTitle}>
   <div class='w-full max-w-2xl pt-6'>
     <h2 class='text-2xl font-bold'>Latest Picks</h2>
-    <LatestPicksView picks={picks} client:only />
+    <LatestPicksView picks={picks} client:only>
+      <LatestPicksViewSkeleton slot='fallback' />
+    </LatestPicksView>
   </div>
   <h2 class='text-2xl font-bold'>{pageTitle}</h2>
   <div class='flex flex-col items-center gap-8'>
@@ -26,6 +34,8 @@ const pageTitle = 'Leaderboard - Weekly';
       initialWeek={initialWeek}
       weekList={weekList}
       client:only
-    />
+    >
+      <WeeklyStatsViewSkeleton slot='fallback' />
+    </WeeklyStatsView>
   </div>
 </Layout>

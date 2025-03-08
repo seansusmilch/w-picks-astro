@@ -111,3 +111,43 @@ export function WeeklyStatsView({
     </div>
   );
 }
+
+/**
+ * Skeleton loading state for the WeeklyStatsView component
+ */
+export function WeeklyStatsViewSkeleton() {
+  return (
+    <div className='w-full flex flex-col gap-4'>
+      {/* Week Select Skeleton */}
+      <div className='w-full max-w-xs'>
+        <div className='h-10 w-full rounded-md bg-muted animate-pulse' />
+      </div>
+
+      {/* Leaderboard Skeleton */}
+      <LeaderboardSkeleton />
+
+      {/* Week Games Summary Skeleton */}
+      <div className='space-y-4'>
+        {/* Day tabs skeleton */}
+        <div className='flex gap-2 overflow-x-auto py-2'>
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div
+              key={i}
+              className='h-10 w-16 rounded-md bg-muted animate-pulse shrink-0'
+            />
+          ))}
+        </div>
+
+        {/* Games list skeleton */}
+        <div className='space-y-2'>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              className='h-24 w-full rounded-md bg-muted animate-pulse'
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
