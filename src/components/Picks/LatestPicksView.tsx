@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { UserAvatar } from '@/components/Profile/UserAvatar';
 import { getUrlToMatchup } from '@/lib/data_common';
 import { Logo } from '@/components/NBA/Logo';
@@ -10,24 +10,112 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui/card';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 import { CalendarIcon, MessageCircleIcon } from 'lucide-react';
 import moment from 'moment';
-import { cn } from '@/lib/utils';
 import type { PickType } from '@/lib/definitions';
 
 export function LatestPicksView({ picks }: { picks: PickType[] }) {
+  const [api, setApi] = useState<any>(null);
+  const intervalRef = useRef<number | null>(null);
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
+  const isAutoScrollingRef = useRef(false);
+
+  const scrollNext = useCallback(() => {
+    if (api) {
+      isAutoScrollingRef.current = true;
+      api.scrollNext();
+      // Reset the flag after a short delay to allow the select event to fire
+      setTimeout(() => {
+        isAutoScrollingRef.current = false;
+      }, 100);
+    }
+  }, [api]);
+
+  // Function to stop auto-scrolling
+  const stopAutoScroll = useCallback(() => {
+    setAutoScrollEnabled(false);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
+  // Function to handle manual navigation
+  const handleManualNavigation = useCallback(() => {
+    // Only stop auto-scrolling if it's not triggered by the auto-scroll itself
+    if (!isAutoScrollingRef.current) {
+      stopAutoScroll();
+    }
+  }, [stopAutoScroll]);
+
+  // Handle button clicks directly
+  const handleButtonClick = useCallback(() => {
+    stopAutoScroll();
+  }, [stopAutoScroll]);
+
+  useEffect(() => {
+    // Only set up auto-scrolling if there are picks and auto-scroll is enabled
+    if (picks.length > 1 && api && autoScrollEnabled) {
+      // Clear any existing interval
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+
+      // Set up auto-scrolling every 4 seconds
+      intervalRef.current = setInterval(scrollNext, 6000) as unknown as number;
+
+      // Clean up interval on unmount
+      return () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      };
+    }
+  }, [api, picks.length, scrollNext, autoScrollEnabled]);
+
+  useEffect(() => {
+    // Set up event listeners for user interaction with the carousel
+    if (!api) return;
+    api.on('select', handleManualNavigation);
+
+    return () => {
+      api.off('select', handleManualNavigation);
+    };
+  }, [api, handleManualNavigation]);
+
   return (
     <div className='w-full max-w-2xl mx-auto'>
-      <h2 className='text-2xl font-bold'>Latest Picks</h2>
-      <div className='space-y-4'>
-        {picks.length === 0 ? (
-          <div className='text-center py-8 text-muted-foreground'>
-            No picks available
-          </div>
-        ) : (
-          picks.map((pick) => <PickCard key={pick.id} pick={pick} />)
-        )}
-      </div>
+      {picks.length === 0 ? (
+        <div className='text-center py-8 text-muted-foreground'>
+          No picks available
+        </div>
+      ) : (
+        <Carousel
+          setApi={setApi}
+          className='w-full'
+          opts={{
+            align: 'start',
+            loop: true,
+          }}
+        >
+          <CarouselContent>
+            {picks.map((pick) => (
+              <CarouselItem key={pick.id} className='md:basis-full'>
+                <PickCard pick={pick} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className='left-0' onClick={handleButtonClick} />
+          <CarouselNext className='right-0' onClick={handleButtonClick} />
+        </Carousel>
+      )}
     </div>
   );
 }
