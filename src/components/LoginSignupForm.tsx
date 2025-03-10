@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { actions, isInputError } from 'astro:actions';
 import { navigate } from 'astro:transitions/client';
-import { postLoginRedirect } from '@/lib/constants';
+import { postLoginRedirect, APP_NAME } from '@/lib/constants';
 export function LoginSignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -52,7 +52,7 @@ export function LoginSignupForm() {
       onSubmit={handleSubmit}
     >
       <h1 className='text-2xl font-semibold text-center py-4'>
-        Welcome to W Picks
+        Welcome to {APP_NAME}
       </h1>
 
       {successMessage && (

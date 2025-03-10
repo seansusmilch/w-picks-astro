@@ -10,11 +10,11 @@ import {
   Download,
   ArrowRight,
 } from 'lucide-react';
-
+import { APP_NAME } from '@/lib/constants';
 const isAuthed = Astro.locals.isAuthed;
 ---
 
-<Layout title='W Picks - NBA Prediction App'>
+<Layout title={`${APP_NAME} - NBA Picks App`}>
   <!-- Hero Section -->
   <section
     class='relative overflow-hidden py-20 px-4 flex flex-col items-center text-center'
@@ -30,7 +30,7 @@ const isAuthed = Astro.locals.isAuthed;
 
     <img
       src='/assets/icons/maskable-icon-512x512.png'
-      alt='W Picks Logo'
+      alt={`${APP_NAME} Logo`}
       class='w-28 h-28 rounded-xl mb-6 shadow-lg transition-transform hover:scale-105 duration-300'
       width={112}
       height={112}
@@ -38,7 +38,7 @@ const isAuthed = Astro.locals.isAuthed;
     <h1
       class='text-5xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70'
     >
-      W Picks
+      {APP_NAME}
     </h1>
     <p class='text-xl text-muted-foreground mb-8 max-w-md'>
       Your ultimate companion for NBA predictions and pick 'ems
@@ -154,7 +154,7 @@ const isAuthed = Astro.locals.isAuthed;
     <div class='max-w-6xl mx-auto'>
       <h2 class='text-3xl font-bold mb-3 text-center'>Install the App</h2>
       <p class='text-center text-muted-foreground mb-12 max-w-xl mx-auto'>
-        Get the best experience by installing W Picks on your device
+        Get the best experience by installing {APP_NAME} on your device
       </p>
 
       <div
@@ -168,7 +168,7 @@ const isAuthed = Astro.locals.isAuthed;
           </div>
           <div class='flex-1'>
             <h3 class='text-2xl font-semibold mb-4'>
-              Install W Picks on Your Phone
+              Install {APP_NAME} on Your Phone
             </h3>
             <p class='text-muted-foreground mb-6 max-w-xl'>
               Get the full app experience with offline capabilities, faster
@@ -264,13 +264,13 @@ const isAuthed = Astro.locals.isAuthed;
   <!-- Footer -->
   <footer class='text-center py-10 text-sm text-muted-foreground border-t'>
     <div class='max-w-6xl mx-auto px-4'>
-      <p>© {new Date().getFullYear()} W Picks. All rights reserved.</p>
+      <p>© {new Date().getFullYear()} {APP_NAME}. All rights reserved.</p>
       <p class='mt-2'>Made with ❤️ for NBA fans</p>
       <div class='container mt-4 pt-4 border-t border-border/30'>
         <p class='text-xs text-muted-foreground/70'>
-          W Picks is not affiliated with, endorsed by, or sponsored by the
-          National Basketball Association (NBA). All NBA team names, logos, and
-          brands are property of their respective owners.
+          {APP_NAME} is not affiliated with, endorsed by, or sponsored by the National
+          Basketball Association (NBA). All NBA team names, logos, and brands are
+          property of their respective owners.
         </p>
       </div>
     </div>
