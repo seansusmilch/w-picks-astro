@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/carousel';
 import { CalendarIcon, MessageCircleIcon } from 'lucide-react';
 import moment from 'moment';
-import type { PickType } from '@/lib/definitions';
+import type { PickType, UserType } from '@/lib/definitions';
 
 // Skeleton component for loading state
 function PickCardSkeleton() {
@@ -78,9 +78,11 @@ export function LatestPicksViewSkeleton() {
 
 export function LatestPicksView({
   picks,
+  users,
   isLoading,
 }: {
   picks: PickType[];
+  users: UserType[];
   isLoading?: boolean;
 }) {
   const [api, setApi] = useState<any>(null);
@@ -169,7 +171,10 @@ export function LatestPicksView({
           <CarouselContent>
             {picks.map((pick) => (
               <CarouselItem key={pick.id} className='md:basis-full'>
-                <PickCard pick={pick} />
+                <PickCard
+                  pick={pick}
+                  user={users.find((user) => user.id === pick.user)}
+                />
               </CarouselItem>
             ))}
           </CarouselContent>
@@ -179,8 +184,7 @@ export function LatestPicksView({
   );
 }
 
-function PickCard({ pick }: { pick: any }) {
-  const user = pick.expand.user;
+function PickCard({ pick, user }: { pick: any; user: UserType }) {
   const matchup = pick.expand.matchup;
   const teamCode = pick.win_prediction;
   const teamName = TeamMap[teamCode]?.name || teamCode;

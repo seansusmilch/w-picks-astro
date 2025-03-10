@@ -5,7 +5,7 @@ import {
   getWinningTeamByMatchupId,
   isMatchupUpcoming,
 } from '@/lib/matchups';
-import { expandAvatarUrl } from './data_common';
+import { getProfilesByIds } from './users';
 
 export function validatePick(pick: any) {
   const pickResult = PickZ.safeParse(pick);
@@ -182,17 +182,20 @@ export async function getLatestPicks(limit: number = 10, userId?: string) {
     const picks = await pb.collection('picks').getList(1, limit, {
       sort: '-created', // Sort by creation date, newest first
       filter: userId ? pb.filter('user != {:userId}', { userId }) : undefined,
-      expand: 'user,matchup', // Expand user and matchup data
-      fields:
-        '*,expand.user.id,expand.user.avatar,expand.user.username,expand.matchup.home_code,expand.matchup.away_code,expand.matchup.code',
+      expand: 'matchup', // Expand user and matchup data
     });
 
-    // Expand avatar URLs for user profiles
-    const expandedPicks = expandAvatarUrl(picks.items);
+    const users = await getProfilesByIds(picks.items.map((pick) => pick.user));
 
-    return expandedPicks;
+    return {
+      picks: picks.items,
+      users,
+    };
   } catch (error) {
     console.error('Error fetching latest picks:', error);
-    return [];
+    return {
+      picks: [],
+      users: [],
+    };
   }
 }

@@ -10,7 +10,10 @@ import { useState } from 'react';
 import { WeekSelect } from '@/components/Stats/WeekSelect';
 import type { GameType } from '@/lib/definitions';
 import { DateTime } from 'luxon';
-import { WeekGamesSummary } from '@/components/Stats/WeekGamesSummary';
+import {
+  WeekGamesSummary,
+  WeekGamesSummarySkeleton,
+} from '@/components/Stats/WeekGamesSummary';
 
 interface WeeklyStatsViewProps {
   initialData: any[];
@@ -42,7 +45,6 @@ export function WeeklyStatsView({
 }: WeeklyStatsViewProps) {
   const client = useStore(queryClient);
   const [selectedWeek, setSelectedWeek] = useState<string>(initialWeek);
-  const codePrefixes = getCodePrefixesFromWeek(selectedWeek);
 
   const { data: weeklyStats, isLoading: isWeeklyStatsLoading } = useQuery(
     {
@@ -103,11 +105,7 @@ export function WeeklyStatsView({
       ) : (
         <Leaderboard data={weeklyStats} />
       )}
-      {isWeekGamesLoading ? (
-        <>Loading...</>
-      ) : (
-        <WeekGamesSummary games={weekGames} />
-      )}
+      <WeekGamesSummary games={weekGames} isLoading={isWeekGamesLoading} />
     </div>
   );
 }
@@ -127,27 +125,7 @@ export function WeeklyStatsViewSkeleton() {
       <LeaderboardSkeleton />
 
       {/* Week Games Summary Skeleton */}
-      <div className='space-y-4'>
-        {/* Day tabs skeleton */}
-        <div className='flex gap-2 overflow-x-auto py-2'>
-          {Array.from({ length: 7 }).map((_, i) => (
-            <div
-              key={i}
-              className='h-10 w-16 rounded-md bg-muted animate-pulse shrink-0'
-            />
-          ))}
-        </div>
-
-        {/* Games list skeleton */}
-        <div className='space-y-2'>
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className='h-24 w-full rounded-md bg-muted animate-pulse'
-            />
-          ))}
-        </div>
-      </div>
+      <WeekGamesSummarySkeleton />
     </div>
   );
 }
