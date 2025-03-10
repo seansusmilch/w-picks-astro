@@ -10,17 +10,18 @@ import {
   Download,
   ArrowRight,
 } from 'lucide-react';
-
+import { APP_NAME } from '@/lib/constants';
+import BaseLayout from '@/layouts/BaseLayout.astro';
 const isAuthed = Astro.locals.isAuthed;
 ---
 
-<Layout title='W Picks - NBA Prediction App'>
+<BaseLayout title={`${APP_NAME} - NBA Picks App`}>
   <!-- Hero Section -->
   <section
-    class='relative overflow-hidden py-20 px-4 flex flex-col items-center text-center'
+    class='relative overflow-hidden py-20 flex flex-col items-center text-center'
   >
     <div
-      class='absolute inset-0 bg-gradient-to-b from-background via-primary/10 to-background -z-10'
+      class='absolute inset-0 bg-gradient-radial from-background via-primary/10 to-transparent -z-10'
     >
     </div>
     <div
@@ -40,7 +41,7 @@ const isAuthed = Astro.locals.isAuthed;
     >
       W Picks
     </h1>
-    <p class='text-xl text-muted-foreground mb-8 max-w-md'>
+    <p class='text-xl text-muted-foreground p-8 max-w-md'>
       Your ultimate companion for NBA predictions and pick 'ems
     </p>
 
@@ -58,7 +59,9 @@ const isAuthed = Astro.locals.isAuthed;
       </a>
     </div>
 
-    <div class='mt-16 flex items-center gap-2 text-sm text-muted-foreground'>
+    <div
+      class='mt-16 px-8 flex items-center gap-2 text-sm text-muted-foreground'
+    >
       <span>Join the community and start predicting NBA games today</span>
     </div>
   </section>
@@ -275,7 +278,7 @@ const isAuthed = Astro.locals.isAuthed;
       </div>
     </div>
   </footer>
-</Layout>
+</BaseLayout>
 
 <style>
   /* Enhanced animations for more dynamic movement */
