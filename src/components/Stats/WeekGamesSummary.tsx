@@ -45,7 +45,6 @@ type DayTabProps = {
   buttonRef: (el: HTMLButtonElement | null) => void;
 };
 
-// Helper Components
 const DayTab = ({ day, onClick, buttonRef }: DayTabProps) => (
   <Button
     ref={buttonRef}
@@ -135,7 +134,6 @@ const GamesList = ({ games, day, isToday }: GamesListProps) => {
   );
 };
 
-// Main Component
 export function WeekGamesSummary({ games }: { games: GameType[] }) {
   const [api, setApi] = useState<CarouselApi>();
   const [selectedDay, setSelectedDay] = useState(getTodayName());
@@ -190,8 +188,7 @@ export function WeekGamesSummary({ games }: { games: GameType[] }) {
   }
 
   return (
-    <div className='space-y-4'>
-      <h2 className='text-2xl font-bold'>This Week</h2>
+    <>
       <div className='sticky top-0 bg-background z-10'>
         <DayTabs
           selectedDay={selectedDay}
@@ -217,11 +214,10 @@ export function WeekGamesSummary({ games }: { games: GameType[] }) {
           ))}
         </CarouselContent>
       </Carousel>
-    </div>
+    </>
   );
 }
 
-// Helper functions
 function getTodayName(): string {
   return new Date().toLocaleDateString('en-US', { weekday: 'long' });
 }
