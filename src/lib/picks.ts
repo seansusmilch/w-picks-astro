@@ -175,12 +175,13 @@ export async function getPicksByUser(
   return picks;
 }
 
-export async function getLatestPicks(limit: number = 10) {
+export async function getLatestPicks(limit: number = 10, userId?: string) {
   const pb = getAPB();
 
   try {
     const picks = await pb.collection('picks').getList(1, limit, {
       sort: '-created', // Sort by creation date, newest first
+      filter: userId ? pb.filter('user != {:userId}', { userId }) : undefined,
       expand: 'user,matchup', // Expand user and matchup data
       fields:
         '*,expand.user.id,expand.user.avatar,expand.user.username,expand.matchup.home_code,expand.matchup.away_code,expand.matchup.code',
