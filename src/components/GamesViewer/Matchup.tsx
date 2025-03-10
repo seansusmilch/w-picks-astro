@@ -98,17 +98,27 @@ export function LiveScore({
 
       {/* Score and Status */}
       <div className='grow flex items-center justify-center'>
-        <span className='text-2xl font-bold w-12 text-right tabular-nums'>
-          {away_score}
-        </span>
-        <div className='flex flex-col items-center w-14 sm:w-16 mx-1 sm:mx-2'>
-          <span className='text-xs sm:text-sm text-white font-bold rounded-lg py-0.5 px-1 bg-linear-to-r from-red-500 to-orange-500'>
+        {status > 1 && (
+          <span className='text-2xl font-bold w-12 text-right tabular-nums'>
+            {away_score}
+          </span>
+        )}
+        <div className='flex flex-col items-center mx-1 sm:mx-2'>
+          <span
+            className={clsx(
+              'text-white font-bold rounded-lg py-0.5 px-1 bg-linear-to-r from-red-500 to-orange-500',
+              status === 1 && 'text-xl',
+              status === 2 && 'text-xs sm:text-sm'
+            )}
+          >
             {statusText}
           </span>
         </div>
-        <span className='text-2xl font-bold w-12 text-left tabular-nums'>
-          {home_score}
-        </span>
+        {status > 1 && (
+          <span className='text-2xl font-bold w-12 text-left tabular-nums'>
+            {home_score}
+          </span>
+        )}
       </div>
 
       {/* Home Team */}
