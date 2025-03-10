@@ -14,6 +14,17 @@ const preGameMatchup: MatchupType = {
   scoreboard: '',
 };
 
+// Pre-game scoreboard
+const preGameScoreboard: ScoreboardType = {
+  id: '323456789012345',
+  code: '20240610/PORPOR',
+
+  status: 1,
+  status_text: 'Pre-Game',
+  home_score: 0,
+  away_score: 0,
+};
+
 // Live game matchup
 const liveGameMatchup: MatchupType = {
   id: '223456789012345',
@@ -62,6 +73,7 @@ const postGameScoreboard: ScoreboardType = {
 
   <h2 class='text-xl font-semibold mb-4'>Pre-Game Matchup</h2>
   <Matchup matchup={preGameMatchup} />
+  <Matchup matchup={preGameMatchup} scoreboard={preGameScoreboard} />
 
   <h2 class='text-xl font-semibold mb-4'>Live Game Matchup</h2>
   <Matchup matchup={liveGameMatchup} scoreboard={liveGameScoreboard} />
