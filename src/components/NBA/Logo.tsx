@@ -17,7 +17,6 @@ export function Logo({
   useEffect(() => {
     if (tricode !== 'UTA') return;
     setInvert(!!document?.querySelector('html.dark'));
-    console.log(invert);
   }, []);
 
   // Apply invert filter for Utah Jazz logo in dark mode

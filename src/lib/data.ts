@@ -4,7 +4,7 @@ import PocketBase, {
 } from 'pocketbase';
 import { POCKETBASE_URL } from 'astro:env/server';
 import type { AstroCookieSetOptions } from 'astro';
-
+import { UserZ, type UserType } from './definitions';
 let pb: PocketBase;
 let apb: PocketBase;
 let user: RecordAuthResponse<RecordModel>;
@@ -51,7 +51,10 @@ export async function getUser() {
       user = await pb
         .collection('users')
         .authRefresh({ requestKey: crypto.randomUUID() });
-      return user;
+      return {
+        record: UserZ.parse(user.record),
+        token: user.token,
+      };
     }
   } catch (_) {
     // clear the auth store on failed refresh

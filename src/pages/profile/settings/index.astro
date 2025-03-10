@@ -1,0 +1,29 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { UserSettingsZ } from '@/lib/definitions';
+import { Settings } from './Settings';
+import { Button } from '@/components/ui/button';
+import { ArrowLeftIcon } from 'lucide-react';
+
+const { user, isAuthed } = Astro.locals;
+
+if (!isAuthed) {
+  Astro.redirect('/login');
+}
+
+const settings = UserSettingsZ.parse(user.record.settings || {});
+const pageTitle = 'Settings';
+---
+
+<Layout title={pageTitle}>
+  <h1 class='text-2xl font-bold'>{pageTitle}</h1>
+
+  <div class='w-full max-w-2xl pt-6'>
+    <a href='/profile'>
+      <Button>
+        <ArrowLeftIcon className='h-5 w-5' />Back to profile
+      </Button>
+    </a>
+    <Settings settings={settings} client:load />
+  </div>
+</Layout>

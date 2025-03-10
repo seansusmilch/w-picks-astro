@@ -1,5 +1,11 @@
 import { z } from 'astro/zod';
 
+export const UserSettingsZ = z.object({
+  hideFromLatestPicks: z.boolean().optional(),
+});
+
+export type UserSettingsType = z.infer<typeof UserSettingsZ>;
+
 export const UserZ = z.object({
   id: z.string().length(15),
   email: z.string().email(),
@@ -7,6 +13,7 @@ export const UserZ = z.object({
   avatar: z.string(),
   bio: z.string(),
   avatar_url: z.string().url().optional(),
+  settings: UserSettingsZ,
 });
 
 export type UserType = z.infer<typeof UserZ>;
