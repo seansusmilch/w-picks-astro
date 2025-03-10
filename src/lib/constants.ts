@@ -1,4 +1,4 @@
-import { CalendarDaysIcon, ClockIcon, TrophyIcon } from 'lucide-react';
+import { CalendarDaysIcon, TrophyIcon } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface NavItem {
@@ -19,11 +19,6 @@ export const navigationItems: NavItem[] = [
     icon: TrophyIcon,
   },
   {
-    href: '/matchups/today',
-    label: 'Today',
-    icon: ClockIcon,
-  },
-  {
     href: '/matchups',
     label: 'Matchups',
     icon: CalendarDaysIcon,
@@ -31,3 +26,5 @@ export const navigationItems: NavItem[] = [
 ];
 
 export const postLoginRedirect = '/stats/weekly';
+
+export const APP_NAME = 'Dub Picks';

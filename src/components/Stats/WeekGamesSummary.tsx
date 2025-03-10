@@ -100,10 +100,9 @@ const DayTabs = ({
 type GamesListProps = {
   games: GameType[];
   day: string;
-  isToday: boolean;
 };
 
-const GamesList = ({ games, day, isToday }: GamesListProps) => {
+const GamesList = ({ games, day }: GamesListProps) => {
   if (!games?.length) {
     return (
       <div className='text-center py-8 text-muted-foreground'>
@@ -134,7 +133,19 @@ const GamesList = ({ games, day, isToday }: GamesListProps) => {
   );
 };
 
-export function WeekGamesSummary({ games }: { games: GameType[] }) {
+export interface WeekGamesSummaryProps {
+  games?: GameType[];
+  isLoading?: boolean;
+}
+
+export function WeekGamesSummary({
+  games = [],
+  isLoading = false,
+}: WeekGamesSummaryProps) {
+  if (isLoading) {
+    return <WeekGamesSummarySkeleton />;
+  }
+
   const [api, setApi] = useState<CarouselApi>();
   const [selectedDay, setSelectedDay] = useState(getTodayName());
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -204,17 +215,48 @@ export function WeekGamesSummary({ games }: { games: GameType[] }) {
           {DAYS_OF_WEEK.map((day) => (
             <CarouselItem key={day}>
               <div className='p-1'>
-                <GamesList
-                  day={day}
-                  isToday={day === today}
-                  games={gamesByDay[day] || []}
-                />
+                <GamesList day={day} games={gamesByDay[day] || []} />
               </div>
             </CarouselItem>
           ))}
         </CarouselContent>
       </Carousel>
     </>
+  );
+}
+
+/**
+ * Skeleton loading state for the WeekGamesSummary component
+ */
+export function WeekGamesSummarySkeleton() {
+  return (
+    <div className='space-y-4'>
+      {/* Day tabs skeleton */}
+      <div className='sticky top-0 bg-background z-10'>
+        <div className='relative'>
+          <div className='absolute left-0 top-0 bottom-0 w-4 bg-linear-to-r from-background to-transparent z-10' />
+          <div className='absolute right-0 top-0 bottom-0 w-4 bg-linear-to-l from-background to-transparent z-10' />
+          <div className='flex gap-2 overflow-x-auto py-2 px-4 no-scrollbar'>
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div
+                key={i}
+                className='h-10 w-16 rounded-md bg-muted animate-pulse shrink-0'
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Games list skeleton */}
+      <div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className='h-24 w-full rounded-md bg-muted animate-pulse'
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 

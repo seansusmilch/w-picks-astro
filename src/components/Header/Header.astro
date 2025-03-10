@@ -6,7 +6,7 @@ import { FeedbackDialog } from '@/components/Feedback/FeedbackDialog';
 import { UserIcon } from 'lucide-react';
 import { User } from '@/components/Header/User';
 import { getUserAvatarUrl } from '@/lib/data_common';
-import { navigationItems, postLoginRedirect } from '@/lib/constants';
+import { navigationItems, postLoginRedirect, APP_NAME } from '@/lib/constants';
 const { user, isAuthed } = Astro.locals;
 const pathname = Astro.url.pathname;
 const avatarUrl =
@@ -25,12 +25,12 @@ const avatarUrl =
           <img
             class='rounded-xl w-[50px] h-[50px]'
             src='/assets/icons/maskable-icon-512x512.png'
-            alt='W Picks Logo'
+            alt={`${APP_NAME} Logo`}
             width={256}
             height={256}
             loading='eager'
           />
-          <h2 class='font-bold text-2xl lg:text-3xl'>W Picks</h2>
+          <h2 class='font-bold text-2xl lg:text-3xl'>{APP_NAME}</h2>
         </a>
         <div class='block lg:hidden'>
           <MenuIcon class='text-foreground' />
