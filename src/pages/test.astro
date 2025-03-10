@@ -1,0 +1,71 @@
+---
+import { Matchup } from '@/components/GamesViewer/Matchup';
+import type { MatchupType, ScoreboardType } from '@/lib/definitions';
+import Layout from '@/layouts/Layout.astro';
+
+// Sample data for testing
+// Pre-game matchup
+const preGameMatchup: MatchupType = {
+  id: '123456789012345',
+  code: '20240610/PORPOR',
+  time_utc: '2024-06-10 20:00:00',
+  home_code: 'POR',
+  away_code: 'POR',
+  scoreboard: '',
+};
+
+// Live game matchup
+const liveGameMatchup: MatchupType = {
+  id: '223456789012345',
+  code: '20240610/PORPOR',
+  time_utc: '2024-06-10 18:00:00',
+  home_code: 'POR',
+  away_code: 'POR',
+  scoreboard: '323456789012345',
+};
+
+// Live game scoreboard
+const liveGameScoreboard: ScoreboardType = {
+  id: '323456789012345',
+  code: '20240610/PORPOR',
+
+  status: 2,
+  status_text: '3rd Qtr 10:30',
+  home_score: 178,
+  away_score: 172,
+};
+
+// Post-game matchup
+const postGameMatchup: MatchupType = {
+  id: '423456789012345',
+  code: '20240609/PORPOR',
+  time_utc: '2024-06-09 19:00:00',
+  home_code: 'POR',
+  away_code: 'POR',
+  scoreboard: '523456789012345',
+};
+
+// Post-game scoreboard
+const postGameScoreboard: ScoreboardType = {
+  id: '523456789012345',
+  code: '20240609/PORPOR',
+
+  status: 3,
+  status_text: 'Final',
+  home_score: 105,
+  away_score: 112,
+};
+---
+
+<Layout title='Matchup Component Test'>
+  <h1 class='text-2xl font-bold mb-6'>Matchup Component Test</h1>
+
+  <h2 class='text-xl font-semibold mb-4'>Pre-Game Matchup</h2>
+  <Matchup matchup={preGameMatchup} />
+
+  <h2 class='text-xl font-semibold mb-4'>Live Game Matchup</h2>
+  <Matchup matchup={liveGameMatchup} scoreboard={liveGameScoreboard} />
+
+  <h2 class='text-xl font-semibold mb-4'>Post-Game Matchup</h2>
+  <Matchup matchup={postGameMatchup} scoreboard={postGameScoreboard} />
+</Layout>
