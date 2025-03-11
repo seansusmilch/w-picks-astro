@@ -30,8 +30,11 @@ export function Settings({ settings }: { settings: UserSettingsType }) {
   );
 
   return (
-    <div className='flex flex-col gap-4'>
-      <div className='flex flex-row items-center gap-2'>
+    <div className='flex flex-col gap-4 p-4 text-lg w-full'>
+      <div className='flex flex-row items-center justify-between gap-2'>
+        <Label className='text-lg' htmlFor='hideFromLatestPicks'>
+          Hide me from latest picks
+        </Label>
         <Switch
           id='hideFromLatestPicks'
           name='hideFromLatestPicks'
@@ -41,7 +44,6 @@ export function Settings({ settings }: { settings: UserSettingsType }) {
             updateSettings.mutate({ hideFromLatestPicks: checked });
           }}
         />
-        <Label htmlFor='hideFromLatestPicks'> Hide me from latest picks </Label>
       </div>
     </div>
   );
