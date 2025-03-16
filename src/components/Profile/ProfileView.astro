@@ -4,6 +4,7 @@ import { UserPicksTable } from '@/components/Profile/UserPicksTable';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import type { PickType, UserType, StatType } from '@/lib/definitions';
+import { SettingsIcon } from 'lucide-react';
 interface Props {
   user: UserType;
   picks: PickType[];
@@ -66,6 +67,11 @@ const progressValue = (winPicks / stats?.total_picks) * 100;
           <a class='w-full lg:hidden' href='/profile/edit'>
             <Button client:load className='w-full' variant='outline'>
               Edit Profile
+            </Button>
+          </a>
+          <a class='lg:hidden' href='/profile/settings'>
+            <Button client:load className='w-full' variant='outline'>
+              <SettingsIcon className='w-4 h-4' />
             </Button>
           </a>
         </div>

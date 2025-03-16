@@ -142,10 +142,6 @@ export function WeekGamesSummary({
   games = [],
   isLoading = false,
 }: WeekGamesSummaryProps) {
-  if (isLoading) {
-    return <WeekGamesSummarySkeleton />;
-  }
-
   const [api, setApi] = useState<CarouselApi>();
   const [selectedDay, setSelectedDay] = useState(getTodayName());
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -198,7 +194,9 @@ export function WeekGamesSummary({
     });
   }
 
-  return (
+  return isLoading ? (
+    <WeekGamesSummarySkeleton />
+  ) : (
     <>
       <div className='sticky top-0 bg-background z-10'>
         <DayTabs

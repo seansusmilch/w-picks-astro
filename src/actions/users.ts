@@ -2,7 +2,7 @@ import { defineAction } from 'astro:actions';
 import { z } from 'astro:schema';
 import { ClientResponseError } from 'pocketbase';
 import { ActionError } from 'astro:actions';
-import { UserZ } from '@/lib/definitions';
+import { UserSettingsZ, UserZ } from '@/lib/definitions';
 import { cookieSettings } from '@/lib/data';
 export const users = {
   login: defineAction({
@@ -169,6 +169,28 @@ export const users = {
           code: 'INTERNAL_SERVER_ERROR',
         });
       }
+    },
+  }),
+  updateSettings: defineAction({
+    accept: 'form',
+    input: z.object({
+      hideFromLatestPicks: z.boolean().optional(),
+    }),
+    async handler(data, { locals }) {
+      console.log('Updating settings', data);
+
+      const { isAuthed } = locals;
+      if (!isAuthed) {
+        throw new ActionError({
+          message: 'You must be logged in to update your settings',
+          code: 'UNAUTHORIZED',
+        });
+      }
+      const { apb, user } = locals;
+      const updatedUser = await apb
+        .collection('users')
+        .update(user.record.id, { settings: data });
+      return UserSettingsZ.parse(updatedUser.settings);
     },
   }),
 };
