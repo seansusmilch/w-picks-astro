@@ -13,7 +13,7 @@ export const UserZ = z.object({
   avatar: z.string(),
   bio: z.string(),
   avatar_url: z.string().url().optional(),
-  settings: UserSettingsZ,
+  settings: UserSettingsZ.nullable(),
 });
 
 export type UserType = z.infer<typeof UserZ>;

@@ -51,8 +51,17 @@ export async function getUser() {
       user = await pb
         .collection('users')
         .authRefresh({ requestKey: crypto.randomUUID() });
+
+      const parsedUser = UserZ.safeParse(user.record);
+      if (!parsedUser.success) {
+        console.error(
+          'User validation failed',
+          JSON.stringify(parsedUser.error, null, 2)
+        );
+        throw new Error('User validation failed');
+      }
       return {
-        record: UserZ.parse(user.record),
+        record: parsedUser.data,
         token: user.token,
       };
     }
