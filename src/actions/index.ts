@@ -9,6 +9,7 @@ import { expandAvatarUrl } from '@/lib/data_common';
 import { picks } from './picks';
 import { users } from './users';
 import { stats } from './stats';
+import { reactions } from './reactions';
 
 export const server = {
   isFeatureEnabled: defineAction({
@@ -51,6 +52,8 @@ export const server = {
   picks,
   users,
   stats,
+  reactions,
+
   submitFeedback: defineAction({
     accept: 'form',
     input: z.object({

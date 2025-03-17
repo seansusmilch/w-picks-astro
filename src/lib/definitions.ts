@@ -115,3 +115,10 @@ export const MatchupsByCodePrefixZ = z.object({
 });
 
 export type MatchupsByCodePrefixType = z.infer<typeof MatchupsByCodePrefixZ>;
+
+export const ReactionZ = z.object({
+  user: z.string().length(15),
+  pick: z.string().length(15),
+});
+
+export type ReactionType = z.infer<typeof ReactionZ>;
