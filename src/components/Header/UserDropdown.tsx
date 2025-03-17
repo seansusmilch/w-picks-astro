@@ -36,7 +36,10 @@ export function UserDropdown({
           </a>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <a className='text-md flex items-center gap-2' href='/settings'>
+          <a
+            className='text-md flex items-center gap-2'
+            href='/profile/settings'
+          >
             <Settings className='h-4 w-4' />
             Settings
           </a>
