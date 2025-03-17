@@ -63,6 +63,7 @@ export const reactions = {
       }
     },
   }),
+
   getReactions: defineAction({
     accept: 'json',
     input: z.object({
@@ -78,7 +79,10 @@ export const reactions = {
       }
 
       try {
-        const reactions = await getReactions(pickId);
+        const reactions = await getReactions({
+          pick: pickId,
+          user: user.record.id,
+        });
         return reactions;
       } catch (error) {
         console.error('Error in getReactions action:', error);

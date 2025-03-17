@@ -101,27 +101,9 @@ const mockPicks = [
   <h1 class='text-2xl font-bold mb-6'>Pick Slab Examples</h1>
 
   <div class='flex flex-col gap-4'>
-    <PickSlab
-      pick={mockPicks[0]}
-      user={mockUsers.user1}
-      likeCount={10}
-      isLiked={true}
-      client:only
-    />
+    <PickSlab pick={mockPicks[0]} user={mockUsers.user1} client:only />
 
-    <PickSlab
-      pick={mockPicks[1]}
-      user={mockUsers.user2}
-      likeCount={10}
-      isLiked={true}
-      client:only
-    />
-    <PickSlab
-      pick={mockPicks[2]}
-      user={mockUsers.user3}
-      likeCount={10}
-      isLiked={false}
-      client:only
-    />
+    <PickSlab pick={mockPicks[1]} user={mockUsers.user2} client:only />
+    <PickSlab pick={mockPicks[2]} user={mockUsers.user3} client:only />
   </div>
 </Layout>

@@ -1,3 +1,4 @@
+import { ClientResponseError } from 'pocketbase';
 import { ReactionZ, type ReactionType } from './definitions';
 import { getAPB, getPB } from '@/lib/data';
 
@@ -15,18 +16,6 @@ export async function createReaction(reaction: ReactionType) {
   console.log('createReaction', { userId, pickId });
 
   try {
-    const reactionExists = await pb
-      .collection('reactions')
-      .getFirstListItem(
-        pb.filter(`user = {:userId} && pick = {:pickId}`, { userId, pickId })
-      );
-
-    if (reactionExists) {
-      throw new Error(
-        `Reaction already exists for user ${userId} and pick ${pickId}`
-      );
-    }
-
     const newReaction = await pb.collection('reactions').create({
       user: userId,
       pick: pickId,
@@ -77,12 +66,40 @@ export async function deleteReaction(reaction: ReactionType) {
   }
 }
 
-export async function getReactions(pickId: string) {
+export async function getReactions({
+  pick,
+  user,
+}: {
+  pick: string;
+  user: string;
+}) {
   const pb = await getAPB();
 
-  const reactions = await pb.collection('reactions').getList(1, 100, {
-    filter: pb.filter('pick = {:pickId}', { pickId }),
+  const allReactions = await pb.collection('reactions').getList(1, 1, {
+    filter: pb.filter('pick = {:pick}', { pick }),
   });
+  const totalItems = allReactions.totalItems;
 
-  return reactions.totalItems;
+  let isLiked = false;
+  if (user) {
+    try {
+      const reaction = await pb
+        .collection('reactions')
+        .getFirstListItem(
+          pb.filter('user = {:user} && pick = {:pick}', { user, pick })
+        );
+      isLiked = !!reaction;
+    } catch (error) {
+      if (error instanceof ClientResponseError && error.status === 404) {
+        isLiked = false;
+      } else {
+        console.error('Error getting reaction:', error);
+      }
+    }
+  }
+
+  return {
+    totalItems,
+    isLiked,
+  };
 }
