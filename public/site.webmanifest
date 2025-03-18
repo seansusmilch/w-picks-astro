@@ -1,7 +1,7 @@
 {
-    "name": "Dub Picks",
-    "short_name": "Dub Picks",
-    "start_url": "/stats/weekly",
+    "name": "Baller Picks",
+    "short_name": "Baller Picks",
+    "start_url": "/pwa",
     "icons": [
         {
             "src": "/assets/icons/android-chrome-192x192.png",
