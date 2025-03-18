@@ -1,6 +1,13 @@
 ---
+description: 
+globs: 
+alwaysApply: false
+---
+---
 description: Rules for modifying and creating new pages in the app
 globs: src/pages/**/*.astro
 alwaysApply: false
 ---
 [astro.mdc](mdc:.cursor/rules/astro.mdc)
+
+- fallback components can be set by using `slot='fallback'` on a child component. The actual component does not need to support children, as this is a feature of AstroJS

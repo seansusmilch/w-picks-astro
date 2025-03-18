@@ -1,5 +1,5 @@
 import { useGames } from './GamesProvider';
-import { PaginateControls } from '../Matchup/PaginateControls';
+import { PaginateControls } from './PaginateControls';
 
 export function Paginator() {
   const { pages, currentPage, setCurrentPage } = useGames();
