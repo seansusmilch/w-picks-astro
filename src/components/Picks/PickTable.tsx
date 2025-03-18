@@ -1,57 +1,15 @@
 import clsx from 'clsx';
-import { type MatchupType } from '@/lib/definitions';
-import type { RecordModel } from 'pocketbase';
-import { getPB } from '@/lib/data_client';
-import { expandAvatarUrl } from '@/lib/data_common';
+import { type MatchupType, type PickType } from '@/lib/definitions';
 import { UserAvatar } from '@/components/Profile/UserAvatar';
 import { cn } from '@/lib/utils';
-import {
-  useQuery,
-  QueryClientProvider,
-  QueryClient,
-} from '@tanstack/react-query';
-
-const queryClient = new QueryClient();
 
 export function PickTable({
   matchup,
   picks,
 }: {
   matchup: MatchupType;
-  picks: RecordModel[];
+  picks: PickType[];
 }) {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <LiveTable matchup={matchup} picks={picks} />
-    </QueryClientProvider>
-  );
-}
-
-function LiveTable({
-  matchup,
-  picks,
-}: {
-  matchup: MatchupType;
-  picks: RecordModel[];
-}) {
-  const { data } = useQuery({
-    queryKey: ['picks', matchup.id],
-    queryFn: async () => {
-      const pb = getPB();
-      const picks = await pb.collection('picks').getFullList({
-        filter: pb.filter('matchup = {:id}', { id: matchup.id }),
-        expand: 'user',
-        fields: '*,expand.user.id,expand.user.avatar,expand.user.username',
-      });
-      console.log('picks', picks);
-      const expandedPicks = expandAvatarUrl(picks);
-      return expandedPicks;
-    },
-    initialData: picks,
-    refetchInterval: 3000,
-    staleTime: 3000,
-  });
-
   return (
     <div
       className={clsx(
@@ -67,14 +25,14 @@ function LiveTable({
         </div>
         <div className='flex flex-row'>
           <div className='w-1/2 flex flex-col border-t border-r'>
-            {data
+            {picks
               .filter((p) => p.win_prediction === matchup.away_code)
               .map((pick) => (
                 <Pick key={pick.id} pick={pick} />
               ))}
           </div>
           <div className='w-1/2 flex flex-col border-t'>
-            {data
+            {picks
               .filter((p) => p.win_prediction === matchup.home_code)
               .map((pick) => (
                 <Pick key={pick.id} pick={pick} reverse />
@@ -86,7 +44,7 @@ function LiveTable({
   );
 }
 
-function Pick({ pick, reverse }: { pick: RecordModel; reverse?: boolean }) {
+function Pick({ pick, reverse }: { pick: PickType; reverse?: boolean }) {
   return (
     <div
       className={cn(
