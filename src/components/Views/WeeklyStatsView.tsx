@@ -70,7 +70,6 @@ export function WeeklyStatsView({
   >(
     {
       queryKey: ['games', selectedWeek],
-
       queryFn: async () => {
         const codePrefixes = getCodePrefixesFromWeek(selectedWeek);
         const games = await Promise.all(

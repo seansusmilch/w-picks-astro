@@ -159,7 +159,7 @@ export function PickSlab({
             {matchupUrl && (
               <a
                 href={matchupUrl}
-                className='text-xs text-primary hover:underline mt-2 inline-flex items-center gap-1'
+                className='text-xs text-primary hover:underline pt-2 inline-flex items-end gap-1'
               >
                 View matchup <ExternalLinkIcon className='w-4 h-4' />
               </a>
