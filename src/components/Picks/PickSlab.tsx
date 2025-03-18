@@ -122,7 +122,7 @@ export function PickSlab({ pick, user }: { pick: PickType; user: UserType }) {
   };
 
   return (
-    <div className='border border-primary-foreground shadow-lg rounded-lg p-2 flex gap-2'>
+    <div className='border-2 border-primary-foreground shadow-lg rounded-lg p-2 flex gap-2'>
       <div className='flex flex-col justify-between'>
         <a href={`/profile/${user.username}`}>
           <UserAvatar className='w-10 h-10' avatar_url={user.avatar_url} />
