@@ -1,64 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { UserAvatar } from '@/components/Profile/UserAvatar';
 import { getUrlToMatchup } from '@/lib/data_common';
-import { Logo } from '@/components/NBA/Logo';
-import { TeamMap } from '@/components/NBA/teamMap';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from '@/components/ui/card';
+import { PickSlab } from '@/components/Picks/PickSlab';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from '@/components/ui/carousel';
-import { CalendarIcon, MessageCircleIcon } from 'lucide-react';
-import moment from 'moment';
 import type { PickType, UserType } from '@/lib/definitions';
-
-// Skeleton component for loading state
-function PickCardSkeleton() {
-  return (
-    <Card className='animate-pulse'>
-      <CardHeader className='pb-2 pt-4'>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-3'>
-            <div className='w-10 h-10 rounded-full bg-muted' />
-            <div className='h-4 w-24 bg-muted rounded' />
-          </div>
-          <div className='h-3 w-20 bg-muted rounded' />
-        </div>
-      </CardHeader>
-
-      <CardContent className='space-y-3'>
-        <div className='flex items-center gap-2'>
-          <div className='h-4 w-12 bg-muted rounded' />
-          <div className='flex items-center gap-1'>
-            <div className='h-5 w-5 bg-muted rounded-full' />
-            <div className='h-4 w-20 bg-muted rounded' />
-          </div>
-          <div className='h-4 w-12 bg-muted rounded' />
-        </div>
-
-        <div className='h-16 bg-muted/30 p-2 rounded-md'>
-          <div className='flex items-start gap-1'>
-            <div className='h-4 w-4 bg-muted rounded mt-0.5' />
-            <div className='h-4 w-full bg-muted rounded' />
-          </div>
-        </div>
-      </CardContent>
-
-      <CardFooter className='pt-0'>
-        <div className='h-3 w-24 bg-muted rounded' />
-      </CardFooter>
-    </Card>
-  );
-}
+import { PickSlabSkeleton } from './PickSlabSkeleton';
 
 export function LatestPicksViewSkeleton() {
   return (
@@ -67,7 +16,7 @@ export function LatestPicksViewSkeleton() {
         <CarouselContent>
           {[1, 2, 3].map((index) => (
             <CarouselItem key={index} className='md:basis-full'>
-              <PickCardSkeleton />
+              <PickSlabSkeleton />
             </CarouselItem>
           ))}
         </CarouselContent>
@@ -171,9 +120,10 @@ export function LatestPicksView({
           <CarouselContent>
             {picks.map((pick) => (
               <CarouselItem key={pick.id} className='md:basis-full'>
-                <PickCard
+                <PickSlab
                   pick={pick}
                   user={users.find((user) => user.id === pick.user)}
+                  matchupUrl={getUrlToMatchup(pick.expand.matchup.code)}
                 />
               </CarouselItem>
             ))}
@@ -181,56 +131,5 @@ export function LatestPicksView({
         </Carousel>
       )}
     </div>
-  );
-}
-
-function PickCard({ pick, user }: { pick: any; user: UserType }) {
-  const matchup = pick.expand.matchup;
-  const teamCode = pick.win_prediction;
-  const teamName = TeamMap[teamCode]?.name || teamCode;
-  const matchupUrl = getUrlToMatchup(matchup.code);
-  const createdAt = moment(pick.created).fromNow();
-
-  return (
-    <Card className='hover:bg-muted/50 transition-colors'>
-      <CardHeader className='pb-2 pt-4'>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-3'>
-            <UserAvatar className='w-10 h-10' avatar_url={user.avatar_url} />
-            <div className='font-medium'>{user.username}</div>
-          </div>
-          <div className='text-xs text-muted-foreground flex items-center gap-1'>
-            <CalendarIcon className='h-3 w-3' />
-            {createdAt}
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className='space-y-3'>
-        <div className='flex items-center gap-2 text-sm'>
-          <span>Picked</span>
-          <div className='flex items-center gap-1 font-medium'>
-            <Logo tricode={teamCode} className='h-5 w-5' />
-            {teamName}
-          </div>
-          <span>to win</span>
-        </div>
-
-        {pick.comment && (
-          <div className='text-sm bg-muted/30 p-2 rounded-md'>
-            <div className='flex items-start gap-1'>
-              <MessageCircleIcon className='h-4 w-4 mt-0.5 shrink-0 text-muted-foreground' />
-              <p>{pick.comment}</p>
-            </div>
-          </div>
-        )}
-      </CardContent>
-
-      <CardFooter className='pt-0'>
-        <a href={matchupUrl} className='text-xs text-primary hover:underline'>
-          View matchup
-        </a>
-      </CardFooter>
-    </Card>
   );
 }

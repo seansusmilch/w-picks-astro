@@ -37,7 +37,11 @@ export function GamesViewer() {
   ) : (
     games.map((game) => (
       <CarouselItem key={game.matchup.id} className='flex flex-col gap-4'>
-        <Matchup matchup={game.matchup} scoreboard={game.scoreboard} />
+        <Matchup
+          matchup={game.matchup}
+          scoreboard={game.scoreboard}
+          picks={game.picks}
+        />
         <div className='flex flex-col gap-2'>
           {game.picks.map((pick) => (
             <PickSlab key={pick.id} pick={pick} user={pick.expand.user} />
