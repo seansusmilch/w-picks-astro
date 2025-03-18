@@ -78,7 +78,7 @@ export const ScoreboardZ = BaseZ.extend({
 
 export type ScoreboardType = z.infer<typeof ScoreboardZ>;
 
-export const StatZ = BaseZ.extend({
+export const StatZ = z.object({
   user: z.string().length(15),
   total_picks: z.number().min(0),
   win_picks: z.number().min(0),
