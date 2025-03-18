@@ -5,13 +5,13 @@ import { DateTime } from 'luxon';
 import { Logo } from '@/components/NBA/Logo';
 import { UserAvatar } from '@/components/Profile/UserAvatar';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { actions } from 'astro:actions';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useStore } from '@nanostores/react';
 import { queryClient } from '@/stores/query';
 import { PickSlabSkeleton } from './PickSlabSkeleton';
+import { settingsStore } from '@/stores/settings';
 
 type ReactionData = {
   isLiked: boolean;
@@ -28,6 +28,7 @@ export function PickSlab({
   matchupUrl?: string;
 }) {
   const $queryClient = useStore(queryClient);
+  const settings = useStore(settingsStore);
   const teamCode = pick.win_prediction;
   const teamName = TeamMap[teamCode]?.name_short || teamCode;
   const createdAt = DateTime.fromISO(pick.created.replace(' ', 'T'))
@@ -135,55 +136,79 @@ export function PickSlab({
   }
 
   return (
-    <div className='border-2 border-primary-foreground shadow-lg rounded-lg p-2 flex gap-2'>
-      <div className='flex flex-col justify-between'>
-        <a href={`/profile/${user.username}`}>
-          <UserAvatar className='w-10 h-10' avatar_url={user.avatar_url} />
-        </a>
-        <span className='text-xs text-gray-400 flex items-center gap-1 tabular-nums'>
-          {createdAt}
-        </span>
-      </div>
-      <div className='grow flex flex-col'>
-        <div className='flex items-center gap-2 justify-between'>
-          <span className='text-sm opacity-50'>@{user.username}</span>
-          <div className='flex items-center rounded-lg bg-secondary text-secondary-foreground'>
-            <Logo tricode={teamCode} className='w-6 h-6' />
-            <span className='py-1 pr-2 text-xs text-nowrap'>{teamName}</span>
-          </div>
+    <div
+      className={cn(
+        'shadow-lg rounded-lg relative bg-background p-[2px]',
+        settings?.colorfulPicks && 'animate-gradient'
+      )}
+      style={{
+        backgroundImage:
+          settings?.colorfulPicks && TeamMap[teamCode]?.accent
+            ? `conic-gradient(from 0deg at 50% 50%, 
+              ${TeamMap[teamCode].accent.primary} 0deg,
+              ${TeamMap[teamCode].accent.secondary} 180deg,
+              ${TeamMap[teamCode].accent.primary} 360deg)`
+            : undefined,
+      }}
+    >
+      <div
+        className='rounded-lg bg-background/90 flex gap-2 p-2 w-full'
+        style={{
+          backgroundImage:
+            settings?.colorfulPicks && TeamMap[teamCode]?.accent
+              ? `linear-gradient(135deg, ${TeamMap[teamCode].accent.primary}10, ${TeamMap[teamCode].accent.secondary}10)`
+              : undefined,
+        }}
+      >
+        <div className='flex flex-col justify-between'>
+          <a href={`/profile/${user.username}`}>
+            <UserAvatar className='w-10 h-10' avatar_url={user.avatar_url} />
+          </a>
+          <span className='text-xs text-gray-400 flex items-center gap-1 tabular-nums'>
+            {createdAt}
+          </span>
         </div>
-
-        <div className='flex'>
-          <div className='grow text-md break-words'>
-            <p>{pick.comment}</p>
-            {matchupUrl && (
-              <a
-                href={matchupUrl}
-                className='text-xs text-primary hover:underline pt-2 inline-flex items-end gap-1'
-              >
-                View matchup <ExternalLinkIcon className='w-4 h-4' />
-              </a>
-            )}
+        <div className='grow flex flex-col'>
+          <div className='flex items-center gap-2 justify-between'>
+            <span className='text-sm opacity-50'>@{user.username}</span>
+            <div className='flex items-center rounded-lg bg-secondary text-secondary-foreground'>
+              <Logo tricode={teamCode} className='w-6 h-6' />
+              <span className='py-1 pr-2 text-xs text-nowrap'>{teamName}</span>
+            </div>
           </div>
-          <div className='pt-2'>
-            <Button
-              className='min-h-12'
-              variant='ghost'
-              onClick={handleLike}
-              disabled={isLoading || likeMutation.isPending}
-            >
-              <div className='flex flex-col items-center gap-2'>
-                <FlameIcon
-                  className={cn(
-                    'h-4 w-4',
-                    reactionData?.isLiked && 'text-red-500 fill-red-500'
-                  )}
-                />
-                <span className='tabular-nums'>
-                  {reactionData?.totalItems || 0}
-                </span>
-              </div>
-            </Button>
+
+          <div className='flex'>
+            <div className='grow text-md break-words'>
+              <p>{pick.comment}</p>
+              {matchupUrl && (
+                <a
+                  href={matchupUrl}
+                  className='text-xs text-primary hover:underline pt-2 inline-flex items-end gap-1'
+                >
+                  View matchup <ExternalLinkIcon className='w-4 h-4' />
+                </a>
+              )}
+            </div>
+            <div className='pt-2'>
+              <Button
+                className='min-h-12'
+                variant='ghost'
+                onClick={handleLike}
+                disabled={isLoading || likeMutation.isPending}
+              >
+                <div className='flex flex-col items-center gap-2'>
+                  <FlameIcon
+                    className={cn(
+                      'h-4 w-4',
+                      reactionData?.isLiked && 'text-red-500 fill-red-500'
+                    )}
+                  />
+                  <span className='tabular-nums'>
+                    {reactionData?.totalItems || 0}
+                  </span>
+                </div>
+              </Button>
+            </div>
           </div>
         </div>
       </div>

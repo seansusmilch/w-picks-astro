@@ -7,7 +7,8 @@ export const BaseZ = z.object({
 });
 
 export const UserSettingsZ = z.object({
-  hideFromLatestPicks: z.boolean().optional(),
+  colorfulPicks: z.boolean().default(true),
+  hideFromLatestPicks: z.boolean().default(false),
 });
 
 export type UserSettingsType = z.infer<typeof UserSettingsZ>;
@@ -18,7 +19,7 @@ export const UserZ = BaseZ.extend({
   avatar: z.string(),
   bio: z.string(),
   avatar_url: z.string().url().optional(),
-  settings: UserSettingsZ.nullable(),
+  settings: UserSettingsZ.nullable().default(UserSettingsZ.parse({})),
 });
 
 export type UserType = z.infer<typeof UserZ>;
