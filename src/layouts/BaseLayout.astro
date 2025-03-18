@@ -10,28 +10,15 @@ interface Props {
 }
 
 const { title } = Astro.props;
+const theme = Astro.cookies.get('theme')?.value || 'theme-light';
+const isDark =
+  theme === 'dark' ||
+  (theme === 'system' &&
+    Astro.request.headers.get('sec-ch-prefers-color-scheme') === 'dark');
 ---
 
-<html lang='en'>
+<html lang='en' class:list={[{ dark: isDark }]}>
   <head>
-    <!-- Prevent theme flash -->
-    <script is:inline>
-      const theme = (() => {
-        if (localStorage?.getItem('theme')) {
-          return localStorage.getItem('theme');
-        }
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          return 'dark';
-        }
-        return 'theme-light';
-      })();
-
-      if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    </script>
     <meta charset='UTF-8' />
     <meta name='description' content='Astro description' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />

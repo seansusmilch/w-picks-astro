@@ -8,18 +8,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+type Theme = 'theme-light' | 'dark' | 'system';
+
 export function ThemeToggle() {
   const isInitialRender = useRef(true);
-  const [theme, setThemeState] = useState<'theme-light' | 'dark' | 'system'>(
-    'theme-light'
-  );
-
+  const [theme, setThemeState] = useState<Theme>('theme-light');
   const [dropOpen, setDropOpen] = useState(false);
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem('theme');
+    // Get theme from cookie using document.cookie
+    const cookies = document.cookie.split(';');
+    const themeCookie = cookies.find((c) => c.trim().startsWith('theme='));
+    const storedTheme = themeCookie
+      ? (themeCookie.split('=')[1].trim() as Theme)
+      : null;
+
     if (storedTheme) {
-      setThemeState(storedTheme as 'theme-light' | 'dark' | 'system');
+      setThemeState(storedTheme);
     } else {
       const isDarkMode = document.documentElement.classList.contains('dark');
       setThemeState(isDarkMode ? 'dark' : 'theme-light');
@@ -36,7 +41,9 @@ export function ThemeToggle() {
       (theme === 'system' &&
         window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.classList.toggle('dark', isDark);
-    localStorage.setItem('theme', theme);
+
+    // Set theme cookie
+    document.cookie = `theme=${theme};path=/;sameSite=strict;max-age=31536000`; // 1 year
   }, [theme]);
 
   return (
