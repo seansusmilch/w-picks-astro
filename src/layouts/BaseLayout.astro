@@ -5,6 +5,7 @@ import '@/globals.css';
 import { ClientRouter } from 'astro:transitions';
 import Posthog from '@/components/Posthog.astro';
 import { APP_NAME } from '@/lib/constants';
+import { SettingsProvider } from '@/components/Providers/SettingsProvider';
 interface Props {
   title: string;
 }
@@ -15,6 +16,8 @@ const isDark =
   theme === 'dark' ||
   (theme === 'system' &&
     Astro.request.headers.get('sec-ch-prefers-color-scheme') === 'dark');
+
+const settings = Astro.locals.user?.record.settings;
 ---
 
 <html lang='en' class:list={[{ dark: isDark }]}>
@@ -35,6 +38,7 @@ const isDark =
       data-website-id='c0d26e2f-d316-4d61-9606-9b047134846a'></script>
   </head>
   <body>
+    <SettingsProvider settings={settings} client:load />
     <div class='flex flex-col min-h-[100dvh]'>
       <Header />
       <div class='flex grow'>

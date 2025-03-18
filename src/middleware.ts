@@ -48,6 +48,7 @@ const auth = defineMiddleware(async ({ locals, request, cookies }, next) => {
           requestUrl: request.url,
         })
       );
+
       console.log(
         'PB: Authenticated as user',
         locals.isAuthed,

@@ -1,10 +1,10 @@
 import { CarouselItem } from '@/components/ui/carousel';
 import { Matchup } from './Matchup';
-import { PickForm } from '@/components/Picks/PickForm';
+import { PickForm } from '@/components/Picks/PickForm/PickForm';
 import { useGames } from './GamesProvider';
 import { useStore } from '@nanostores/react';
 import { queryClient } from '@/stores/query';
-import { PickSlab } from '@/components/Picks/PickSlab';
+import { PicksViewToggle } from '@/components/Picks/PicksViewToggle';
 
 export function GamesViewer() {
   const { games, isLoading, error, userId } = useGames();
@@ -42,11 +42,7 @@ export function GamesViewer() {
           scoreboard={game.scoreboard}
           picks={game.picks}
         />
-        <div className='flex flex-col gap-2'>
-          {game.picks.map((pick) => (
-            <PickSlab key={pick.id} pick={pick} user={pick.expand.user} />
-          ))}
-        </div>
+        <PicksViewToggle picks={game.picks} matchup={game.matchup} />
         {game.scoreboard?.status >= 2 ? (
           <PicksAreLocked />
         ) : (

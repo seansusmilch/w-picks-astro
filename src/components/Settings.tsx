@@ -13,11 +13,7 @@ export function Settings({ settings }: { settings: UserSettingsType }) {
   const updateSettings = useMutation(
     {
       mutationFn: async (data: Partial<UserSettingsType>) => {
-        const formData = new FormData();
-        Object.entries(data).forEach(([key, value]) => {
-          formData.append(key, String(value));
-        });
-        return actions.users.updateSettings(formData);
+        return actions.users.updateSettings(data);
       },
       onSuccess: () => {
         $queryClient.invalidateQueries({ queryKey: ['userSettings'] });
@@ -42,6 +38,21 @@ export function Settings({ settings }: { settings: UserSettingsType }) {
           defaultChecked={settings.hideFromLatestPicks}
           onCheckedChange={(checked) => {
             updateSettings.mutate({ hideFromLatestPicks: checked });
+          }}
+        />
+      </div>
+
+      <div className='flex flex-row items-center justify-between gap-2'>
+        <Label className='text-lg' htmlFor='colorfulPicks'>
+          Enable colorful picks
+        </Label>
+        <Switch
+          id='colorfulPicks'
+          name='colorfulPicks'
+          className='setting-switch'
+          defaultChecked={settings.colorfulPicks}
+          onCheckedChange={(checked) => {
+            updateSettings.mutate({ colorfulPicks: checked });
           }}
         />
       </div>

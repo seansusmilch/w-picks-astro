@@ -4,6 +4,7 @@ import { ClientResponseError } from 'pocketbase';
 import { ActionError } from 'astro:actions';
 import { UserSettingsZ, UserZ } from '@/lib/definitions';
 import { cookieSettings } from '@/lib/data';
+
 export const users = {
   login: defineAction({
     accept: 'form',
@@ -172,10 +173,8 @@ export const users = {
     },
   }),
   updateSettings: defineAction({
-    accept: 'form',
-    input: z.object({
-      hideFromLatestPicks: z.boolean().optional(),
-    }),
+    accept: 'json',
+    input: UserSettingsZ.partial(),
     async handler(data, { locals }) {
       console.log('Updating settings', data);
 
@@ -187,9 +186,13 @@ export const users = {
         });
       }
       const { apb, user } = locals;
+
+      const currentSettings = user.record.settings || {};
+      const updatedSettings = { ...currentSettings, ...data };
+
       const updatedUser = await apb
         .collection('users')
-        .update(user.record.id, { settings: data });
+        .update(user.record.id, { settings: updatedSettings });
       return UserSettingsZ.parse(updatedUser.settings);
     },
   }),
