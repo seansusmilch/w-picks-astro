@@ -2,6 +2,9 @@ import { getPB, getAPB, getUser, cookieSettings } from '@/lib/data';
 import { ADMIN_USER, ADMIN_PASSWORD } from 'astro:env/server';
 import { POSTHOG_API_TOKEN } from 'astro:env/server';
 import { defineMiddleware, sequence } from 'astro:middleware';
+import { getLogger } from '@/lib/logger';
+
+const logger = getLogger('middleware');
 
 const auth = defineMiddleware(async ({ locals, request, cookies }, next) => {
   // Set default auth state
@@ -19,10 +22,10 @@ const auth = defineMiddleware(async ({ locals, request, cookies }, next) => {
         .authWithPassword(ADMIN_USER, ADMIN_PASSWORD, {
           requestKey: crypto.randomUUID(),
         });
-      console.log('PB: Authenticated as admin');
+      logger.info('PB: Authenticated as admin');
     }
   } catch (e) {
-    console.error('PB: Failed to authenticate as admin.', e.message);
+    logger.error({ error: e }, 'PB: Failed to authenticate as admin');
   }
 
   // Clear any existing auth store before loading new cookie
@@ -49,7 +52,7 @@ const auth = defineMiddleware(async ({ locals, request, cookies }, next) => {
         })
       );
 
-      console.log(
+      logger.info(
         'PB: Authenticated as user',
         locals.isAuthed,
         locals.user.record.username
@@ -60,7 +63,7 @@ const auth = defineMiddleware(async ({ locals, request, cookies }, next) => {
     locals.pb.authStore.clear();
     locals.isAuthed = false;
     locals.user = null;
-    console.log('PB: Auth store cleared');
+    logger.info('PB: Auth store cleared');
   }
 
   return next();
@@ -77,7 +80,7 @@ export const posthog = defineMiddleware(
     let posthogCookie = cookies.get(`ph_${POSTHOG_API_TOKEN}_posthog`);
     let distinctId = posthogCookie?.json().distinct_id;
     if (!distinctId) {
-      console.log('No distinctId found, generating new one');
+      logger.info('No distinctId found, generating new one');
       distinctId = crypto.randomUUID();
     }
     locals.distinctId = distinctId;

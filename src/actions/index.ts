@@ -6,10 +6,13 @@ import { getMatchupsAndPicksByCodePrefix } from '@/lib/matchups';
 import { getScoreboardsByCodePrefix } from '@/lib/scoreboards';
 import type { GameType } from '@/lib/definitions';
 import { expandAvatarUrl } from '@/lib/data_common';
+import { getLogger } from '@/lib/logger';
 import { picks } from './picks';
 import { users } from './users';
 import { stats } from './stats';
 import { reactions } from './reactions';
+
+const logger = getLogger('actions:index');
 
 export const server = {
   isFeatureEnabled: defineAction({
@@ -68,7 +71,7 @@ export const server = {
       try {
         await pb.collection('feedback').create(data);
       } catch (error) {
-        console.error('Error submitting feedback:', error);
+        logger.error({ error }, 'Error submitting feedback');
         throw new ActionError({
           message: 'Failed to submit feedback',
           code: 'INTERNAL_SERVER_ERROR',

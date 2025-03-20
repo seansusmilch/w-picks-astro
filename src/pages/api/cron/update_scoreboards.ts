@@ -7,6 +7,10 @@ import {
   getScoreboardByCode,
 } from '@/lib/scoreboards';
 import { updatePicksStatusByCode } from '@/lib/picks';
+import { getLogger } from '@/lib/logger';
+
+// Create a named logger for this file
+const logger = getLogger('update-scoreboards');
 
 const NBA_SCOREBOARDS_URL =
   'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json';
@@ -48,7 +52,10 @@ function parseScoreboards(rawData: NBAScoreboardResponse): Scoreboard[] {
 }
 
 async function updatePicksStatus(scoreboard: Scoreboard) {
-  console.log('updating picks status', scoreboard.code, scoreboard.status);
+  logger.info(
+    { code: scoreboard.code, status: scoreboard.status },
+    'Updating picks status'
+  );
   switch (scoreboard.status) {
     case 1:
       await updatePicksStatusByCode(scoreboard.code, 'upcoming');
@@ -60,7 +67,10 @@ async function updatePicksStatus(scoreboard: Scoreboard) {
       await updatePicksStatusByCode(scoreboard.code, 'past');
       break;
     default:
-      console.log('unknown scoreboard status', scoreboard.status);
+      logger.warn(
+        { code: scoreboard.code, status: scoreboard.status },
+        'Unknown scoreboard status'
+      );
       break;
   }
 }
@@ -84,7 +94,7 @@ async function updateScoreboard(scoreboard: Scoreboard) {
     await attachMatchupToScoreboard(newRec.id, scoreboard.code);
     return { action: 'CREATED', id: newRec.id };
   } catch (error) {
-    console.log('error', error);
+    logger.error({ error, scoreboard }, 'Error updating scoreboard');
     return {
       action: 'FAILED',
       scoreboard: scoreboard,
@@ -95,24 +105,30 @@ async function updateScoreboard(scoreboard: Scoreboard) {
 
 export const POST: APIRoute = async ({ request }) => {
   if (request.headers.get('Cron-Secret') !== CRON_SECRET) {
+    logger.warn('Unauthorized access attempt to update scoreboards endpoint');
     return new Response('Unauthorized', { status: 401 });
   }
 
+  logger.info('Starting update scoreboards job');
   try {
     // Check if there are matchups today
     const todaysMatchups = await getTodayMatchups();
     if (todaysMatchups.length === 0) {
+      logger.info('No matchups today, skipping scoreboard update');
       return new Response(JSON.stringify({ message: 'No matchups today' }), {
         status: 200,
       });
     }
 
     // Fetch scoreboards from NBA API
+    logger.info('Fetching scoreboards from NBA API');
     const response = await fetch(NBA_SCOREBOARDS_URL);
     const scoreboardsJson = await response.json();
     const scoreboards = parseScoreboards(scoreboardsJson);
+    logger.info({ count: scoreboards.length }, 'Fetched scoreboards');
 
     // Update each scoreboard in PocketBase
+    logger.info('Updating scoreboards in database');
     const results = await Promise.all(
       scoreboards.map(async (scoreboard) => {
         const res = await updateScoreboard(scoreboard);
@@ -126,7 +142,14 @@ export const POST: APIRoute = async ({ request }) => {
     const failed = results.filter((r) => r.action === 'FAILED');
     const failedCount = failed.length;
 
-    console.log('failed', failed);
+    logger.info(
+      { created: createdCount, updated: updatedCount, failed: failedCount },
+      'Update scoreboards job completed'
+    );
+
+    if (failedCount > 0) {
+      logger.warn({ failed }, 'Some scoreboard updates failed');
+    }
 
     return new Response(
       JSON.stringify(
@@ -147,7 +170,7 @@ export const POST: APIRoute = async ({ request }) => {
       }
     );
   } catch (error) {
-    console.error('Error updating scoreboards:', error);
+    logger.error({ error }, 'Error updating scoreboards');
     return new Response(
       JSON.stringify({ error: 'Failed to update scoreboards' }),
       {

@@ -4,6 +4,9 @@ import { ClientResponseError } from 'pocketbase';
 import { ActionError } from 'astro:actions';
 import { UserSettingsZ, UserZ } from '@/lib/definitions';
 import { cookieSettings } from '@/lib/data';
+import { getLogger } from '@/lib/logger';
+
+const logger = getLogger('actions:users');
 
 export const users = {
   login: defineAction({
@@ -44,7 +47,7 @@ export const users = {
             });
           }
         }
-        console.log('Login error', e);
+        logger.error({ error: e }, 'Login error');
         throw new ActionError({
           message: 'Something went wrong',
           code: 'INTERNAL_SERVER_ERROR',
@@ -93,7 +96,7 @@ export const users = {
             });
           }
         }
-        console.log('Signup error', JSON.stringify(e, null, 2));
+        logger.error({ error: e }, 'Signup error');
         throw new ActionError({
           message: 'Something went wrong',
           code: 'INTERNAL_SERVER_ERROR',

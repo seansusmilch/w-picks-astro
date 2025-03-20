@@ -1,10 +1,13 @@
 import { getAPB, getPB } from '@/lib/data';
 import { StatZ } from '@/lib/definitions';
+import { getLogger } from '@/lib/logger';
+
+const logger = getLogger('stats');
 
 export function validateStats(stats: any) {
   const statsResult = StatZ.safeParse(stats);
   if (!statsResult.success) {
-    console.error('Failed to parse stats:', statsResult.error);
+    logger.error({ error: statsResult.error }, 'Failed to parse stats');
     throw new Error('Failed to parse stats');
   }
   return statsResult.data;

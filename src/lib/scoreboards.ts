@@ -1,11 +1,18 @@
 import { getAPB, getPB } from '@/lib/data';
 import { ScoreboardZ } from '@/lib/definitions';
 import { getMatchupByCode, getMatchupById } from '@/lib/matchups';
+import { getLogger } from '@/lib/logger';
+
+// Create a named logger for this file
+const logger = getLogger('scoreboards');
 
 export function validateScoreboard(scoreboard: any) {
   const scoreboardResult = ScoreboardZ.safeParse(scoreboard);
   if (!scoreboardResult.success) {
-    console.error('Failed to parse scoreboard:', scoreboardResult.error);
+    logger.error(
+      { error: scoreboardResult.error },
+      'Failed to parse scoreboard'
+    );
     throw new Error('Failed to parse scoreboard');
   }
   return scoreboardResult.data;
@@ -45,7 +52,7 @@ export async function attachMatchupToScoreboard(
   const matchup = await getMatchupByCode(gameCode);
   if (!matchup || matchup.scoreboard === scoreboardId) return;
 
-  console.log('attaching matchup to scoreboard', gameCode, scoreboardId);
+  logger.debug({ gameCode, scoreboardId }, 'Attaching matchup to scoreboard');
 
   const pb = getAPB();
   await pb.collection('matchups').update(matchup.id, {

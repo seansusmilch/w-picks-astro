@@ -2,6 +2,9 @@ import { upsertPick } from '@/lib/picks';
 import { deletePick } from '@/lib/picks';
 import { defineAction } from 'astro:actions';
 import { z } from 'astro:schema';
+import { getLogger } from '@/lib/logger';
+
+const logger = getLogger('actions:picks');
 
 export const picks = {
   submitPick: defineAction({
@@ -13,7 +16,7 @@ export const picks = {
       matchup: z.string().length(15),
     }),
     async handler(pick) {
-      console.log('submitPick', pick);
+      logger.info({ pick }, 'submitPick');
       return await upsertPick(pick);
     },
   }),
@@ -26,7 +29,7 @@ export const picks = {
       matchup: z.string().length(15),
     }),
     async handler({ id, matchup }) {
-      console.log('deletePick', id, matchup);
+      logger.info({ id, matchup }, 'deletePick');
       return await deletePick(id, matchup);
     },
   }),
