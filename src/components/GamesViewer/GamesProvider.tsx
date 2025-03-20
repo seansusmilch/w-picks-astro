@@ -33,11 +33,13 @@ export function GamesProvider({
   pages,
   children,
   userId,
+  initialData,
 }: {
   codePrefix: string;
   pages: PageEntryType[];
   children: ReactNode;
   userId: string;
+  initialData?: GameType[];
 }) {
   const [currentPage, setCurrentPage] = useState(codePrefix);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
@@ -55,6 +57,7 @@ export function GamesProvider({
         if (error) throw new Error(error.message);
         return data;
       },
+      initialData: currentPage === codePrefix ? initialData : undefined,
       refetchInterval: 2500,
       staleTime: 30 * 1000,
       gcTime: 5 * 60 * 1000,

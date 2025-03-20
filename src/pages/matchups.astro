@@ -4,6 +4,7 @@ import { getCodePrefixFromDate } from '@/lib/data_common';
 import { DateTime } from 'luxon';
 import { GamesPage } from '@/components/GamesViewer/GamesPage';
 import { getCodePrefixes } from '@/lib/matchups';
+import { actions } from 'astro:actions';
 
 const { isAuthed } = Astro.locals;
 if (!isAuthed) {
@@ -21,6 +22,11 @@ const pages = codePrefixes.map((c) => ({
 
 const codePrefix =
   Astro.url.searchParams.get('page') ?? getCodePrefixFromDate(new Date());
+
+const { data: initialGames } = await Astro.callAction(
+  actions.getGamesByCodePrefix,
+  { codePrefix }
+);
 ---
 
 <Layout title='Matchups'>
@@ -28,6 +34,7 @@ const codePrefix =
     codePrefix={codePrefix}
     userId={Astro.locals.user?.record.id}
     pages={pages}
+    initialData={initialGames}
     client:only
   />
 </Layout>
