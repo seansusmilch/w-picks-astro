@@ -2,14 +2,14 @@ import { getPB, getAPB } from '@/lib/data';
 import { MatchupsByCodePrefixZ, MatchupZ } from '@/lib/definitions';
 import { getCodePrefixFromDate } from '@/lib/data_common';
 import { getScoreboardByCode } from '@/lib/scoreboards';
+import { getLogger } from '@/lib/logger';
+
+const logger = getLogger('matchups');
 
 export function validateMatchup(matchup: any) {
   const matchupResult = MatchupZ.safeParse(matchup);
   if (!matchupResult.success) {
-    console.error(
-      'Failed to parse matchup:',
-      JSON.stringify(matchupResult.error.issues)
-    );
+    logger.error({ error: matchupResult.error }, 'Failed to parse matchup');
     throw new Error('Failed to parse matchup');
   }
   return matchupResult.data;

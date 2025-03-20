@@ -27,4 +27,4 @@ export const navigationItems: NavItem[] = [
 
 export const postLoginRedirect = '/stats/weekly';
 
-export const APP_NAME = 'Dub Picks';
+export const APP_NAME = 'Baller Picks';

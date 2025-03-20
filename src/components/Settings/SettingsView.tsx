@@ -5,9 +5,8 @@ import { useMutation } from '@tanstack/react-query';
 import { actions } from 'astro:actions';
 import { useStore } from '@nanostores/react';
 import { queryClient } from '@/stores/query';
-import type { FormEvent } from 'react';
 
-export function Settings({ settings }: { settings: UserSettingsType }) {
+export function SettingsView({ settings }: { settings: UserSettingsType }) {
   const $queryClient = useStore(queryClient);
 
   const updateSettings = useMutation(

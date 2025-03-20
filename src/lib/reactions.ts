@@ -1,6 +1,10 @@
 import { ClientResponseError } from 'pocketbase';
 import { ReactionZ, type ReactionType } from './definitions';
 import { getAPB, getPB } from '@/lib/data';
+import { getLogger } from '@/lib/logger';
+
+// Create a named logger for this file
+const logger = getLogger('reactions');
 
 export async function createReaction(reaction: ReactionType) {
   const { success, data, error } = ReactionZ.safeParse(reaction);
@@ -13,7 +17,7 @@ export async function createReaction(reaction: ReactionType) {
   const pb = await getAPB();
   const userId = data.user;
   const pickId = data.pick;
-  console.log('createReaction', { userId, pickId });
+  logger.debug({ userId, pickId }, 'Creating reaction');
 
   try {
     const newReaction = await pb.collection('reactions').create({
@@ -25,7 +29,7 @@ export async function createReaction(reaction: ReactionType) {
     if (error instanceof Error) {
       throw error;
     }
-    console.error('Error creating reaction:', error);
+    logger.error({ error }, 'Error creating reaction');
     throw new Error('Failed to create reaction');
   }
 }
@@ -93,7 +97,7 @@ export async function getReactions({
       if (error instanceof ClientResponseError && error.status === 404) {
         isLiked = false;
       } else {
-        console.error('Error getting reaction:', error);
+        logger.error({ error, user, pick }, 'Error getting reaction');
       }
     }
   }

@@ -7,6 +7,16 @@ import {
   getScoreboardByCode,
 } from '@/lib/scoreboards';
 import { updatePicksStatusByCode } from '@/lib/picks';
+import { getLogger } from '@/lib/logger';
+import { DateTime } from 'luxon';
+import {
+  trackPerformance,
+  createSuccessResponse,
+  createErrorResponse,
+} from '@/lib/cron-utils';
+
+// Create a named logger for this file
+const logger = getLogger('update-scoreboards');
 
 const NBA_SCOREBOARDS_URL =
   'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json';
@@ -48,7 +58,10 @@ function parseScoreboards(rawData: NBAScoreboardResponse): Scoreboard[] {
 }
 
 async function updatePicksStatus(scoreboard: Scoreboard) {
-  console.log('updating picks status', scoreboard.code, scoreboard.status);
+  logger.info(
+    { code: scoreboard.code, status: scoreboard.status },
+    'Updating picks status'
+  );
   switch (scoreboard.status) {
     case 1:
       await updatePicksStatusByCode(scoreboard.code, 'upcoming');
@@ -60,7 +73,10 @@ async function updatePicksStatus(scoreboard: Scoreboard) {
       await updatePicksStatusByCode(scoreboard.code, 'past');
       break;
     default:
-      console.log('unknown scoreboard status', scoreboard.status);
+      logger.warn(
+        { code: scoreboard.code, status: scoreboard.status },
+        'Unknown scoreboard status'
+      );
       break;
   }
 }
@@ -84,7 +100,7 @@ async function updateScoreboard(scoreboard: Scoreboard) {
     await attachMatchupToScoreboard(newRec.id, scoreboard.code);
     return { action: 'CREATED', id: newRec.id };
   } catch (error) {
-    console.log('error', error);
+    logger.error({ error, scoreboard }, 'Error updating scoreboard');
     return {
       action: 'FAILED',
       scoreboard: scoreboard,
@@ -95,64 +111,133 @@ async function updateScoreboard(scoreboard: Scoreboard) {
 
 export const POST: APIRoute = async ({ request }) => {
   if (request.headers.get('Cron-Secret') !== CRON_SECRET) {
+    logger.warn('Unauthorized access attempt to update scoreboards endpoint');
     return new Response('Unauthorized', { status: 401 });
   }
 
+  const jobStartTime = performance.now();
+  const startTime = DateTime.now().toISO();
+
+  logger.info({ startTime }, 'Starting update scoreboards job');
+
   try {
-    // Check if there are matchups today
-    const todaysMatchups = await getTodayMatchups();
+    // Check if there are matchups today with performance tracking
+    const todaysMatchups = await trackPerformance(
+      'getTodayMatchups',
+      async () => getTodayMatchups(),
+      logger
+    );
+
     if (todaysMatchups.length === 0) {
-      return new Response(JSON.stringify({ message: 'No matchups today' }), {
-        status: 200,
+      logger.info(
+        {
+          durationMs: (performance.now() - jobStartTime).toFixed(2),
+          startTime,
+          endTime: DateTime.now().toISO(),
+        },
+        'No matchups today, skipping scoreboard update'
+      );
+
+      return createSuccessResponse('No matchups today', jobStartTime, {
+        matchupsToday: 0,
       });
     }
 
-    // Fetch scoreboards from NBA API
+    // Fetch scoreboards from NBA API with performance tracking
+    logger.info('Fetching scoreboards from NBA API');
+    const fetchStart = performance.now();
     const response = await fetch(NBA_SCOREBOARDS_URL);
     const scoreboardsJson = await response.json();
-    const scoreboards = parseScoreboards(scoreboardsJson);
-
-    // Update each scoreboard in PocketBase
-    const results = await Promise.all(
-      scoreboards.map(async (scoreboard) => {
-        const res = await updateScoreboard(scoreboard);
-        await updatePicksStatus(scoreboard);
-        return res;
-      })
+    const fetchEnd = performance.now();
+    logger.info(
+      { durationMs: (fetchEnd - fetchStart).toFixed(2) },
+      'NBA API fetch completed'
     );
+
+    // Parse scoreboards
+    const parseStart = performance.now();
+    const scoreboards = parseScoreboards(scoreboardsJson);
+    const parseEnd = performance.now();
+    logger.info(
+      {
+        count: scoreboards.length,
+        durationMs: (parseEnd - parseStart).toFixed(2),
+      },
+      'Parsed scoreboards'
+    );
+
+    // Update each scoreboard in PocketBase with performance tracking
+    logger.info('Updating scoreboards in database');
+    const updateStart = performance.now();
+
+    // Track individual scoreboard updates
+    const scoreBoardUpdatePromises = scoreboards.map(async (scoreboard) => {
+      const updateStart = performance.now();
+      const res = await updateScoreboard(scoreboard);
+      const statusUpdateStart = performance.now();
+      await updatePicksStatus(scoreboard);
+      const endTime = performance.now();
+
+      return {
+        ...res,
+        metrics: {
+          scoreboardUpdateMs: (statusUpdateStart - updateStart).toFixed(2),
+          statusUpdateMs: (endTime - statusUpdateStart).toFixed(2),
+          totalMs: (endTime - updateStart).toFixed(2),
+        },
+      };
+    });
+
+    const results = await Promise.all(scoreBoardUpdatePromises);
+    const updateEnd = performance.now();
 
     const createdCount = results.filter((r) => r.action === 'CREATED').length;
     const updatedCount = results.filter((r) => r.action === 'UPDATED').length;
     const failed = results.filter((r) => r.action === 'FAILED');
     const failedCount = failed.length;
 
-    console.log('failed', failed);
+    // Add execution metrics
+    const additionalMetrics = {
+      startTime,
+      scoreboardsFetchMs: (fetchEnd - fetchStart).toFixed(2),
+      scoreboardsParseMs: (parseEnd - parseStart).toFixed(2),
+      scoreboardsUpdateMs: (updateEnd - updateStart).toFixed(2),
+      matchupsToday: todaysMatchups.length,
+      scoreboardsFound: scoreboards.length,
+    };
 
-    return new Response(
-      JSON.stringify(
-        {
-          message: 'Update scoreboards job completed',
-          stats: {
-            created: createdCount,
-            updated: updatedCount,
-            failed: failedCount,
-          },
-          results: results,
-        },
-        null,
-        4
-      ),
+    logger.info(
       {
-        status: 200,
+        created: createdCount,
+        updated: updatedCount,
+        failed: failedCount,
+        durationMs: (performance.now() - jobStartTime).toFixed(2),
+        ...additionalMetrics,
+      },
+      'Update scoreboards job completed'
+    );
+
+    if (failedCount > 0) {
+      logger.warn({ failed }, 'Some scoreboard updates failed');
+    }
+
+    return createSuccessResponse(
+      'Update scoreboards job completed',
+      jobStartTime,
+      {
+        stats: {
+          created: createdCount,
+          updated: updatedCount,
+          failed: failedCount,
+        },
+        metrics: additionalMetrics,
+        results: results,
       }
     );
   } catch (error) {
-    console.error('Error updating scoreboards:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to update scoreboards' }),
-      {
-        status: 500,
-      }
-    );
+    return createErrorResponse(error, jobStartTime, {
+      startTime,
+      jobType: 'update-scoreboards',
+    });
   }
 };

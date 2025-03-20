@@ -6,18 +6,22 @@ import {
   isMatchupUpcoming,
 } from '@/lib/matchups';
 import { getProfilesByIds } from './users';
+import { getLogger } from '@/lib/logger';
+
+// Create a named logger for this file
+const logger = getLogger('picks');
 
 export function validatePick(pick: any) {
   const pickResult = PickZ.safeParse(pick);
   if (!pickResult.success) {
-    console.error('Failed to parse pick:', pickResult.error);
+    logger.error({ error: pickResult.error }, 'Failed to parse pick');
     throw new Error('Failed to parse pick');
   }
   return pickResult.data;
 }
 
 async function checkUserPermission(pickId: string, matchupId: string) {
-  console.log('checkUserPermission', pickId, matchupId);
+  logger.debug({ pickId, matchupId }, 'Checking user permission');
   const pb = getPB();
   if (!pb.authStore.isValid) {
     throw new Error('User not authenticated');
@@ -51,8 +55,10 @@ export async function upsertPick(pick: PickType) {
     const exists = await getPickById(pick.id);
     let pickResponse;
     if (exists) {
+      logger.debug({ pickId: pick.id }, 'Updating existing pick');
       pickResponse = await pb.collection('picks').update(pick.id, pick);
     } else {
+      logger.debug({ matchupId: pick.matchup }, 'Creating new pick');
       delete pick.id;
       pick.user = user.record.id;
       pickResponse = await pb
@@ -62,17 +68,18 @@ export async function upsertPick(pick: PickType) {
 
     const newPick = PickZ.safeParse(pickResponse);
     if (!newPick.success) {
-      console.error('Failed to save pick:', newPick.error);
+      logger.error({ error: newPick.error }, 'Failed to save pick');
       throw new Error('Failed to save pick');
     }
     return newPick.data;
   } catch (e) {
-    console.error('Error saving pick:', e);
+    logger.error({ error: e }, 'Error saving pick');
     throw new Error('Failed to save pick');
   }
 }
 
 export async function deletePick(pickId: string, matchupId: string) {
+  logger.debug({ pickId, matchupId }, 'Deleting pick');
   await checkUserPermission(pickId, matchupId);
   const pb = getPB();
   return await pb.collection('picks').delete(pickId);
@@ -91,7 +98,7 @@ export async function getPickById(id: string) {
 
   const pick = PickZ.safeParse(pickRecord);
   if (!pick.success) {
-    console.error('Failed to parse pick:', pick.error);
+    logger.error({ error: pick.error }, 'Failed to parse pick');
     throw new Error('Failed to parse pick');
   }
 
@@ -180,9 +187,9 @@ export async function getLatestPicks(limit: number = 10, userId?: string) {
 
   try {
     const picks = await pb.collection('picks').getList(1, limit, {
-      sort: '-created', // Sort by creation date, newest first
+      sort: '-updated',
       filter: userId ? pb.filter('user != {:userId}', { userId }) : undefined,
-      expand: 'matchup', // Expand user and matchup data
+      expand: 'matchup',
     });
 
     const users = await getProfilesByIds(picks.items.map((pick) => pick.user));
@@ -192,7 +199,7 @@ export async function getLatestPicks(limit: number = 10, userId?: string) {
       users,
     };
   } catch (error) {
-    console.error('Error fetching latest picks:', error);
+    logger.error({ error }, 'Error fetching latest picks');
     return {
       picks: [],
       users: [],

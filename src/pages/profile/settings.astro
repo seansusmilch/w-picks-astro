@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { UserSettingsZ } from '@/lib/definitions';
-import { Settings } from '@/components/Settings';
+import { SettingsView } from '@/components/Settings/SettingsView';
 import { Button } from '@/components/ui/button';
 import { ArrowLeftIcon } from 'lucide-react';
 
@@ -23,6 +23,6 @@ const pageTitle = 'Settings';
         <ArrowLeftIcon className='h-5 w-5' />Back to profile
       </Button>
     </a>
-    <Settings settings={settings} client:only />
+    <SettingsView settings={settings} client:only />
   </div>
 </Layout>

@@ -2,6 +2,9 @@ import { defineAction } from 'astro:actions';
 import { z } from 'astro:schema';
 import { createReaction, deleteReaction, getReactions } from '@/lib/reactions';
 import { ActionError } from 'astro:actions';
+import { getLogger } from '@/lib/logger';
+
+const logger = getLogger('actions:reactions');
 
 export const reactions = {
   addReaction: defineAction({
@@ -26,7 +29,7 @@ export const reactions = {
 
         return reaction;
       } catch (error) {
-        console.error('Error in createReaction action:', error);
+        logger.error({ error, pickId }, 'Error in createReaction action');
         throw new ActionError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to create reaction',
@@ -55,7 +58,7 @@ export const reactions = {
           pick: pickId,
         });
       } catch (error) {
-        console.error('Error in removeReaction action:', error);
+        logger.error({ error, pickId }, 'Error in removeReaction action');
         throw new ActionError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to remove reaction',
@@ -85,7 +88,7 @@ export const reactions = {
         });
         return reactions;
       } catch (error) {
-        console.error('Error in getReactions action:', error);
+        logger.error({ error, pickId }, 'Error in getReactions action');
         throw new ActionError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to get reactions',
