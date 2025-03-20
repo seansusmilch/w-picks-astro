@@ -22,7 +22,7 @@ const auth = defineMiddleware(async ({ locals, request, cookies }, next) => {
         .authWithPassword(ADMIN_USER, ADMIN_PASSWORD, {
           requestKey: crypto.randomUUID(),
         });
-      logger.info('PB: Authenticated as admin');
+      logger.debug('PB: Authenticated as admin');
     }
   } catch (e) {
     logger.error({ error: e }, 'PB: Failed to authenticate as admin');
@@ -63,7 +63,7 @@ const auth = defineMiddleware(async ({ locals, request, cookies }, next) => {
     locals.pb.authStore.clear();
     locals.isAuthed = false;
     locals.user = null;
-    logger.info('PB: Auth store cleared');
+    logger.debug('PB: Auth store cleared');
   }
 
   return next();
@@ -80,7 +80,7 @@ export const posthog = defineMiddleware(
     let posthogCookie = cookies.get(`ph_${POSTHOG_API_TOKEN}_posthog`);
     let distinctId = posthogCookie?.json().distinct_id;
     if (!distinctId) {
-      logger.info('No distinctId found, generating new one');
+      logger.debug('No distinctId found, generating new one');
       distinctId = crypto.randomUUID();
     }
     locals.distinctId = distinctId;
