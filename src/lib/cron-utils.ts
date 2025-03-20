@@ -267,17 +267,21 @@ export function createErrorResponse(
   logger.error(logData, `Job failed after ${jobDurationMs.toFixed(2)}ms`);
 
   return new Response(
-    JSON.stringify({
-      success: false,
-      message: 'Operation failed',
-      error: errorMessage,
-      metrics: {
-        startTime,
-        endTime,
-        durationMs: jobDurationMs.toFixed(2),
+    JSON.stringify(
+      {
+        success: false,
+        message: 'Operation failed',
+        error: errorMessage,
+        metrics: {
+          startTime,
+          endTime,
+          durationMs: jobDurationMs.toFixed(2),
+        },
+        ...additionalData,
       },
-      ...additionalData,
-    }),
+      null,
+      2
+    ),
     {
       status: 500,
       headers: {
@@ -298,12 +302,16 @@ export function createSuccessResponse(
   const metrics = generateExecutionMetrics(jobStartTime, data.metrics || {});
 
   return new Response(
-    JSON.stringify({
-      success: true,
-      message,
-      metrics,
-      ...data,
-    }),
+    JSON.stringify(
+      {
+        success: true,
+        message,
+        metrics,
+        ...data,
+      },
+      null,
+      2
+    ),
     {
       status: 200,
       headers: {
