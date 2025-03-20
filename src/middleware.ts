@@ -22,7 +22,6 @@ const auth = defineMiddleware(async ({ locals, request, cookies }, next) => {
         .authWithPassword(ADMIN_USER, ADMIN_PASSWORD, {
           requestKey: crypto.randomUUID(),
         });
-      logger.debug('PB: Authenticated as admin');
     }
   } catch (e) {
     logger.error({ error: e }, 'PB: Failed to authenticate as admin');
@@ -34,6 +33,10 @@ const auth = defineMiddleware(async ({ locals, request, cookies }, next) => {
   // load the store data from the request cookie string
   const token = cookies.get('pb_auth');
   if (!token) {
+    // Ensure user is explicitly not authenticated when token is missing
+    locals.isAuthed = false;
+    locals.user = null;
+    logger.debug('PB: No auth token found, user not authenticated');
     return next();
   }
 
