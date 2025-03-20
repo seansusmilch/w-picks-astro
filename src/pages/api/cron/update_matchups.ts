@@ -4,10 +4,16 @@ import { DateTime } from 'luxon';
 import { CRON_SECRET } from 'astro:env/server';
 import { getMatchupByCode } from '@/lib/matchups';
 import type { MatchupType } from '@/lib/definitions';
-import { getLogger } from '@/lib/logger';
+import {
+  getCronLogger,
+  trackPerformance,
+  createSuccessResponse,
+  createErrorResponse,
+  type BatchOperationTracker,
+} from '@/lib/cron-utils';
 
-// Create a named logger for this file
-const logger = getLogger('update-matchups');
+// Create a named enhanced logger for this file
+const logger = getCronLogger('update-matchups');
 
 const PAST_CUTOFF = 3;
 const FUTURE_CUTOFF = 30;
@@ -131,6 +137,13 @@ async function processMatchups(
   const pb = getAPB();
   const results: OperationResult[] = [];
 
+  // Create a batch operation tracker
+  const batchTracker = logger.trackBatchOperation({
+    name: 'process-matchups',
+    totalItems: matchups.length,
+    logProgressEvery: 10,
+  });
+
   for (const matchup of matchups) {
     // Skip matchups without codes
     if (!matchup.code) {
@@ -140,6 +153,7 @@ async function processMatchups(
         action: 'SKIPPED',
         reason: 'Missing game code',
       });
+      batchTracker.recordSuccess(matchup.code); // Still count as processed
       continue;
     }
 
@@ -156,6 +170,7 @@ async function processMatchups(
           id: updatedRecord.id,
           action: 'UPDATED',
         });
+        batchTracker.recordSuccess(matchup.code);
       } else {
         // Create new matchup
         const newRecord = await pb
@@ -166,6 +181,7 @@ async function processMatchups(
           id: newRecord.id,
           action: 'CREATED',
         });
+        batchTracker.recordSuccess(matchup.code);
       }
     } catch (error) {
       logger.error({ error, matchup }, 'Error processing matchup');
@@ -174,8 +190,13 @@ async function processMatchups(
         action: 'FAILED',
         error: error.message,
       });
+      batchTracker.recordError(error, matchup.code);
     }
   }
+
+  // Complete the batch operation and log final metrics
+  const batchMetrics = batchTracker.complete();
+  logger.info({ batchMetrics }, 'Matchup processing complete');
 
   return results;
 }
@@ -239,75 +260,95 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  logger.info('Starting update matchups job');
+  const jobStartTime = performance.now();
+  const startTime = DateTime.now().toISO();
+
+  logger.info({ startTime }, 'Starting update matchups job');
+
   try {
+    // Track NBA API fetch
+    const fetchStart = performance.now();
     const response = await fetch(NBA_SCHEDULE_URL);
     const matchupsJson = await response.json();
-    const matchups = parseMatchups(matchupsJson);
+    const fetchEnd = performance.now();
+    logger.info(
+      { durationMs: (fetchEnd - fetchStart).toFixed(2) },
+      'NBA API fetch completed'
+    );
+
+    // Parse and process matchups with performance tracking
+    const matchups = await trackPerformance(
+      'parseMatchups',
+      async () => parseMatchups(matchupsJson),
+      logger
+    );
+
     if (matchups.length === 0) {
-      logger.warn('No matchups found. Possibly upstream API error');
-      return new Response(
-        JSON.stringify({
-          message: 'No matchups found. Possibly upstream API error',
-          matchupResponse: matchupsJson,
-        }),
-        { status: 200 }
+      logger.warn(
+        {
+          durationMs: (performance.now() - jobStartTime).toFixed(2),
+          startTime,
+          endTime: DateTime.now().toISO(),
+        },
+        'No matchups found. Possibly upstream API error'
+      );
+
+      return createSuccessResponse(
+        'No matchups found in the specified date range.',
+        jobStartTime,
+        { success: false }
       );
     }
 
-    // Find matchups to delete and process operations
-    logger.info('Looking for matchups to delete');
-    const matchupsToDelete = await findMatchupsToDelete(matchups);
-
-    logger.info('Processing matchups');
-    const results = await processMatchups(matchups);
-
-    logger.info('Deleting outdated matchups');
-    const deleteResults = await deleteMatchups(matchupsToDelete);
-
-    // Combine all results
-    const allResults = [...results, ...deleteResults];
-    const stats = generateStats(allResults);
-
-    // Check for failures
-    const failures = allResults.filter(
-      (r) => r.action === 'FAILED' || r.action === 'DELETE_FAILED'
+    // Find matchups to delete with performance tracking
+    const matchupsToDelete = await trackPerformance(
+      'findMatchupsToDelete',
+      async () => findMatchupsToDelete(matchups),
+      logger
     );
 
-    if (failures.length > 0) {
-      logger.warn({ count: failures.length, failures }, 'Failed operations');
-    }
+    // Process matchups with performance tracking
+    const processResults = await trackPerformance(
+      'processMatchups',
+      async () => processMatchups(matchups),
+      logger
+    );
 
-    logger.info({ stats }, 'Update matchups job completed');
+    // Delete matchups with performance tracking
+    const deleteResults = await trackPerformance(
+      'deleteMatchups',
+      async () => deleteMatchups(matchupsToDelete),
+      logger
+    );
 
-    // Return response
-    return new Response(
-      JSON.stringify(
-        {
-          message: 'Update matchups job completed',
-          stats,
-          results: allResults,
-        },
-        null,
-        2
-      ),
+    // Generate operation stats
+    const stats = generateStats([...processResults, ...deleteResults]);
+
+    // Add additional execution metrics
+    const additionalMetrics = {
+      startTime,
+      matchupsFound: matchups.length,
+      matchupsToDeleteFound: matchupsToDelete.length,
+    };
+
+    logger.info(
       {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
+        ...stats,
+        durationMs: (performance.now() - jobStartTime).toFixed(2),
+        ...additionalMetrics,
+      },
+      'Update matchups job completed'
+    );
+
+    return createSuccessResponse(
+      'Matchups updated successfully',
+      jobStartTime,
+      { stats, metrics: additionalMetrics }
     );
   } catch (error) {
-    logger.error('Error updating matchups:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to update matchups' }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    return createErrorResponse(error, jobStartTime, {
+      startTime,
+      jobType: 'update-matchups',
+    });
   }
 };
