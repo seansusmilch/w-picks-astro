@@ -187,9 +187,9 @@ export async function getLatestPicks(limit: number = 10, userId?: string) {
 
   try {
     const picks = await pb.collection('picks').getList(1, limit, {
-      sort: '-created', // Sort by creation date, newest first
+      sort: '-updated',
       filter: userId ? pb.filter('user != {:userId}', { userId }) : undefined,
-      expand: 'matchup', // Expand user and matchup data
+      expand: 'matchup',
     });
 
     const users = await getProfilesByIds(picks.items.map((pick) => pick.user));
