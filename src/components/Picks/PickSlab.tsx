@@ -138,7 +138,7 @@ export function PickSlab({
   return (
     <div
       className={cn(
-        'shadow-lg rounded-lg relative bg-background p-[2px]',
+        'rounded-lg relative bg-background p-[2px]',
         settings?.colorfulPicks && 'animate-gradient'
       )}
       style={{

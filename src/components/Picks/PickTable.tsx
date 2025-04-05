@@ -14,7 +14,7 @@ export function PickTable({
     <div
       className={clsx(
         'flex flex-row justify-between max-w-md',
-        'border rounded-xl shadow-md',
+        'border rounded-xl',
         'pb-2'
       )}
     >

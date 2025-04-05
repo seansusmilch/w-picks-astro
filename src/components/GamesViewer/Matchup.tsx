@@ -22,7 +22,7 @@ export function Matchup({
 }) {
   const gameStatus = scoreboard?.status || 0;
   return (
-    <div className='p-0.5 sm:p-2 flex flex-col border rounded-xl shadow-md'>
+    <div className='p-0.5 sm:p-2 flex flex-col border rounded-xl'>
       <div className={clsx('flex flex-row justify-between')}>
         {gameStatus === 0 && (
           <PreGame

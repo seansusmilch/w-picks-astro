@@ -83,7 +83,7 @@ export function PickForm({
 
   return (
     <form method='POST' onSubmit={handleSubmit}>
-      <div className='p-4 text-center max-w-md rounded-xl shadow-md border bg-card'>
+      <div className='p-4 text-center max-w-md rounded-xl border bg-card'>
         <h1 className='text-xl font-bold'>Your Pick</h1>
         <input type='hidden' name='id' value={formState.pickId} />
         <input type='hidden' name='matchup' value={formState.matchup} />

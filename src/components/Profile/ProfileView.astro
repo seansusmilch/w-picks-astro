@@ -19,7 +19,7 @@ const progressValue = (winPicks / stats?.total_picks) * 100;
 
 <div class='flex flex-col items-center gap-4'>
   <div
-    class='flex flex-col w-full max-w-md lg:max-w-xl border rounded-lg shadow-lg p-4 gap-4'
+    class='flex flex-col w-full max-w-md lg:max-w-xl border rounded-lg p-4 gap-4'
   >
     <div class='flex flex-row gap-6'>
       <UserAvatar
@@ -80,7 +80,7 @@ const progressValue = (winPicks / stats?.total_picks) * 100;
   </div>
 
   <div
-    class='flex flex-col w-full max-w-md lg:max-w-xl border rounded-lg shadow-lg p-4 gap-4'
+    class='flex flex-col w-full max-w-md lg:max-w-xl border rounded-lg p-4 gap-4'
   >
     <div class='flex justify-between items-center'>
       <h2 class='text-xl font-bold'>User Stats (All Time)</h2>
@@ -112,7 +112,7 @@ const progressValue = (winPicks / stats?.total_picks) * 100;
   </div>
 
   <div
-    class='flex flex-col w-full max-w-md lg:max-w-xl border rounded-lg shadow-lg p-4 gap-4'
+    class='flex flex-col w-full max-w-md lg:max-w-xl border rounded-lg p-4 gap-4'
   >
     <h2 class='text-xl font-bold'>Pick History</h2>
     <UserPicksTable picks={picks} defaultTab='live' client:only />

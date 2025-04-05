@@ -1,6 +1,6 @@
 export function PickSlabSkeleton() {
   return (
-    <div className='border-2 border-primary-foreground/10 shadow-lg rounded-lg p-2 flex gap-2 animate-in fade-in-0 duration-500'>
+    <div className='border-2 border-primary-foreground/10 rounded-lg p-2 flex gap-2 animate-in fade-in-0 duration-500'>
       <div className='flex flex-col justify-between'>
         {/* Avatar skeleton */}
         <div className='w-10 h-10 rounded-full bg-muted animate-pulse' />

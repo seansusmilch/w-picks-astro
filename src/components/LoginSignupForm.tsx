@@ -48,7 +48,7 @@ export function LoginSignupForm() {
   return (
     <form
       method='POST'
-      className='bg-inherit p-4 border rounded-md shadow-lg max-w-lg min-w-96 flex flex-col gap-4'
+      className='bg-inherit p-4 border rounded-md max-w-lg min-w-96 flex flex-col gap-4'
       onSubmit={handleSubmit}
     >
       <h1 className='text-2xl font-semibold text-center py-4'>
