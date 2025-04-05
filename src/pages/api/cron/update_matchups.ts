@@ -23,8 +23,8 @@ const NBA_SCHEDULE_URL =
 interface NBAGame {
   gameCode: string;
   gameDateTimeUTC: string;
-  awayTeam: { teamTricode: string };
-  homeTeam: { teamTricode: string };
+  awayTeam: { teamTricode: string; wins: number; losses: number };
+  homeTeam: { teamTricode: string; wins: number; losses: number };
 }
 
 interface GameDate {
@@ -43,6 +43,14 @@ interface Matchup {
   time_utc: string;
   away_code: string;
   home_code: string;
+  away_meta: {
+    wins: number;
+    losses: number;
+  };
+  home_meta: {
+    wins: number;
+    losses: number;
+  };
 }
 
 interface OperationResult {
@@ -80,6 +88,8 @@ function parseMatchups(rawData: ScheduleResponse): Matchup[] {
     time_utc: game.gameDateTimeUTC,
     away_code: game.awayTeam.teamTricode,
     home_code: game.homeTeam.teamTricode,
+    away_meta: game.awayTeam,
+    home_meta: game.homeTeam,
   }));
 }
 

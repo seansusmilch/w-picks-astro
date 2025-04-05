@@ -1,109 +1,106 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import { PickSlab } from '@/components/Picks/PickSlab';
+import { Matchup } from '@/components/GamesViewer/Matchup';
+import type { MatchupType } from '@/lib/definitions';
 
-// Mock data
-const mockUsers = {
-  user1: {
-    id: '123456789012345',
-    email: 'john@example.com',
-    username: 'ezmodewinkyface',
-    avatar: 'avatar1',
-    bio: 'Basketball enthusiast',
-    avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-    settings: null,
+const futureMatchup: MatchupType = {
+  code: '20240510/BKNBOS',
+  time_utc: '2024-05-10T23:00:00Z',
+  away_code: 'BKN',
+  home_code: 'BOS',
+  away_meta: {
+    wins: 21,
+    losses: 33,
   },
-  user2: {
-    id: '223456789012345',
-    email: 'jane@example.com',
-    username: 'dangledickrick',
-    avatar: 'avatar2',
-    bio: 'Sports analyst',
-    avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jane',
-    settings: null,
+  home_meta: {
+    wins: 41,
+    losses: 12,
   },
-  user3: {
-    id: '323456789012345',
-    email: 'bob@example.com',
-    username: 'bobthebuilder',
-    avatar: 'avatar3',
-    bio: 'Sports analyst',
-    avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob',
-    settings: null,
-  },
+  scoreboard: '',
 };
 
-const mockPicks = [
-  {
-    id: '123456789012345',
-    matchup: 'match123456789012',
-    win_prediction: 'POR',
-    comment: "Curry's been on fire lately, expecting a big game from him! 🔥",
-    user: '123456789012345',
-    status: 'pending',
-    result: '',
-    created: new Date().toISOString(),
-    expand: {
-      matchup: {
-        id: 'match123456789012',
-        code: '20240315PORLAL',
-        time_utc: '2024-03-15T02:30:00Z',
-        home_code: 'LAL',
-        away_code: 'POR',
-        scoreboard: '',
-      },
-    },
+const liveMatchup: MatchupType = {
+  code: '20240203/LALNYK',
+  time_utc: '2024-02-03T19:30:00Z',
+  away_code: 'LAL',
+  home_code: 'NYK',
+  away_meta: {
+    wins: 24,
+    losses: 25,
   },
-  {
-    id: '223456789012345',
-    matchup: 'match223456789012',
-    win_prediction: 'BOS',
-    comment: 'I think the Celtics will win this one. 🔥',
-    user: '223456789012345',
-    status: 'pending',
-    result: '',
-    created: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-    expand: {
-      matchup: {
-        id: 'match223456789012',
-        code: '20240315BOSMIN',
-        time_utc: '2024-03-15T00:00:00Z',
-        home_code: 'MIN',
-        away_code: 'BOS',
-        scoreboard: '',
-      },
-    },
+  home_meta: {
+    wins: 32,
+    losses: 17,
   },
-  {
-    id: '323456789012345',
-    matchup: 'match323456789012',
-    win_prediction: 'GSW',
-    comment: 'Curry is a beast! 🔥',
-    user: '323456789012345',
-    status: 'pending',
-    result: '',
-    created: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
-    expand: {
-      matchup: {
-        id: 'match323456789012',
-        code: '20240315GSWLAL',
-        time_utc: '2024-03-15T02:30:00Z',
-        home_code: 'LAL',
-        away_code: 'GSW',
-        scoreboard: '',
-      },
-    },
+  scoreboard: '20240203LAL2',
+};
+
+const liveScoreboard: ScoreboardType = {
+  id: '20240203LAL2',
+  code: '20240203LAL2',
+  created: '2024-02-03T19:30:00Z',
+  updated: '2024-02-03T19:30:00Z',
+  status: 2,
+  status_text: '3rd Quarter',
+  home_score: 78,
+  away_score: 82,
+};
+
+const completedMatchup: MatchupType = {
+  code: '20240202/GSWMEM',
+  time_utc: '2024-02-02T00:00:00Z',
+  away_code: 'GSW',
+  home_code: 'MEM',
+  away_meta: {
+    wins: 19,
+    losses: 24,
   },
-];
+  home_meta: {
+    wins: 18,
+    losses: 27,
+  },
+  scoreboard: '20240202GSW1',
+};
+
+const completedScoreboard: ScoreboardType = {
+  id: '20240202GSW1',
+  code: '20240202GSW1',
+  created: '2024-02-02T00:00:00Z',
+  updated: '2024-02-02T00:00:00Z',
+  status: 3,
+  status_text: 'Final',
+  home_score: 98,
+  away_score: 121,
+};
 ---
 
 <Layout title='Matchup Component Test'>
-  <h1 class='text-2xl font-bold mb-6'>Pick Slab Examples</h1>
-
   <div class='flex flex-col gap-4'>
-    <PickSlab pick={mockPicks[0]} user={mockUsers.user1} client:only />
+    <h1 class='text-2xl font-bold mb-4'>Matchup Component Tests</h1>
 
-    <PickSlab pick={mockPicks[1]} user={mockUsers.user2} client:only />
-    <PickSlab pick={mockPicks[2]} user={mockUsers.user3} client:only />
+    <div class='space-y-8'>
+      <section>
+        <h2 class='text-xl font-semibold mb-2'>Future Game</h2>
+        <Matchup matchup={futureMatchup} client:load />
+      </section>
+
+      <section>
+        <h2 class='text-xl font-semibold mb-2'>Live Game</h2>
+        <Matchup
+          matchup={liveMatchup}
+          scoreboard={liveScoreboard}
+          client:load
+        />
+      </section>
+
+      <section>
+        <h2 class='text-xl font-semibold mb-2'>Completed Game</h2>
+        <Matchup
+          matchup={completedMatchup}
+          scoreboard={completedScoreboard}
+          client:load
+        />
+      </section>
+    </div>
   </div>
 </Layout>

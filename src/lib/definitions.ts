@@ -29,6 +29,18 @@ export const MatchupZ = BaseZ.extend({
   time_utc: z.string(),
   home_code: z.string().length(3),
   away_code: z.string().length(3),
+  home_meta: z
+    .object({
+      wins: z.number().min(0),
+      losses: z.number().min(0),
+    })
+    .nullable(),
+  away_meta: z
+    .object({
+      wins: z.number().min(0),
+      losses: z.number().min(0),
+    })
+    .nullable(),
   scoreboard: z.string().length(15).or(z.literal('')),
 });
 

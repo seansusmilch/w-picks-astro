@@ -6,6 +6,11 @@ import { TeamMap } from '@/components/NBA/teamMap';
 import { DateTime } from 'luxon';
 import { PicksSummary } from '@/components/Picks/PicksSummary';
 
+interface TeamMeta {
+  wins?: number;
+  losses?: number;
+}
+
 export function Matchup({
   matchup,
   scoreboard,
@@ -24,6 +29,8 @@ export function Matchup({
             away_code={matchup.away_code}
             home_code={matchup.home_code}
             time_utc={matchup.time_utc}
+            away_meta={matchup.away_meta}
+            home_meta={matchup.home_meta}
           />
         )}
         {[1, 2].includes(gameStatus) && (
@@ -34,6 +41,8 @@ export function Matchup({
             home_score={scoreboard.home_score}
             status_text={scoreboard.status_text}
             status={gameStatus}
+            home_meta={matchup.home_meta}
+            away_meta={matchup.away_meta}
           />
         )}
         {gameStatus === 3 && (
@@ -43,6 +52,8 @@ export function Matchup({
             home_code={matchup.home_code}
             home_score={scoreboard?.home_score}
             status_text={scoreboard?.status_text}
+            home_meta={matchup.home_meta}
+            away_meta={matchup.away_meta}
           />
         )}
       </div>
@@ -65,6 +76,8 @@ export function LiveScore({
   home_score,
   status_text,
   status,
+  home_meta,
+  away_meta,
 }: {
   away_code: string;
   away_score: number;
@@ -72,6 +85,8 @@ export function LiveScore({
   home_score: number;
   status_text: string;
   status: number;
+  home_meta?: TeamMeta;
+  away_meta?: TeamMeta;
 }) {
   const awayTeamShort = TeamMap[away_code]?.name_short || away_code;
   const homeTeamShort = TeamMap[home_code]?.name_short || home_code;
@@ -93,6 +108,7 @@ export function LiveScore({
         <Logo tricode={away_code} className='h-10 w-10' />
         <div className='mt-1 text-center w-24 sm:w-20'>
           <p className='font-bold text-sm truncate'>{awayTeamShort}</p>
+          <TeamRecord team_meta={away_meta} />
         </div>
       </div>
 
@@ -126,6 +142,7 @@ export function LiveScore({
         <Logo tricode={home_code} className='h-10 w-10' />
         <div className='mt-1 text-center w-24 sm:w-20'>
           <p className='font-bold text-sm truncate'>{homeTeamShort}</p>
+          <TeamRecord team_meta={home_meta} />
         </div>
       </div>
     </div>
@@ -136,12 +153,16 @@ function PreGame({
   away_code,
   home_code,
   time_utc,
+  away_meta,
+  home_meta,
 }: {
   away_code: string;
   home_code: string;
   time_utc: string;
+  home_meta?: TeamMeta;
+  away_meta?: TeamMeta;
 }) {
-  const gameTime = new Date(Date.parse(time_utc.replace(' ', 'T')));
+  const gameTime = DateTime.fromSQL(time_utc).toJSDate();
   const homeTeamShort = TeamMap[home_code]?.name_short || home_code;
   const awayTeamShort = TeamMap[away_code]?.name_short || away_code;
   return (
@@ -151,6 +172,7 @@ function PreGame({
         <Logo tricode={away_code} className='h-10 w-10' />
         <div className='mt-1 text-center w-24 sm:w-20'>
           <p className='font-bold text-sm truncate'>{awayTeamShort}</p>
+          <TeamRecord team_meta={away_meta} />
         </div>
       </div>
 
@@ -164,6 +186,7 @@ function PreGame({
         <Logo tricode={home_code} className='h-10 w-10' />
         <div className='mt-1 text-center w-24 sm:w-20'>
           <p className='font-bold text-sm truncate'>{homeTeamShort}</p>
+          <TeamRecord team_meta={home_meta} />
         </div>
       </div>
     </div>
@@ -176,12 +199,16 @@ function PostGame({
   home_code,
   home_score,
   status_text,
+  home_meta,
+  away_meta,
 }: {
   away_code: string;
   away_score: number;
   home_code: string;
   home_score: number;
   status_text: string;
+  home_meta?: TeamMeta;
+  away_meta?: TeamMeta;
 }) {
   const awayTeamShort = TeamMap[away_code]?.name_short || away_code;
   const homeTeamShort = TeamMap[home_code]?.name_short || home_code;
@@ -193,6 +220,7 @@ function PostGame({
         <Logo tricode={away_code} className='h-10 w-10' />
         <div className='mt-1 text-center w-24 sm:w-20'>
           <p className='font-bold text-sm truncate'>{awayTeamShort}</p>
+          <TeamRecord team_meta={away_meta} />
         </div>
       </div>
 
@@ -218,8 +246,17 @@ function PostGame({
         <Logo tricode={home_code} className='h-10 w-10' />
         <div className='mt-1 text-center w-24 sm:w-20'>
           <p className='font-bold text-sm truncate'>{homeTeamShort}</p>
+          <TeamRecord team_meta={home_meta} />
         </div>
       </div>
     </div>
   );
+}
+
+function TeamRecord({ team_meta }: { team_meta: TeamMeta | null }) {
+  return team_meta && team_meta.wins && team_meta.losses ? (
+    <p className='text-xs text-gray-500'>
+      {team_meta.wins}-{team_meta.losses}
+    </p>
+  ) : null;
 }
