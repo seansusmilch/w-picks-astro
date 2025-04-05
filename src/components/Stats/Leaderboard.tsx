@@ -7,20 +7,30 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { UserAvatar } from '@/components/Profile/UserAvatar';
-import type { StatType } from '@/lib/definitions';
+import type { StatType, UserType } from '@/lib/definitions';
 
-export function Leaderboard({ data }: { data: StatType[] }) {
+type StatWithExpand = StatType & {
+  expand: {
+    user: UserType;
+  };
+};
+
+export function Leaderboard({ data }: { data: StatWithExpand[] }) {
   return (
-    <div className='w-full space-y-4'>
+    <div className='w-full overflow-x-auto'>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>#</TableHead>
+            <TableHead className='w-10'>#</TableHead>
             <TableHead>User</TableHead>
-            <TableHead className='text-right'># Wins</TableHead>
-            <TableHead className='text-right'># Picks</TableHead>
-            <TableHead className='text-right'>W/L Ratio</TableHead>
-            <TableHead className='text-right'>Win Rate %</TableHead>
+            <TableHead className='text-right'>Wins</TableHead>
+            <TableHead className='hidden sm:table-cell text-right'>
+              Picks
+            </TableHead>
+            <TableHead className='hidden sm:table-cell text-right'>
+              W/L
+            </TableHead>
+            <TableHead className='text-right'>Win %</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -34,17 +44,23 @@ export function Leaderboard({ data }: { data: StatType[] }) {
                       avatar_url={entry.expand.user.avatar_url}
                       className='h-8 w-8'
                     />
-                    <span>{entry.expand.user.username}</span>
+                    <span className='truncate'>
+                      {entry.expand.user.username}
+                    </span>
                   </div>
                 </a>
               </TableCell>
-              <TableCell className='text-right'>{entry.win_picks}</TableCell>
-              <TableCell className='text-right'>{entry.total_picks}</TableCell>
-              <TableCell className='text-right'>
+              <TableCell className='text-right tabular-nums'>
+                {entry.win_picks}
+              </TableCell>
+              <TableCell className='hidden sm:table-cell text-right tabular-nums'>
+                {entry.total_picks}
+              </TableCell>
+              <TableCell className='hidden sm:table-cell text-right tabular-nums'>
                 {entry.win_loss_ratio?.toFixed(2) || 0}
               </TableCell>
-              <TableCell className='text-right'>
-                {entry.win_pick_rate?.toFixed(2) || 0}%
+              <TableCell className='text-right tabular-nums'>
+                {entry.win_pick_rate?.toFixed(1) || 0}%
               </TableCell>
             </TableRow>
           ))}
