@@ -16,12 +16,7 @@ export function ThemeToggle() {
   const [dropOpen, setDropOpen] = useState(false);
 
   useEffect(() => {
-    // Get theme from cookie using document.cookie
-    const cookies = document.cookie.split(';');
-    const themeCookie = cookies.find((c) => c.trim().startsWith('theme='));
-    const storedTheme = themeCookie
-      ? (themeCookie.split('=')[1].trim() as Theme)
-      : null;
+    const storedTheme = localStorage.getItem('theme') as Theme | null;
 
     if (storedTheme) {
       setThemeState(storedTheme);
@@ -42,8 +37,7 @@ export function ThemeToggle() {
         window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.classList.toggle('dark', isDark);
 
-    // Set theme cookie
-    document.cookie = `theme=${theme};path=/;sameSite=strict;max-age=31536000`; // 1 year
+    localStorage.setItem('theme', theme);
   }, [theme]);
 
   return (

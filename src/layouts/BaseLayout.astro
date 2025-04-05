@@ -20,7 +20,7 @@ const isDark =
 const settings = Astro.locals.user?.record.settings;
 ---
 
-<html lang='en' class:list={[{ dark: isDark }]}>
+<html lang='en'>
   <head>
     <meta charset='UTF-8' />
     <meta name='description' content='Astro description' />
@@ -30,6 +30,16 @@ const settings = Astro.locals.user?.record.settings;
     <link rel='manifest' href='/site.webmanifest' />
     <meta name='generator' content={Astro.generator} />
     <title>{title ? `${title} | ${APP_NAME}` : APP_NAME}</title>
+    <script is:inline>
+      if (typeof localStorage !== 'undefined') {
+        const theme = localStorage.getItem('theme');
+        const isDark =
+          theme === 'dark' ||
+          (theme === 'system' &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', isDark);
+      }
+    </script>
     <ClientRouter />
     <Posthog />
     <script
