@@ -47,6 +47,16 @@ export default defineConfig({
         context: 'server',
         access: 'public',
       }),
+      UMAMI_URL: envField.string({
+        context: 'server',
+        access: 'public',
+        optional: true,
+      }),
+      UMAMI_SITE_ID: envField.string({
+        context: 'server',
+        access: 'public',
+        optional: true,
+      }),
     },
   },
 });

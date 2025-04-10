@@ -6,6 +6,8 @@ import { ClientRouter } from 'astro:transitions';
 import Posthog from '@/components/Posthog.astro';
 import { APP_NAME } from '@/lib/constants';
 import { SettingsProvider } from '@/components/Settings/SettingsProvider';
+import { UMAMI_URL, UMAMI_SITE_ID } from 'astro:env/server';
+
 interface Props {
   title: string;
 }
@@ -42,10 +44,11 @@ const settings = Astro.locals.user?.record.settings;
     </script>
     <ClientRouter />
     <Posthog />
-    <script
-      defer
-      src='https://umuumi.ipv64.de/script.js'
-      data-website-id='c0d26e2f-d316-4d61-9606-9b047134846a'></script>
+    {
+      UMAMI_URL && UMAMI_SITE_ID && (
+        <script defer src={UMAMI_URL} data-website-id={UMAMI_SITE_ID} />
+      )
+    }
   </head>
   <body>
     <SettingsProvider settings={settings} client:load />

@@ -5,6 +5,7 @@
     "luxon",
     "matchups",
     "nanostores",
-    "POSTHOG"
+    "POSTHOG",
+    "UMAMI"
   ]
 }
