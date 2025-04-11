@@ -1,11 +1,11 @@
-import type { PlayoffBracketSeries } from '../lib/types/playoff-bracket';
-import { Logo } from './NBA/Logo';
+import type { PlayoffBracketSeries } from '@/lib/types/playoff-bracket';
+import { Logo } from '@/components/NBA/Logo';
 
 interface PlayoffSeriesProps {
     series: PlayoffBracketSeries;
 }
 
-export default function PlayoffSeries({ series }: PlayoffSeriesProps) {
+export function PlayoffSeries({ series }: PlayoffSeriesProps) {
     const highSeedTeam = {
         name: series.highSeedName || 'TBD',
         wins: series.highSeedSeriesWins,

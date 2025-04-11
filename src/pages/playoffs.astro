@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import PlayoffSeries from '@/components/PlayoffSeries';
-import type { PlayoffBracketResponse, PlayoffBracketSeries } from '@/lib/types/playoff-bracket';
+import { PlayoffBracket } from '@/components/PlayoffBracket/PlayoffBracket';
+import type { PlayoffBracketResponse, BracketData } from '@/lib/types/playoff-bracket';
 
 // Mock Data for a Full Playoff Bracket
 const mockData: PlayoffBracketResponse = {
@@ -279,16 +279,6 @@ const response = await fetch(
     'https://cdn.nba.com/static/json/staticData/brackets/2023/PlayoffBracket.json'
 );
 const data: PlayoffBracketResponse = await response.json();
-
-interface RoundSeries {
-    [round: number]: PlayoffBracketSeries[];
-}
-interface BracketData {
-    East: RoundSeries;
-    West: RoundSeries;
-    Finals: PlayoffBracketSeries | null; // Only one finals series
-}
-
 // Process data into a structure suitable for bracket layout
 const bracketData: BracketData = data.bracket.playoffBracketSeries.reduce(
     (acc, series) => {
@@ -319,101 +309,7 @@ const roundNames = ['First Round', 'Conf. Semifinals', 'Conf. Finals', 'NBA Fina
     <h1 class='text-3xl font-bold text-center pb-4'>Playoffs</h1>
 
     {/* Single horizontal scroll container */}
-    <div class='flex overflow-scroll h-[calc(100vh-9rem)]'>
-        {/* Round 1 Column */}
-        <div class='h-[1500px] shrink-0 flex flex-col justify-center'>
-            <h3 class='text-lg font-medium text-center mb-4 sticky top-0 bg-background z-10'>
-                {roundNames[0]}
-            </h3>
-            {/* East R1 */}
-            <div class='h-[700px] flex flex-col justify-around pr-4'>
-                {
-                    (bracketData.East[1] || []).map((series) => (
-                        <PlayoffSeries client:visible series={series} />
-                    ))
-                }
-            </div>
-            {/* Divider */}
-            <div class='flex flex-col items-center'>
-                <span class='text-sm text-center'>EAST</span>
-                <div class='border-t border-2 w-full'></div>
-                <span class='text-sm text-center'>WEST</span>
-            </div>
-            {/* West R1 */}
-            <div class='h-[700px] flex flex-col justify-around pr-4'>
-                {
-                    (bracketData.West[1] || []).map((series) => (
-                        <PlayoffSeries client:visible series={series} />
-                    ))
-                }
-            </div>
-        </div>
-
-        {/* Round 2 Column */}
-        <div class='h-[1500px] shrink-0 flex flex-col justify-center'>
-            <h3 class='text-lg font-medium text-center mb-4 sticky top-0 bg-background z-10'>
-                {roundNames[1]}
-            </h3>
-            {/* East R2 */}
-            <div class='h-[500px] flex flex-col justify-around px-4'>
-                {
-                    (bracketData.East[2] || []).map((series) => (
-                        <PlayoffSeries client:visible series={series} />
-                    ))
-                }
-            </div>
-            {/* Divider */}
-            <div class='flex flex-col items-center'>
-                <span class='text-sm text-center'>EAST</span>
-                <div class='border-t border-2 w-full'></div>
-                <span class='text-sm text-center'>WEST</span>
-            </div>
-            {/* West R2 */}
-            <div class='h-[500px] flex flex-col justify-around px-4'>
-                {
-                    (bracketData.West[2] || []).map((series) => (
-                        <PlayoffSeries client:visible series={series} />
-                    ))
-                }
-            </div>
-        </div>
-
-        {/* Round 3 Column */}
-        <div class='h-[1500px] shrink-0 flex flex-col justify-center'>
-            <h3 class='text-lg font-medium text-center mb-4 sticky top-0 bg-background z-10'>
-                {roundNames[2]}
-            </h3>
-            {/* East R3 */}
-            <div class='h-[300px] flex flex-col justify-around px-4'>
-                {
-                    (bracketData.East[3] || []).map((series) => (
-                        <PlayoffSeries client:visible series={series} />
-                    ))
-                }
-            </div>
-            {/* Divider */}
-            <div class='flex flex-col items-center'>
-                <span class='text-sm text-center'>EAST</span>
-                <div class='border-t border-2 w-full'></div>
-                <span class='text-sm text-center'>WEST</span>
-            </div>
-            {/* West R3 */}
-            <div class='h-[300px] flex flex-col justify-around px-4'>
-                {
-                    (bracketData.West[3] || []).map((series) => (
-                        <PlayoffSeries client:visible series={series} />
-                    ))
-                }
-            </div>
-        </div>
-
-        {/* Finals Column */}
-        <div class='h-[1500px] shrink-0 flex flex-col justify-center'>
-            {/* Give height for centering */}
-            <h3 class='text-lg font-medium text-center mb-4 sticky top-0 bg-background z-10'>
-                {roundNames[3]}
-            </h3>
-            {bracketData.Finals && <PlayoffSeries client:visible series={bracketData.Finals} />}
-        </div>
+    <div class='overflow-scroll h-[calc(100vh-9rem)]'>
+        <PlayoffBracket client:visible bracketData={bracketData} roundNames={roundNames} />
     </div>
 </Layout>

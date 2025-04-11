@@ -42,3 +42,13 @@ export interface PlayoffBracketResponse {
         currentRound: number;
     };
 }
+
+export interface RoundSeries {
+    [round: number]: PlayoffBracketSeries[];
+}
+
+export interface BracketData {
+    East: RoundSeries;
+    West: RoundSeries;
+    Finals: PlayoffBracketSeries | null; // Only one finals series
+}
