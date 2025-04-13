@@ -15,6 +15,11 @@ const auth = defineMiddleware(async ({ locals, request, cookies }, next) => {
   locals.pb = getPB();
   locals.apb = getAPB();
 
+  // Skip auth for cron jobs
+  if (request.url.includes('/api/cron')) {
+    return next();
+  }
+
   try {
     if (!locals.apb.authStore.isValid || !locals.apb.authStore.isSuperuser) {
       await locals.apb

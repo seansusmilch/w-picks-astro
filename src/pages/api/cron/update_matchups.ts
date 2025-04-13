@@ -11,14 +11,13 @@ import {
   createErrorResponse,
   type BatchOperationTracker,
 } from '@/lib/cron-utils';
+import { fetchNBAScheduleEndpoint } from '@/lib/nba';
 
 // Create a named enhanced logger for this file
 const logger = getCronLogger('update-matchups');
 
 const PAST_CUTOFF = 3;
 const FUTURE_CUTOFF = 30;
-const NBA_SCHEDULE_URL =
-  'https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json';
 
 interface NBAGame {
   gameCode: string;
@@ -278,8 +277,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     // Track NBA API fetch
     const fetchStart = performance.now();
-    const response = await fetch(NBA_SCHEDULE_URL);
-    const matchupsJson = await response.json();
+    const matchupsJson = await fetchNBAScheduleEndpoint();
     const fetchEnd = performance.now();
     logger.info(
       { durationMs: (fetchEnd - fetchStart).toFixed(2) },

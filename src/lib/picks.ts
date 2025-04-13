@@ -1,4 +1,4 @@
-import { PickZ, type PickType } from '@/lib/definitions';
+import { PickZ, type PickType, type ScoreboardType } from '@/lib/definitions';
 import { getAPB, getPB, getUser } from '@/lib/data';
 import {
   getMatchupByCode,
@@ -204,5 +204,29 @@ export async function getLatestPicks(limit: number = 10, userId?: string) {
       picks: [],
       users: [],
     };
+  }
+}
+
+export async function updatePicksStatus(scoreboard: ScoreboardType) {
+  logger.info(
+    { code: scoreboard.code, status: scoreboard.status },
+    'Updating picks status'
+  );
+  switch (scoreboard.status) {
+    case 1:
+      await updatePicksStatusByCode(scoreboard.code, 'upcoming');
+      break;
+    case 2:
+      await updatePicksStatusByCode(scoreboard.code, 'live');
+      break;
+    case 3:
+      await updatePicksStatusByCode(scoreboard.code, 'past');
+      break;
+    default:
+      logger.warn(
+        { code: scoreboard.code, status: scoreboard.status },
+        'Unknown scoreboard status'
+      );
+      break;
   }
 }

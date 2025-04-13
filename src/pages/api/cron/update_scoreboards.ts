@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getAPB } from '@/lib/data';
 import { CRON_SECRET } from 'astro:env/server';
-import { getMatchupByCode, getTodayMatchups } from '@/lib/matchups';
+import { getTodayMatchups } from '@/lib/matchups';
 import {
   attachMatchupToScoreboard,
   getScoreboardByCode,
@@ -14,39 +14,14 @@ import {
   createSuccessResponse,
   createErrorResponse,
 } from '@/lib/cron-utils';
+import { fetchNBAScoreboardsEndpoint } from '@/lib/nba';
+import type { NBAScoreboardsResponse } from '@/lib/types/nba-scoreboards';
+import type { ScoreboardType } from '@/lib/definitions';
 
 // Create a named logger for this file
 const logger = getLogger('update-scoreboards');
 
-const NBA_SCOREBOARDS_URL =
-  'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json';
-
-interface Scoreboard {
-  code: string;
-  status: number;
-  status_text: string;
-  away_score: number;
-  home_score: number;
-}
-
-interface NBAScoreboardResponse {
-  scoreboard: {
-    games: Array<{
-      gameCode: string;
-      gameStatus: number;
-      gameStatusText: string;
-      gameClock: string;
-      awayTeam: {
-        score: number;
-      };
-      homeTeam: {
-        score: number;
-      };
-    }>;
-  };
-}
-
-function parseScoreboards(rawData: NBAScoreboardResponse): Scoreboard[] {
+function parseScoreboards(rawData: NBAScoreboardsResponse): ScoreboardType[] {
   const todaysScoreboards = rawData.scoreboard.games;
   return todaysScoreboards.map((game) => ({
     code: game.gameCode,
@@ -57,7 +32,7 @@ function parseScoreboards(rawData: NBAScoreboardResponse): Scoreboard[] {
   }));
 }
 
-async function updatePicksStatus(scoreboard: Scoreboard) {
+async function updatePicksStatus(scoreboard: ScoreboardType) {
   logger.info(
     { code: scoreboard.code, status: scoreboard.status },
     'Updating picks status'
@@ -81,7 +56,7 @@ async function updatePicksStatus(scoreboard: Scoreboard) {
   }
 }
 
-async function updateScoreboard(scoreboard: Scoreboard) {
+async function updateScoreboard(scoreboard: ScoreboardType) {
   const pb = getAPB();
 
   // await attachAllExistingMatchupsToScoreboards();
@@ -146,8 +121,7 @@ export const POST: APIRoute = async ({ request }) => {
     // Fetch scoreboards from NBA API with performance tracking
     logger.info('Fetching scoreboards from NBA API');
     const fetchStart = performance.now();
-    const response = await fetch(NBA_SCOREBOARDS_URL);
-    const scoreboardsJson = await response.json();
+    const scoreboardsJson = await fetchNBAScoreboardsEndpoint();
     const fetchEnd = performance.now();
     logger.info(
       { durationMs: (fetchEnd - fetchStart).toFixed(2) },

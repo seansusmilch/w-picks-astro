@@ -18,6 +18,9 @@ import {
   createSuccessResponse,
   createErrorResponse,
 } from '@/lib/cron-utils';
+import { updateScoreboard } from '@/lib/scoreboards';
+import { updatePicksStatus } from '@/lib/picks';
+import { fetchNBAScheduleEndpoint } from '@/lib/nba';
 
 // Create a named logger for this file
 const logger = getLogger('cleanup');
@@ -190,6 +193,91 @@ async function updateLeftBehindPicks() {
   };
 }
 
+async function retroactivelyFetchScoreboards() {
+  logger.info('Starting to fetch historical scoreboards');
+
+  // Fetch all game data from the NBA API
+  const fetchStart = performance.now();
+  const data = await fetchNBAScheduleEndpoint();
+  const fetchEnd = performance.now();
+
+  logger.info(
+    { durationMs: (fetchEnd - fetchStart).toFixed(2) },
+    'NBA historical data fetch completed'
+  );
+
+  // Process the game data - only get completed games (status 3)
+  const games = [];
+  const gameDates = data.leagueSchedule?.gameDates || [];
+
+  for (const gameDate of gameDates) {
+    if (!gameDate.games) continue;
+
+    for (const game of gameDate.games) {
+      // Only process completed games (status 3 = Final)
+      if (game.gameStatus === 3) {
+        games.push({
+          code: game.gameCode,
+          status: game.gameStatus,
+          status_text: game.gameStatusText,
+          away_score: game.awayTeam.score,
+          home_score: game.homeTeam.score,
+        });
+      }
+    }
+  }
+
+  logger.info({ count: games.length }, 'Found completed games to process');
+
+  // Update each scoreboard in the database
+  const updateStart = performance.now();
+  const scoreBoardUpdatePromises = games.map(async (scoreboard) => {
+    const updateStart = performance.now();
+    const res = await updateScoreboard(scoreboard);
+    const statusUpdateStart = performance.now();
+    await updatePicksStatus(scoreboard);
+    const endTime = performance.now();
+
+    return {
+      ...res,
+      metrics: {
+        scoreboardUpdateMs: (statusUpdateStart - updateStart).toFixed(2),
+        statusUpdateMs: (endTime - statusUpdateStart).toFixed(2),
+        totalMs: (endTime - updateStart).toFixed(2),
+      },
+    };
+  });
+
+  const results = await Promise.all(scoreBoardUpdatePromises);
+  const updateEnd = performance.now();
+
+  const createdCount = results.filter((r) => r.action === 'CREATED').length;
+  const updatedCount = results.filter((r) => r.action === 'UPDATED').length;
+  const failed = results.filter((r) => r.action === 'FAILED');
+  const failedCount = failed.length;
+
+  logger.info(
+    {
+      created: createdCount,
+      updated: updatedCount,
+      failed: failedCount,
+      durationMs: (updateEnd - updateStart).toFixed(2),
+    },
+    'Historical scoreboard update completed'
+  );
+
+  if (failedCount > 0) {
+    logger.warn({ failed }, 'Some historical scoreboard updates failed');
+  }
+
+  return {
+    total: games.length,
+    created: createdCount,
+    updated: updatedCount,
+    failed: failedCount,
+  };
+}
+
 export const POST: APIRoute = async ({ request }) => {
   const jobStartTime = performance.now();
   const startTime = DateTime.now().toISO();
@@ -200,6 +288,7 @@ export const POST: APIRoute = async ({ request }) => {
     picksUpdated: { total: 0, success: 0, errors: 0 },
     scoreboardsProcessed: { total: 0, success: 0, errors: 0 },
     usersDeleted: { total: 0, success: 0, errors: 0 },
+    historicalScoreboards: { total: 0, created: 0, updated: 0, failed: 0 },
     startTime,
   };
 
@@ -214,6 +303,12 @@ export const POST: APIRoute = async ({ request }) => {
     stats.scoreboardsProcessed = await trackPerformance(
       'attachAllExistingMatchupsToScoreboards',
       async () => attachAllExistingMatchupsToScoreboards(),
+      logger
+    );
+
+    stats.historicalScoreboards = await trackPerformance(
+      'retroactivelyFetchScoreboards',
+      async () => retroactivelyFetchScoreboards(),
       logger
     );
 

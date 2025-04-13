@@ -1,5 +1,5 @@
 import { getAPB, getPB } from '@/lib/data';
-import { ScoreboardZ } from '@/lib/definitions';
+import { ScoreboardZ, type ScoreboardType } from '@/lib/definitions';
 import { getMatchupByCode, getMatchupById } from '@/lib/matchups';
 import { getLogger } from '@/lib/logger';
 
@@ -66,4 +66,32 @@ export async function getScoreboardsByCodePrefix(codePrefix: string) {
     filter: pb.filter(`code ?~ {:codePrefix}`, { codePrefix }),
   });
   return scoreboards;
+}
+
+export async function updateScoreboard(scoreboard: ScoreboardType) {
+  const pb = getAPB();
+
+  // await attachAllExistingMatchupsToScoreboards();
+
+  try {
+    const existingScoreboard = await getScoreboardByCode(scoreboard.code);
+    if (existingScoreboard) {
+      const newRec = await pb
+        .collection('scoreboards')
+        .update(existingScoreboard.id, scoreboard);
+      await attachMatchupToScoreboard(existingScoreboard.id, scoreboard.code);
+      return { action: 'UPDATED', id: newRec.id };
+    }
+
+    const newRec = await pb.collection('scoreboards').create(scoreboard);
+    await attachMatchupToScoreboard(newRec.id, scoreboard.code);
+    return { action: 'CREATED', id: newRec.id };
+  } catch (error) {
+    logger.error({ error, scoreboard }, 'Error updating scoreboard');
+    return {
+      action: 'FAILED',
+      scoreboard: scoreboard,
+      error: error.message,
+    };
+  }
 }
