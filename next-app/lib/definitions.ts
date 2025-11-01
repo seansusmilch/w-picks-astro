@@ -83,3 +83,10 @@ export const PickZ = BaseZ.extend({
 }).required({ matchup: true, win_prediction: true, user: true });
 
 export type PickType = z.infer<typeof PickZ>;
+
+export const ReactionZ = z.object({
+  user: z.string().length(15),
+  pick: z.string().length(15),
+});
+
+export type ReactionType = z.infer<typeof ReactionZ>;

@@ -3,6 +3,7 @@ import { getAuthenticatedUser } from '@/lib/pocketbase-server';
 import { getMatchupPageData } from '@/app/actions/matchups';
 import { MatchupDisplay } from '@/components/matchup/matchup-display';
 import { PicksSummary } from '@/components/matchup/picks-summary';
+import { PicksView } from '@/components/matchup/picks-view';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface MatchupPageProps {
@@ -41,12 +42,24 @@ export default async function MatchupPage({ params }: MatchupPageProps) {
 
       {/* Picks Summary */}
       {picks.length > 0 && (
-        <Card>
+        <Card className="mb-4 sm:mb-6">
           <CardHeader className="pb-3 sm:pb-4">
             <CardTitle className="text-base sm:text-lg">Picks Summary</CardTitle>
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
             <PicksSummary picks={picks} matchup={matchup} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Picks View (Stack/Table) */}
+      {picks.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3 sm:pb-4">
+            <CardTitle className="text-base sm:text-lg">All Picks</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6">
+            <PicksView picks={picks} />
           </CardContent>
         </Card>
       )}
