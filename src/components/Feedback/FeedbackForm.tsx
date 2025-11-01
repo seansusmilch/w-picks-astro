@@ -1,28 +1,33 @@
+'use client';
+
 import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { actions } from 'astro:actions';
+import { submitFeedback } from '@/actions';
 
 export function FeedbackForm({ onSubmit }: { onSubmit?: () => void }) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     setLoading(true);
     e.preventDefault();
-    const formData = new FormData(e.target);
-    formData.set('page', window.location.href);
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get('name') as string;
+    const feedback = formData.get('feedback') as string;
+    const page = typeof window !== 'undefined' ? window.location.href : '';
 
     try {
-      const { error } = await actions.submitFeedback(formData);
-      if (error) {
-        console.error('Error submitting feedback:', error);
-        setErrorMessage('Failed to submit feedback. Please try again.');
-        return;
-      }
-
+      await submitFeedback({
+        name,
+        feedback,
+        page,
+      });
       setErrorMessage(null);
       onSubmit?.();
+    } catch (err: any) {
+      console.error('Error submitting feedback:', err);
+      setErrorMessage('Failed to submit feedback. Please try again.');
     } finally {
       setLoading(false);
     }

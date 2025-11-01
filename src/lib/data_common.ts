@@ -1,13 +1,16 @@
-import { POCKETBASE_PUBLIC_URL } from 'astro:env/client';
 import { DateTime } from 'luxon';
 import type { RecordModel } from 'pocketbase';
 
+const POCKETBASE_PUBLIC_URL = process.env.POCKETBASE_PUBLIC_URL || process.env.NEXT_PUBLIC_POCKETBASE_URL || '';
+
 export const expandAvatarUrl = (items: RecordModel[]) => {
   return items.map((item) => {
-    item.expand.user.avatar_url = getUserAvatarUrl(
-      item.expand.user.id,
-      item.expand.user.avatar
-    );
+    if (item.expand?.user) {
+      item.expand.user.avatar_url = getUserAvatarUrl(
+        item.expand.user.id,
+        item.expand.user.avatar
+      );
+    }
     return item;
   });
 };

@@ -1,4 +1,4 @@
-import { z } from 'astro/zod';
+import { z } from 'zod';
 
 export const BaseZ = z.object({
   id: z.string().length(15),

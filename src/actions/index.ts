@@ -1,82 +1,80 @@
-import { ActionError, defineAction } from 'astro:actions';
-import { z } from 'astro/zod';
+'use server';
+
+import { z } from 'zod';
 import { PostHogClient } from '@/lib/posthog';
-import { POSTHOG_API_TOKEN } from 'astro:env/server';
 import { getMatchupsAndPicksByCodePrefix } from '@/lib/matchups';
 import { getScoreboardsByCodePrefix } from '@/lib/scoreboards';
 import type { GameType } from '@/lib/definitions';
 import { expandAvatarUrl } from '@/lib/data_common';
 import { getLogger } from '@/lib/logger';
-import { picks } from './picks';
-import { users } from './users';
-import { stats } from './stats';
-import { reactions } from './reactions';
+import { cookies } from 'next/headers';
+import { getRequestPB } from '@/lib/data';
 
 const logger = getLogger('actions:index');
+const POSTHOG_API_TOKEN = process.env.POSTHOG_API_TOKEN || '';
 
-export const server = {
-  isFeatureEnabled: defineAction({
-    accept: 'json',
-    input: z.object({
-      feature: z.string(),
-    }),
-    async handler({ feature }, { cookies }) {
-      const cookie = cookies.get(`ph_${POSTHOG_API_TOKEN}_posthog`);
-      const distinctId = cookie?.json().distinct_id;
-      if (!distinctId) {
-        return crypto.randomUUID();
-      }
-      const posthogClient = PostHogClient();
-      return await posthogClient.isFeatureEnabled(feature, distinctId);
-    },
-  }),
-  getGamesByCodePrefix: defineAction({
-    accept: 'json',
-    input: z.object({
-      codePrefix: z.string(),
-    }),
-    async handler({ codePrefix }) {
-      const matchupsAndPicks = await getMatchupsAndPicksByCodePrefix(
-        codePrefix
-      );
-      const scoreboards = await getScoreboardsByCodePrefix(codePrefix);
+const isFeatureEnabledSchema = z.object({
+  feature: z.string(),
+});
 
-      const games: GameType[] = [];
-      for (const matchup of matchupsAndPicks) {
-        const picks = expandAvatarUrl(matchup.expand?.picks_via_matchup || []);
-        const scoreboard =
-          scoreboards.find((sb) => sb.code === matchup.code) || null;
-        delete matchup.expand;
-        games.push({ matchup, scoreboard, picks });
-      }
-      return games;
-    },
-  }),
-  picks,
-  users,
-  stats,
-  reactions,
+export async function isFeatureEnabled(data: z.infer<typeof isFeatureEnabledSchema>) {
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get(`ph_${POSTHOG_API_TOKEN}_posthog`);
+  
+  let distinctId: string;
+  if (cookie) {
+    try {
+      const cookieData = JSON.parse(cookie.value);
+      distinctId = cookieData.distinct_id;
+    } catch (error) {
+      distinctId = crypto.randomUUID();
+    }
+  } else {
+    distinctId = crypto.randomUUID();
+  }
+  
+  const posthogClient = PostHogClient();
+  if (!posthogClient) {
+    return false;
+  }
+  return await posthogClient.isFeatureEnabled(data.feature, distinctId);
+}
 
-  submitFeedback: defineAction({
-    accept: 'form',
-    input: z.object({
-      name: z.string(),
-      feedback: z.string(),
-      page: z.string().url(),
-    }),
-    async handler({ name, feedback, page }, { locals }) {
-      const pb = locals.pb;
-      const data = { name, feedback, page };
+const getGamesByCodePrefixSchema = z.object({
+  codePrefix: z.string(),
+});
 
-      try {
-        await pb.collection('feedback').create(data);
-      } catch (error) {
-        logger.error({ error }, 'Error submitting feedback');
-        throw new ActionError({
-          message: 'Failed to submit feedback',
-          code: 'INTERNAL_SERVER_ERROR',
-        });
-      }
-    },
-  }),
-};
+export async function getGamesByCodePrefix(data: z.infer<typeof getGamesByCodePrefixSchema>) {
+  const matchupsAndPicks = await getMatchupsAndPicksByCodePrefix(
+    data.codePrefix
+  );
+  const scoreboards = await getScoreboardsByCodePrefix(data.codePrefix);
+
+  const games: GameType[] = [];
+  for (const matchup of matchupsAndPicks) {
+    const picks = expandAvatarUrl(matchup.expand?.picks_via_matchup || []);
+    const scoreboard =
+      scoreboards.find((sb) => sb.code === matchup.code) || null;
+    delete matchup.expand;
+    games.push({ matchup, scoreboard, picks });
+  }
+  return games;
+}
+
+const submitFeedbackSchema = z.object({
+  name: z.string(),
+  feedback: z.string(),
+  page: z.string().url(),
+});
+
+export async function submitFeedback(data: z.infer<typeof submitFeedbackSchema>) {
+  // Use request PB which will automatically load auth from cookies if available
+  const pb = await getRequestPB();
+
+  try {
+    await pb.collection('feedback').create(data);
+  } catch (error) {
+    logger.error({ error }, 'Error submitting feedback');
+    throw new Error('Failed to submit feedback');
+  }
+}

@@ -1,5 +1,5 @@
 import { PickZ, type PickType, type ScoreboardType } from '@/lib/definitions';
-import { getAPB, getPB, getUser } from '@/lib/data';
+import { getAPB, getRequestPB, getRequestUser } from '@/lib/data';
 import {
   getMatchupByCode,
   getWinningTeamByMatchupId,
@@ -22,7 +22,7 @@ export function validatePick(pick: any) {
 
 async function checkUserPermission(pickId: string, matchupId: string) {
   logger.debug({ pickId, matchupId }, 'Checking user permission');
-  const pb = getPB();
+  const pb = await getRequestPB();
   if (!pb.authStore.isValid) {
     throw new Error('User not authenticated');
   }
@@ -31,7 +31,11 @@ async function checkUserPermission(pickId: string, matchupId: string) {
     throw new Error('Cannot create/modify a pick for a past match');
   }
 
-  const user = await getUser();
+  const user = await getRequestUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+  
   const pick = await getPickById(pickId);
   if (!pick) return;
 
@@ -42,8 +46,12 @@ async function checkUserPermission(pickId: string, matchupId: string) {
 
 export async function upsertPick(pick: PickType) {
   await checkUserPermission(pick.id, pick.matchup);
-  const pb = getPB();
-  const user = await getUser();
+  const pb = await getRequestPB();
+  const user = await getRequestUser();
+  
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
 
   if (pick.win_prediction === 'indeterminate') {
     throw new Error(
@@ -81,13 +89,13 @@ export async function upsertPick(pick: PickType) {
 export async function deletePick(pickId: string, matchupId: string) {
   logger.debug({ pickId, matchupId }, 'Deleting pick');
   await checkUserPermission(pickId, matchupId);
-  const pb = getPB();
+  const pb = await getRequestPB();
   return await pb.collection('picks').delete(pickId);
 }
 
 export async function getPickById(id: string) {
   if (!id) return null;
-  const pb = getPB();
+  const pb = await getRequestPB();
 
   const pickRecord = await pb
     .collection('picks')
@@ -106,7 +114,7 @@ export async function getPickById(id: string) {
 }
 
 export async function getPicksByMatchupId(matchupId: string) {
-  const pb = getAPB();
+  const pb = await getAPB();
   const picks = await pb.collection('picks').getFullList({
     filter: pb.filter('matchup = {:matchupId}', { matchupId }),
     expand: 'user',
@@ -130,7 +138,7 @@ export async function updatePicksStatusByMatchupId(
 ) {
   const picks = await getPicksByMatchupId(matchupId);
   if (!picks) return;
-  const pb = getAPB();
+  const pb = await getAPB();
 
   await Promise.all(
     picks.map(async (pick) => {
@@ -164,7 +172,7 @@ export async function getPicksByUser(
   userId: string,
   status?: 'upcoming' | 'live' | 'past'
 ) {
-  const pb = getPB();
+  const pb = await getRequestPB();
 
   let filter = pb.filter('user = {:userId}', { userId });
   if (status) {
@@ -183,7 +191,7 @@ export async function getPicksByUser(
 }
 
 export async function getLatestPicks(limit: number = 10, userId?: string) {
-  const pb = getAPB();
+  const pb = await getAPB();
 
   try {
     const picks = await pb.collection('picks').getList(1, limit, {

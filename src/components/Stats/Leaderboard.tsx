@@ -34,22 +34,24 @@ export function Leaderboard({ data }: { data: StatWithExpand[] }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((entry, index) => (
-            <TableRow key={entry.expand.user.id}>
-              <TableCell className='font-medium'>{index + 1}</TableCell>
-              <TableCell>
-                <a href={`/profile/${entry.expand.user.username}`}>
-                  <div className='flex items-center gap-2'>
-                    <UserAvatar
-                      avatar_url={entry.expand.user.avatar_url}
-                      className='h-8 w-8'
-                    />
-                    <span className='truncate'>
-                      {entry.expand.user.username}
-                    </span>
-                  </div>
-                </a>
-              </TableCell>
+          {data
+            .filter((entry) => entry.expand?.user)
+            .map((entry, index) => (
+              <TableRow key={entry.expand.user.id}>
+                <TableCell className='font-medium'>{index + 1}</TableCell>
+                <TableCell>
+                  <a href={`/profile/${entry.expand.user.username}`}>
+                    <div className='flex items-center gap-2'>
+                      <UserAvatar
+                        avatar_url={entry.expand.user.avatar_url}
+                        className='h-8 w-8'
+                      />
+                      <span className='truncate'>
+                        {entry.expand.user.username}
+                      </span>
+                    </div>
+                  </a>
+                </TableCell>
               <TableCell className='text-right tabular-nums'>
                 {entry.win_picks}
               </TableCell>

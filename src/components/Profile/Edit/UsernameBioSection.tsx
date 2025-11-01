@@ -1,12 +1,16 @@
+'use client';
+
 import { useState, useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { actions } from 'astro:actions';
+import { updateProfile } from '@/actions/users';
+import { useRouter } from 'next/navigation';
 
 export function UsernameBioSection({ user }: { user: any }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -16,13 +20,13 @@ export function UsernameBioSection({ user }: { user: any }) {
     const formData = new FormData(e.currentTarget);
 
     try {
-      const { error } = await actions.users.updateProfile(formData);
-
-      if (error) {
-        setError(error.message);
-      }
-    } catch (err) {
-      setError('Failed to update profile');
+      await updateProfile({
+        username: formData.get('username') as string,
+        bio: formData.get('bio') as string,
+      });
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }

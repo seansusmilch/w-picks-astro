@@ -1,3 +1,5 @@
+'use client';
+
 import {
   createContext,
   useContext,
@@ -7,7 +9,7 @@ import {
 } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { GameType, PageEntryType } from '@/lib/definitions';
-import { actions } from 'astro:actions';
+import { getGamesByCodePrefix } from '@/actions';
 import type { CarouselApi } from '@/components/ui/carousel';
 import { queryClient } from '@/stores/query';
 import { useStore } from '@nanostores/react';
@@ -49,11 +51,14 @@ export function GamesProvider({
     {
       queryKey: ['games', currentPage],
       queryFn: async () => {
-        const { data, error } = await actions.getGamesByCodePrefix({
-          codePrefix: currentPage,
-        });
-        if (error) throw new Error(error.message);
-        return data;
+        try {
+          const data = await getGamesByCodePrefix({
+            codePrefix: currentPage,
+          });
+          return data;
+        } catch (err: any) {
+          throw new Error(err.message || 'Failed to fetch games');
+        }
       },
       refetchInterval: 2500,
       staleTime: 30 * 1000,

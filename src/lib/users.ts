@@ -6,7 +6,7 @@ export async function getProfileById(id: string) {
 }
 
 export async function getProfilesByIds(ids: string[]) {
-  const pb = getAPB();
+  const pb = await getAPB();
 
   const idsFilter = ids
     .map((id) => pb.filter('id = {:id}', { id }))

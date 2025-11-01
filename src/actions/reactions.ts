@@ -1,99 +1,96 @@
-import { defineAction } from 'astro:actions';
-import { z } from 'astro:schema';
+'use server';
+
+import { z } from 'zod';
 import { createReaction, deleteReaction, getReactions } from '@/lib/reactions';
-import { ActionError } from 'astro:actions';
 import { getLogger } from '@/lib/logger';
+import { cookies } from 'next/headers';
+import { getUser } from '@/lib/data';
 
 const logger = getLogger('actions:reactions');
 
-export const reactions = {
-  addReaction: defineAction({
-    accept: 'json',
-    input: z.object({
-      pickId: z.string(),
-    }),
-    async handler({ pickId }, { locals }) {
-      const { user } = locals;
-      if (!user?.record?.id) {
-        throw new ActionError({
-          code: 'UNAUTHORIZED',
-          message: 'User not logged in',
-        });
-      }
+const addReactionSchema = z.object({
+  pickId: z.string(),
+});
 
-      try {
-        const reaction = await createReaction({
-          user: user.record.id,
-          pick: pickId,
-        });
+export async function addReaction(data: z.infer<typeof addReactionSchema>) {
+  const cookieStore = await cookies();
+  const pbAuth = cookieStore.get('pb_auth');
+  
+  if (!pbAuth) {
+    throw new Error('User not logged in');
+  }
 
-        return reaction;
-      } catch (error) {
-        logger.error({ error, pickId }, 'Error in createReaction action');
-        throw new ActionError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to create reaction',
-        });
-      }
-    },
-  }),
+  const user = await getUser(pbAuth.value);
+  if (!user?.record?.id) {
+    throw new Error('User not logged in');
+  }
 
-  removeReaction: defineAction({
-    accept: 'json',
-    input: z.object({
-      pickId: z.string(),
-    }),
-    async handler({ pickId }, { locals }) {
-      const { user } = locals;
-      if (!user?.record?.id) {
-        throw new ActionError({
-          code: 'UNAUTHORIZED',
-          message: 'User not logged in',
-        });
-      }
+  try {
+    const reaction = await createReaction({
+      user: user.record.id,
+      pick: data.pickId,
+    });
 
-      try {
-        await deleteReaction({
-          user: user.record.id,
-          pick: pickId,
-        });
-      } catch (error) {
-        logger.error({ error, pickId }, 'Error in removeReaction action');
-        throw new ActionError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to remove reaction',
-        });
-      }
-    },
-  }),
+    return reaction;
+  } catch (error) {
+    logger.error({ error, pickId: data.pickId }, 'Error in createReaction action');
+    throw new Error('Failed to create reaction');
+  }
+}
 
-  getReactions: defineAction({
-    accept: 'json',
-    input: z.object({
-      pickId: z.string().length(15),
-    }),
-    async handler({ pickId }, { locals }) {
-      const { user } = locals;
-      if (!user?.record?.id) {
-        throw new ActionError({
-          code: 'UNAUTHORIZED',
-          message: 'User not logged in',
-        });
-      }
+const removeReactionSchema = z.object({
+  pickId: z.string(),
+});
 
-      try {
-        const reactions = await getReactions({
-          pick: pickId,
-          user: user.record.id,
-        });
-        return reactions;
-      } catch (error) {
-        logger.error({ error, pickId }, 'Error in getReactions action');
-        throw new ActionError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to get reactions',
-        });
-      }
-    },
-  }),
-};
+export async function removeReaction(data: z.infer<typeof removeReactionSchema>) {
+  const cookieStore = await cookies();
+  const pbAuth = cookieStore.get('pb_auth');
+  
+  if (!pbAuth) {
+    throw new Error('User not logged in');
+  }
+
+  const user = await getUser(pbAuth.value);
+  if (!user?.record?.id) {
+    throw new Error('User not logged in');
+  }
+
+  try {
+    await deleteReaction({
+      user: user.record.id,
+      pick: data.pickId,
+    });
+  } catch (error) {
+    logger.error({ error, pickId: data.pickId }, 'Error in removeReaction action');
+    throw new Error('Failed to remove reaction');
+  }
+}
+
+const getReactionsSchema = z.object({
+  pickId: z.string().length(15),
+});
+
+export async function getReactionsAction(data: z.infer<typeof getReactionsSchema>) {
+  const cookieStore = await cookies();
+  const pbAuth = cookieStore.get('pb_auth');
+  
+  if (!pbAuth) {
+    throw new Error('User not logged in');
+  }
+
+  const user = await getUser(pbAuth.value);
+  if (!user?.record?.id) {
+    throw new Error('User not logged in');
+  }
+
+  try {
+    const reactions = await getReactions({
+      pick: data.pickId,
+      user: user.record.id,
+    });
+    return reactions;
+  } catch (error) {
+    logger.error({ error, pickId: data.pickId }, 'Error in getReactions action');
+    throw new Error('Failed to get reactions');
+  }
+}

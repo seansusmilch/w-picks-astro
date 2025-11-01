@@ -1,17 +1,7 @@
-/**
- * This is a cron job that will cleanup the database.
- *
- * 1. Ensure every scoreboard has a corresponding matchup
- * 2. Retroactively fetch scoreboard data for past matchups without scoreboards
- * 3. Update "left behind" picks to have correct status
- * 4. Delete users who haven't verified their email in the last 7 days
- * 5. Delete left behind picks
- */
-
+import { NextRequest, NextResponse } from 'next/server';
 import { getAPB } from '@/lib/data';
 import { attachMatchupToScoreboard } from '@/lib/scoreboards';
 import { getLogger } from '@/lib/logger';
-import type { APIRoute } from 'astro';
 import { DateTime } from 'luxon';
 import {
   trackPerformance,
@@ -22,11 +12,10 @@ import { updateScoreboard } from '@/lib/scoreboards';
 import { updatePicksStatus } from '@/lib/picks';
 import { fetchNBAScheduleEndpoint } from '@/lib/nba';
 
-// Create a named logger for this file
 const logger = getLogger('cleanup');
 
 async function attachAllExistingMatchupsToScoreboards() {
-  const pb = getAPB();
+  const pb = await getAPB();
   const fetchStart = performance.now();
   const scoreboards = await pb
     .collection('scoreboards')
@@ -81,7 +70,7 @@ async function attachAllExistingMatchupsToScoreboards() {
 }
 
 async function deleteUsersWithoutVerification() {
-  const pb = getAPB();
+  const pb = await getAPB();
 
   const fetchStart = performance.now();
   const unverifiedUsers = await pb.collection('users').getFullList({
@@ -136,7 +125,7 @@ async function deleteUsersWithoutVerification() {
 }
 
 async function updateLeftBehindPicks() {
-  const pb = getAPB();
+  const pb = await getAPB();
 
   const fetchStart = performance.now();
   const leftBehindPicks = await pb.collection('picks').getFullList({
@@ -196,7 +185,6 @@ async function updateLeftBehindPicks() {
 async function retroactivelyFetchScoreboards() {
   logger.info('Starting to fetch historical scoreboards');
 
-  // Fetch all game data from the NBA API
   const fetchStart = performance.now();
   const data = await fetchNBAScheduleEndpoint();
   const fetchEnd = performance.now();
@@ -206,15 +194,13 @@ async function retroactivelyFetchScoreboards() {
     'NBA historical data fetch completed'
   );
 
-  // Process the game data - only get completed games (status 3)
-  const games = [];
+  const games: any[] = [];
   const gameDates = data.leagueSchedule?.gameDates || [];
 
   for (const gameDate of gameDates) {
     if (!gameDate.games) continue;
 
     for (const game of gameDate.games) {
-      // Only process completed games (status 3 = Final)
       if (game.gameStatus === 3) {
         games.push({
           code: game.gameCode,
@@ -229,7 +215,6 @@ async function retroactivelyFetchScoreboards() {
 
   logger.info({ count: games.length }, 'Found completed games to process');
 
-  // Update each scoreboard in the database
   const updateStart = performance.now();
   const scoreBoardUpdatePromises = games.map(async (scoreboard) => {
     const updateStart = performance.now();
@@ -278,7 +263,7 @@ async function retroactivelyFetchScoreboards() {
   };
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export async function POST(request: NextRequest) {
   const jobStartTime = performance.now();
   const startTime = DateTime.now().toISO();
 
@@ -293,7 +278,6 @@ export const POST: APIRoute = async ({ request }) => {
   };
 
   try {
-    // Run with performance tracking
     stats.picksUpdated = await trackPerformance(
       'updateLeftBehindPicks',
       async () => updateLeftBehindPicks(),
@@ -318,7 +302,6 @@ export const POST: APIRoute = async ({ request }) => {
       logger
     );
 
-    // Log completion with full stats
     const jobDurationMs = performance.now() - jobStartTime;
     logger.info(
       {
@@ -328,15 +311,17 @@ export const POST: APIRoute = async ({ request }) => {
       `Cleanup cron job completed in ${jobDurationMs.toFixed(2)}ms`
     );
 
-    return createSuccessResponse(
+    const response = createSuccessResponse(
       'Cleanup completed successfully',
       jobStartTime,
       { stats }
     );
-  } catch (error) {
-    return createErrorResponse(error, jobStartTime, {
+    return NextResponse.json(response.body, { status: response.status });
+  } catch (error: any) {
+    const response = createErrorResponse(error, jobStartTime, {
       stats,
       jobType: 'cleanup',
     });
+    return NextResponse.json(response.body, { status: response.status });
   }
-};
+}

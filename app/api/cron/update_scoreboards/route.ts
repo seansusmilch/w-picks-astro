@@ -1,6 +1,5 @@
-import type { APIRoute } from 'astro';
+import { NextRequest, NextResponse } from 'next/server';
 import { getAPB } from '@/lib/data';
-import { CRON_SECRET } from 'astro:env/server';
 import { getTodayMatchups } from '@/lib/matchups';
 import {
   attachMatchupToScoreboard,
@@ -18,8 +17,8 @@ import { fetchNBAScoreboardsEndpoint } from '@/lib/nba';
 import type { NBAScoreboardsResponse } from '@/lib/types/nba-scoreboards';
 import type { ScoreboardType } from '@/lib/definitions';
 
-// Create a named logger for this file
 const logger = getLogger('update-scoreboards');
+const CRON_SECRET = process.env.CRON_SECRET || '';
 
 function parseScoreboards(rawData: NBAScoreboardsResponse): ScoreboardType[] {
   const todaysScoreboards = rawData.scoreboard.games;
@@ -57,9 +56,7 @@ async function updatePicksStatus(scoreboard: ScoreboardType) {
 }
 
 async function updateScoreboard(scoreboard: ScoreboardType) {
-  const pb = getAPB();
-
-  // await attachAllExistingMatchupsToScoreboards();
+  const pb = await getAPB();
 
   try {
     const existingScoreboard = await getScoreboardByCode(scoreboard.code);
@@ -74,7 +71,7 @@ async function updateScoreboard(scoreboard: ScoreboardType) {
     const newRec = await pb.collection('scoreboards').create(scoreboard);
     await attachMatchupToScoreboard(newRec.id, scoreboard.code);
     return { action: 'CREATED', id: newRec.id };
-  } catch (error) {
+  } catch (error: any) {
     logger.error({ error, scoreboard }, 'Error updating scoreboard');
     return {
       action: 'FAILED',
@@ -84,10 +81,10 @@ async function updateScoreboard(scoreboard: ScoreboardType) {
   }
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export async function POST(request: NextRequest) {
   if (request.headers.get('Cron-Secret') !== CRON_SECRET) {
     logger.warn('Unauthorized access attempt to update scoreboards endpoint');
-    return new Response('Unauthorized', { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const jobStartTime = performance.now();
@@ -96,7 +93,6 @@ export const POST: APIRoute = async ({ request }) => {
   logger.info({ startTime }, 'Starting update scoreboards job');
 
   try {
-    // Check if there are matchups today with performance tracking
     const todaysMatchups = await trackPerformance(
       'getTodayMatchups',
       async () => getTodayMatchups(),
@@ -113,12 +109,16 @@ export const POST: APIRoute = async ({ request }) => {
         'No matchups today, skipping scoreboard update'
       );
 
-      return createSuccessResponse('No matchups today', jobStartTime, {
-        matchupsToday: 0,
-      });
+      const response = createSuccessResponse(
+        'No matchups today',
+        jobStartTime,
+        {
+          matchupsToday: 0,
+        }
+      );
+      return NextResponse.json(response.body, { status: response.status });
     }
 
-    // Fetch scoreboards from NBA API with performance tracking
     logger.info('Fetching scoreboards from NBA API');
     const fetchStart = performance.now();
     const scoreboardsJson = await fetchNBAScoreboardsEndpoint();
@@ -128,7 +128,6 @@ export const POST: APIRoute = async ({ request }) => {
       'NBA API fetch completed'
     );
 
-    // Parse scoreboards
     const parseStart = performance.now();
     const scoreboards = parseScoreboards(scoreboardsJson);
     const parseEnd = performance.now();
@@ -140,11 +139,9 @@ export const POST: APIRoute = async ({ request }) => {
       'Parsed scoreboards'
     );
 
-    // Update each scoreboard in PocketBase with performance tracking
     logger.info('Updating scoreboards in database');
     const updateStart = performance.now();
 
-    // Track individual scoreboard updates
     const scoreBoardUpdatePromises = scoreboards.map(async (scoreboard) => {
       const updateStart = performance.now();
       const res = await updateScoreboard(scoreboard);
@@ -170,7 +167,6 @@ export const POST: APIRoute = async ({ request }) => {
     const failed = results.filter((r) => r.action === 'FAILED');
     const failedCount = failed.length;
 
-    // Add execution metrics
     const additionalMetrics = {
       startTime,
       scoreboardsFetchMs: (fetchEnd - fetchStart).toFixed(2),
@@ -195,7 +191,7 @@ export const POST: APIRoute = async ({ request }) => {
       logger.warn({ failed }, 'Some scoreboard updates failed');
     }
 
-    return createSuccessResponse(
+    const response = createSuccessResponse(
       'Update scoreboards job completed',
       jobStartTime,
       {
@@ -208,10 +204,12 @@ export const POST: APIRoute = async ({ request }) => {
         results: results,
       }
     );
-  } catch (error) {
-    return createErrorResponse(error, jobStartTime, {
+    return NextResponse.json(response.body, { status: response.status });
+  } catch (error: any) {
+    const response = createErrorResponse(error, jobStartTime, {
       startTime,
       jobType: 'update-scoreboards',
     });
+    return NextResponse.json(response.body, { status: response.status });
   }
-};
+}

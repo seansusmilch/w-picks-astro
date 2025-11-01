@@ -25,7 +25,7 @@ export async function getStatsByUserId(userId: string) {
 }
 
 export async function getAllStats() {
-  const pb = getAPB();
+  const pb = await getAPB();
   const sortedBy = 'win_pick_rate';
 
   const userStats = await pb.collection('stats').getFullList({
@@ -39,7 +39,7 @@ export async function getAllStats() {
 }
 
 export async function getWeeklyStats(week: string) {
-  const pb = getAPB();
+  const pb = await getAPB();
 
   const weekStats = await pb.collection('weekly_stats').getFullList({
     filter: pb.filter('year_week = {:week}', { week }),
@@ -50,7 +50,7 @@ export async function getWeeklyStats(week: string) {
 }
 
 export async function getWeekList() {
-  const pb = getAPB();
+  const pb = await getAPB();
   const weekList = await pb.collection('weekly_stats').getFullList({
     sort: '-year_week',
     fields: 'year_week',

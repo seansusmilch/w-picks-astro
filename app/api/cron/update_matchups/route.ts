@@ -1,7 +1,6 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { getAPB } from '@/lib/data';
-import { type APIRoute } from 'astro';
 import { DateTime } from 'luxon';
-import { CRON_SECRET } from 'astro:env/server';
 import { getMatchupByCode } from '@/lib/matchups';
 import type { MatchupType } from '@/lib/definitions';
 import {
@@ -9,12 +8,11 @@ import {
   trackPerformance,
   createSuccessResponse,
   createErrorResponse,
-  type BatchOperationTracker,
 } from '@/lib/cron-utils';
 import { fetchNBAScheduleEndpoint } from '@/lib/nba';
 
-// Create a named enhanced logger for this file
 const logger = getCronLogger('update-matchups');
+const CRON_SECRET = process.env.CRON_SECRET || '';
 
 const PAST_CUTOFF = 3;
 const FUTURE_CUTOFF = 30;
@@ -95,8 +93,7 @@ function parseMatchups(rawData: ScheduleResponse): Matchup[] {
 async function findMatchupsToDelete(
   matchups: Matchup[]
 ): Promise<MatchupType[]> {
-  const pb = getAPB();
-  // Get existing future matchups from our database
+  const pb = await getAPB();
   const existingFutureMatchups = await pb
     .collection<MatchupType>('matchups')
     .getFullList({
@@ -109,30 +106,15 @@ async function findMatchupsToDelete(
     'Found existing future matchups in database'
   );
 
-  // Extract game codes from the API future matchups
   const apiGameCodes = new Set(matchups.map((game) => game.code));
   logger.info({ count: apiGameCodes.size }, 'Found game codes from NBA API');
 
-  // Find matchups that don't exist in the NBA API data anymore
   const matchupsToDelete = existingFutureMatchups.filter(
     (matchup) => !apiGameCodes.has(matchup.code)
   );
 
-  // Log matchups to delete
   if (matchupsToDelete.length > 0) {
     logger.info({ count: matchupsToDelete.length }, 'Found matchups to delete');
-
-    matchupsToDelete.forEach((matchup, index) => {
-      logger.debug(
-        {
-          index: index + 1,
-          id: matchup.id,
-          teams: `${matchup.away_code} @ ${matchup.home_code}`,
-          time: matchup.time_utc,
-        },
-        'Matchup scheduled for deletion'
-      );
-    });
   } else {
     logger.info('No matchups need to be deleted');
   }
@@ -143,10 +125,9 @@ async function findMatchupsToDelete(
 async function processMatchups(
   matchups: Matchup[]
 ): Promise<OperationResult[]> {
-  const pb = getAPB();
+  const pb = await getAPB();
   const results: OperationResult[] = [];
 
-  // Create a batch operation tracker
   const batchTracker = logger.trackBatchOperation({
     name: 'process-matchups',
     totalItems: matchups.length,
@@ -154,7 +135,6 @@ async function processMatchups(
   });
 
   for (const matchup of matchups) {
-    // Skip matchups without codes
     if (!matchup.code) {
       logger.warn({ matchup }, 'No code for matchup, skipping');
       results.push({
@@ -162,7 +142,7 @@ async function processMatchups(
         action: 'SKIPPED',
         reason: 'Missing game code',
       });
-      batchTracker.recordSuccess(matchup.code); // Still count as processed
+      batchTracker.recordSuccess(matchup.code);
       continue;
     }
 
@@ -170,7 +150,6 @@ async function processMatchups(
       const existingMatchup = await getMatchupByCode(matchup.code);
 
       if (existingMatchup) {
-        // Update existing matchup
         const updatedRecord = await pb
           .collection<MatchupType>('matchups')
           .update(existingMatchup.id, matchup);
@@ -181,7 +160,6 @@ async function processMatchups(
         });
         batchTracker.recordSuccess(matchup.code);
       } else {
-        // Create new matchup
         const newRecord = await pb
           .collection<MatchupType>('matchups')
           .create(matchup);
@@ -192,7 +170,7 @@ async function processMatchups(
         });
         batchTracker.recordSuccess(matchup.code);
       }
-    } catch (error) {
+    } catch (error: any) {
       logger.error({ error, matchup }, 'Error processing matchup');
       results.push({
         matchup,
@@ -203,7 +181,6 @@ async function processMatchups(
     }
   }
 
-  // Complete the batch operation and log final metrics
   const batchMetrics = batchTracker.complete();
   logger.info({ batchMetrics }, 'Matchup processing complete');
 
@@ -213,7 +190,7 @@ async function processMatchups(
 async function deleteMatchups(
   matchupsToDelete: MatchupType[]
 ): Promise<OperationResult[]> {
-  const pb = getAPB();
+  const pb = await getAPB();
   const results: OperationResult[] = [];
 
   for (const matchup of matchupsToDelete) {
@@ -230,7 +207,7 @@ async function deleteMatchups(
         },
         action: 'DELETED',
       });
-    } catch (error) {
+    } catch (error: any) {
       logger.error(
         { error, id: matchup.id, code: matchup.code },
         'Error deleting matchup'
@@ -263,10 +240,10 @@ function generateStats(results: OperationResult[]): any {
   };
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export async function POST(request: NextRequest) {
   if (request.headers.get('Cron-Secret') !== CRON_SECRET) {
     logger.warn('Unauthorized access attempt to update matchups endpoint');
-    return new Response('Unauthorized', { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const jobStartTime = performance.now();
@@ -275,7 +252,6 @@ export const POST: APIRoute = async ({ request }) => {
   logger.info({ startTime }, 'Starting update matchups job');
 
   try {
-    // Track NBA API fetch
     const fetchStart = performance.now();
     const matchupsJson = await fetchNBAScheduleEndpoint();
     const fetchEnd = performance.now();
@@ -284,7 +260,6 @@ export const POST: APIRoute = async ({ request }) => {
       'NBA API fetch completed'
     );
 
-    // Parse and process matchups with performance tracking
     const matchups = await trackPerformance(
       'parseMatchups',
       async () => parseMatchups(matchupsJson),
@@ -301,38 +276,34 @@ export const POST: APIRoute = async ({ request }) => {
         'No matchups found. Possibly upstream API error'
       );
 
-      return createSuccessResponse(
+      const response = createSuccessResponse(
         'No matchups found in the specified date range.',
         jobStartTime,
         { success: false }
       );
+      return NextResponse.json(response.body, { status: response.status });
     }
 
-    // Find matchups to delete with performance tracking
     const matchupsToDelete = await trackPerformance(
       'findMatchupsToDelete',
       async () => findMatchupsToDelete(matchups),
       logger
     );
 
-    // Process matchups with performance tracking
     const processResults = await trackPerformance(
       'processMatchups',
       async () => processMatchups(matchups),
       logger
     );
 
-    // Delete matchups with performance tracking
     const deleteResults = await trackPerformance(
       'deleteMatchups',
       async () => deleteMatchups(matchupsToDelete),
       logger
     );
 
-    // Generate operation stats
     const stats = generateStats([...processResults, ...deleteResults]);
 
-    // Add additional execution metrics
     const additionalMetrics = {
       startTime,
       matchupsFound: matchups.length,
@@ -348,15 +319,17 @@ export const POST: APIRoute = async ({ request }) => {
       'Update matchups job completed'
     );
 
-    return createSuccessResponse(
+    const response = createSuccessResponse(
       'Matchups updated successfully',
       jobStartTime,
       { stats, metrics: additionalMetrics }
     );
-  } catch (error) {
-    return createErrorResponse(error, jobStartTime, {
+    return NextResponse.json(response.body, { status: response.status });
+  } catch (error: any) {
+    const response = createErrorResponse(error, jobStartTime, {
       startTime,
       jobType: 'update-matchups',
     });
+    return NextResponse.json(response.body, { status: response.status });
   }
-};
+}

@@ -1,15 +1,19 @@
+'use client';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { actions, isInputError } from 'astro:actions';
-import { navigate } from 'astro:transitions/client';
+import { login, signup } from '@/actions/users';
+import { useRouter } from 'next/navigation';
 import { postLoginRedirect, APP_NAME } from '@/lib/constants';
+
 export function LoginSignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [activeTab, setActiveTab] = useState('login');
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     setLoading(true);
@@ -18,30 +22,32 @@ export function LoginSignupForm() {
 
     const formData = new FormData(e.currentTarget);
     if (activeTab === 'login') {
-      const { error } = await actions.users.login(formData);
-      if (error) {
-        if (isInputError(error)) {
-          setError(error.issues.map((issue) => issue.message).join(', '));
-        } else {
-          setError(error.message);
-        }
+      try {
+        const result = await login({
+          email: formData.get('email') as string,
+          password: formData.get('password') as string,
+        });
+        setSuccessMessage('Redirecting you...');
+        router.push(result.redirect || postLoginRedirect);
+        router.refresh();
+      } catch (err: any) {
+        setError(err.message || 'Login failed');
         setLoading(false);
-        return;
       }
-
-      setSuccessMessage('Redirecting you...');
-      navigate(postLoginRedirect);
     } else {
-      const { data, error } = await actions.users.signup(formData);
-      if (error) {
-        setError(error.message);
+      try {
+        const result = await signup({
+          email: formData.get('email') as string,
+          password: formData.get('password') as string,
+          confirm_password: formData.get('confirm_password') as string,
+        });
+        setSuccessMessage(result.message || 'Please check your email for a verification link!');
         setLoading(false);
-        return;
+        setActiveTab('login');
+      } catch (err: any) {
+        setError(err.message || 'Signup failed');
+        setLoading(false);
       }
-
-      setSuccessMessage(data.message);
-      setLoading(false);
-      setActiveTab('login');
     }
   };
 

@@ -1,17 +1,34 @@
 import pino from 'pino';
 
+// Detect if we're in Next.js environment
+// Next.js sets NEXT_RUNTIME during server-side rendering
+const isNextJs = typeof process !== 'undefined' && 
+  (process.env.NEXT_RUNTIME !== undefined || 
+   process.env.NEXT_PHASE !== undefined);
+
 // Configure the base logger
-const baseLogger = pino({
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      ignore: 'pid,hostname',
-      translateTime: 'SYS:standard',
-    },
-  },
-  level: 'debug',
-});
+// In Next.js, don't use pino-pretty transport as it uses worker threads
+// which don't work well with Next.js server components and webpack bundling
+const baseLogger = isNextJs || process.env.NODE_ENV === 'production'
+  ? pino({
+      level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+      formatters: {
+        level: (label) => {
+          return { level: label.toUpperCase() };
+        },
+      },
+    })
+  : pino({
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+          ignore: 'pid,hostname',
+          translateTime: 'SYS:standard',
+        },
+      },
+      level: 'debug',
+    });
 
 // Default logger (for backward compatibility)
 const logger = baseLogger;

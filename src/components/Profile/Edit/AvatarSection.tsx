@@ -1,14 +1,18 @@
+'use client';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState, useRef } from 'react';
 import { UserAvatar } from '@/components/Profile/UserAvatar';
-import { actions } from 'astro:actions';
+import { updateProfile } from '@/actions/users';
+import { useRouter } from 'next/navigation';
 
 export function AvatarSection({ user }: { user: any }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [avatar, setAvatar] = useState(user.record.avatar_url);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,15 +21,17 @@ export function AvatarSection({ user }: { user: any }) {
 
     try {
       const formData = new FormData(e.currentTarget);
-      const { error } = await actions.users.updateProfile(formData);
-
-      if (error) {
-        setError(error.message);
-      } else {
+      const avatarFile = formData.get('avatar') as File;
+      
+      if (avatarFile && avatarFile.size > 0) {
+        await updateProfile({
+          avatar: avatarFile,
+        });
         inputRef.current!.value = '';
+        router.refresh();
       }
-    } catch (err) {
-      setError('Failed to upload avatar');
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload avatar');
     } finally {
       setLoading(false);
     }

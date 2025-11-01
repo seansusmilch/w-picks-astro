@@ -54,14 +54,14 @@ export async function attachMatchupToScoreboard(
 
   logger.debug({ gameCode, scoreboardId }, 'Attaching matchup to scoreboard');
 
-  const pb = getAPB();
+  const pb = await getAPB();
   await pb.collection('matchups').update(matchup.id, {
     scoreboard: scoreboardId,
   });
 }
 
 export async function getScoreboardsByCodePrefix(codePrefix: string) {
-  const pb = getAPB();
+  const pb = await getAPB();
   const scoreboards = await pb.collection('scoreboards').getFullList({
     filter: pb.filter(`code ?~ {:codePrefix}`, { codePrefix }),
   });
@@ -69,7 +69,7 @@ export async function getScoreboardsByCodePrefix(codePrefix: string) {
 }
 
 export async function updateScoreboard(scoreboard: ScoreboardType) {
-  const pb = getAPB();
+  const pb = await getAPB();
 
   // await attachAllExistingMatchupsToScoreboards();
 

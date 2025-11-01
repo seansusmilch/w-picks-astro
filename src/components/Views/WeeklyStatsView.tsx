@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Leaderboard,
   LeaderboardSkeleton,
@@ -5,7 +7,8 @@ import {
 import { useStore } from '@nanostores/react';
 import { queryClient } from '@/stores/query';
 import { useQuery } from '@tanstack/react-query';
-import { actions } from 'astro:actions';
+import { getWeeklyStatsAction } from '@/actions/stats';
+import { getGamesByCodePrefix } from '@/actions';
 import { useState } from 'react';
 import { WeekSelect } from '@/components/Stats/WeekSelect';
 import type { GameType } from '@/lib/definitions';
@@ -50,13 +53,14 @@ export function WeeklyStatsView({
     {
       queryKey: ['weeklyStats', selectedWeek],
       queryFn: async () => {
-        const { data, error } = await actions.stats.getWeeklyStats({
-          week: selectedWeek,
-        });
-        if (error) {
-          throw new Error('Failed to fetch weekly stats');
+        try {
+          const data = await getWeeklyStatsAction({
+            week: selectedWeek,
+          });
+          return data;
+        } catch (err: any) {
+          throw new Error(err.message || 'Failed to fetch weekly stats');
         }
-        return data;
       },
       initialData: selectedWeek === initialWeek ? initialData : undefined,
       staleTime: 1000 * 10,
@@ -74,11 +78,14 @@ export function WeeklyStatsView({
         const codePrefixes = getCodePrefixesFromWeek(selectedWeek);
         const games = await Promise.all(
           codePrefixes.map(async (codePrefix) => {
-            const { data, error } = await actions.getGamesByCodePrefix({
-              codePrefix,
-            });
-            if (error) throw new Error(error.message);
-            return data;
+            try {
+              const data = await getGamesByCodePrefix({
+                codePrefix,
+              });
+              return data;
+            } catch (err: any) {
+              throw new Error(err.message || 'Failed to fetch games');
+            }
           })
         );
 

@@ -1,10 +1,12 @@
+'use client';
+
 import { TeamPicker } from './TeamPicker';
 import { HelpDialog } from './HelpDialog';
 import { Textarea } from '@/components/ui/textarea';
 import { type MatchupType, type PickType, PickZ } from '@/lib/definitions';
 import { useState } from 'react';
 import clsx from 'clsx';
-import { actions, isInputError } from 'astro:actions';
+import { submitPick, deletePickAction } from '@/actions/picks';
 import { queryClient } from '@/stores/query';
 import { useStore } from '@nanostores/react';
 
@@ -26,18 +28,17 @@ export function PickForm({
     matchup: matchup.id,
   });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     setError('');
     setLoading(true);
     e.preventDefault();
-    const formData = new FormData(e.target);
 
-    console.log('formData', Object.fromEntries(formData.entries()));
-
-    if (formData.get('win_prediction') === 'indeterminate') {
-      const { data, error } = await actions.picks.deletePick(formData);
-
-      if (data) {
+    if (formState.win_prediction === 'indeterminate') {
+      try {
+        await deletePickAction({
+          id: formState.pickId,
+          matchup: formState.matchup,
+        });
         setFormState({
           ...formState,
           win_prediction: 'indeterminate',
@@ -45,36 +46,31 @@ export function PickForm({
           pickId: '',
         });
         client.invalidateQueries({ queryKey: ['games'] });
-      } else {
-        if (isInputError(error)) {
-          const errorMessage = Object.values(error.fields).flat().join(', ');
-          setError(errorMessage);
-        } else {
-          console.error('Failed to delete pick:', error);
-          setError(error.message);
-        }
+      } catch (err: any) {
+        setError(err.message || 'Failed to delete pick');
       }
     } else {
-      const { data, error } = await actions.picks.submitPick(formData);
+      try {
+        const data = await submitPick({
+          id: formState.pickId || undefined,
+          win_prediction: formState.win_prediction,
+          comment: formState.comment || undefined,
+          matchup: formState.matchup,
+        });
 
-      if (data) {
         const pickData = PickZ.safeParse(data);
         if (!pickData.success) {
           console.error('Invalid pick data:', pickData.error);
+          setError('Invalid response from server');
+          setLoading(false);
           return;
         }
 
         const { win_prediction, comment, id, matchup } = pickData.data;
         setFormState({ win_prediction, comment, pickId: id, matchup });
         client.invalidateQueries({ queryKey: ['games'] });
-      } else {
-        if (isInputError(error)) {
-          const errorMessage = Object.values(error.fields).flat().join(', ');
-          setError(errorMessage);
-        } else {
-          console.error('Failed to save pick:', error);
-          setError(error.message);
-        }
+      } catch (err: any) {
+        setError(err.message || 'Failed to save pick');
       }
     }
 

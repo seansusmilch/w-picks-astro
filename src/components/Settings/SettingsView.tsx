@@ -1,18 +1,20 @@
+'use client';
+
 import { type UserSettingsType } from '@/lib/definitions';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useMutation } from '@tanstack/react-query';
-import { actions } from 'astro:actions';
+import { updateSettings } from '@/actions/users';
 import { useStore } from '@nanostores/react';
 import { queryClient } from '@/stores/query';
 
 export function SettingsView({ settings }: { settings: UserSettingsType }) {
   const $queryClient = useStore(queryClient);
 
-  const updateSettings = useMutation(
+  const updateSettingsMutation = useMutation(
     {
       mutationFn: async (data: Partial<UserSettingsType>) => {
-        return actions.users.updateSettings(data);
+        return updateSettings(data);
       },
       onSuccess: () => {
         $queryClient.invalidateQueries({ queryKey: ['userSettings'] });
@@ -36,7 +38,7 @@ export function SettingsView({ settings }: { settings: UserSettingsType }) {
           className='setting-switch'
           defaultChecked={settings.hideFromLatestPicks}
           onCheckedChange={(checked) => {
-            updateSettings.mutate({ hideFromLatestPicks: checked });
+            updateSettingsMutation.mutate({ hideFromLatestPicks: checked });
           }}
         />
       </div>
@@ -51,7 +53,7 @@ export function SettingsView({ settings }: { settings: UserSettingsType }) {
           className='setting-switch'
           defaultChecked={settings.colorfulPicks}
           onCheckedChange={(checked) => {
-            updateSettings.mutate({ colorfulPicks: checked });
+            updateSettingsMutation.mutate({ colorfulPicks: checked });
           }}
         />
       </div>

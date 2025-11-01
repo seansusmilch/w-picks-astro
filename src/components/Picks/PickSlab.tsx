@@ -1,3 +1,5 @@
+'use client';
+
 import { TeamMap } from '@/components/NBA/teamMap';
 import type { PickType, UserType } from '@/lib/definitions';
 import { ExternalLinkIcon, FlameIcon } from 'lucide-react';
@@ -6,7 +8,7 @@ import { Logo } from '@/components/NBA/Logo';
 import { UserAvatar } from '@/components/Profile/UserAvatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { actions } from 'astro:actions';
+import { getReactionsAction, addReaction, removeReaction } from '@/actions/reactions';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useStore } from '@nanostores/react';
 import { queryClient } from '@/stores/query';
@@ -48,11 +50,14 @@ export function PickSlab({
     {
       queryKey: ['reactions', pick.id],
       queryFn: async () => {
-        const { data, error } = await actions.reactions.getReactions({
-          pickId: pick.id,
-        });
-        if (error) throw new Error('Failed to get reactions');
-        return data;
+        try {
+          const data = await getReactionsAction({
+            pickId: pick.id,
+          });
+          return data;
+        } catch (err: any) {
+          throw new Error(err.message || 'Failed to get reactions');
+        }
       },
     },
     $queryClient
@@ -67,20 +72,18 @@ export function PickSlab({
         ]);
 
         if (liking) {
-          const { error } = await actions.reactions.addReaction({
+          await addReaction({
             pickId: pick.id,
           });
-          if (error) throw new Error('Failed to create reaction');
           return {
             isLiked: true,
-            totalItems: currentData?.totalItems + 1 || 1,
+            totalItems: (currentData?.totalItems || 0) + 1,
           };
         } else {
-          const { error } = await actions.reactions.removeReaction({
+          await removeReaction({
             pickId: pick.id,
           });
-          if (error) throw new Error('Failed to delete reaction');
-          return { isLiked: false, totalItems: currentData.totalItems - 1 };
+          return { isLiked: false, totalItems: (currentData?.totalItems || 1) - 1 };
         }
       },
       onMutate: async () => {

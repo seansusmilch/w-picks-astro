@@ -28,7 +28,7 @@ export async function getMatchupById(id: string) {
 }
 
 export async function getMatchupByCode(code: string) {
-  const pb = getAPB();
+  const pb = await getAPB();
   const matchupRecord = await pb
     .collection('matchups')
     .getFirstListItem(pb.filter('code = {:code}', { code }))
@@ -48,7 +48,7 @@ export async function isMatchupUpcoming(id: string) {
 }
 
 export async function getTodayMatchups() {
-  const pb = getAPB();
+  const pb = await getAPB();
   const codePrefix = getCodePrefixFromDate(new Date());
 
   const response = await pb.collection('matchups').getList(1, 100, {
@@ -74,7 +74,7 @@ export async function getWinningTeamByMatchupId(matchupId: string) {
 }
 
 export async function getMatchupsAndPicksByCodePrefix(codePrefix: string) {
-  const pb = getAPB();
+  const pb = await getAPB();
   const matchups = await pb.collection('matchups').getFullList({
     filter: pb.filter(`code ?~ {:codePrefix}`, { codePrefix }),
     sort: '+time_utc',

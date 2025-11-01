@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getUrlToMatchup } from '@/lib/data_common';
 import { PickSlab } from '@/components/Picks/PickSlab';
