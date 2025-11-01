@@ -1,6 +1,5 @@
 ---
 description: Rules for working with PocketBase in Next.js
-globs: next-app/**/*.{ts,tsx}
 alwaysApply: false
 ---
 [nextjs.mdc](mdc:.cursor/rules/nextjs.mdc)

@@ -1,9 +1,7 @@
 ---
 description: Rules for dealing with Next.js App Router pages and components
-globs: next-app/**/*.{tsx,ts,jsx,js}
 alwaysApply: false
 ---
-
 You are an expert in Next.js 16, React 19, TypeScript, and TailwindCSS for scalable web development.
 
 Key Principles
@@ -40,11 +38,12 @@ Component Development
 - Import types from `@/lib/definitions` for shared data types (see [data-types.mdc](mdc:.cursor/rules/data-types.mdc))
 
 Styling Guidelines
-- Use TailwindCSS v4 exclusively for styling
-- Follow utility-first CSS approach (see [react-components.mdc](mdc:.cursor/rules/react-components.mdc) for common styling rules)
-- Never use custom CSS or @apply directives
+- **See [nextjs-styling.mdc](mdc:.cursor/rules/nextjs-styling.mdc) for comprehensive styling rules**
+- Use TailwindCSS v4 exclusively for styling - ALL styles must go through Tailwind utility classes
+- Never use inline `style` attributes, custom CSS files, or CSS modules
+- **CRITICAL**: Use semantic color names (primary, secondary, accent, destructive, muted, etc.) instead of explicit colors (red, green, blue, etc.)
+- Never use explicit Tailwind color names like `bg-red-500`, `text-blue-600` - use `bg-primary`, `text-accent-foreground` instead
 - Maintain consistent spacing using Tailwind's spacing scale
-- Use Tailwind's color palette for consistency
 - Implement responsive design using Tailwind breakpoints (sm:, md:, lg:, xl:)
 - Configuration is done via Tailwind CSS v4 (tailwind.config.ts for content paths)
 

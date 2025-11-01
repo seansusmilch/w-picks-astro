@@ -1,0 +1,266 @@
+---
+alwaysApply: true
+---
+# Next.js Styling Rules
+
+## TailwindCSS Requirements
+
+- **ALL styling MUST go through TailwindCSS utility classes**
+- Never use inline `style` attributes for styling (exception: dynamic values that require calculation)
+- Never create custom CSS files for component-specific styles
+- Never use `@apply` directives in component files (only allowed in `globals.css` for base layer)
+- Never use CSS modules (`.module.css` files)
+- Never use styled-components or CSS-in-JS libraries
+- Use TailwindCSS v4 utility classes exclusively
+
+## Cohesive Styling Choices
+
+**CRITICAL**: Always prioritize cohesive styling that fits with existing patterns in the codebase.
+
+### Before Adding New Styles
+
+1. **Review existing components** - Look at similar components in the codebase to understand established patterns
+2. **Check spacing conventions** - Note the spacing scale used (e.g., `p-4`, `gap-6`, `mb-6`)
+3. **Match border radius** - Use the same border radius values (`rounded-lg`, `rounded-md`, etc.)
+4. **Follow typography patterns** - Match text sizes (`text-sm`, `text-base`, `text-xl`, etc.) and font weights
+5. **Align color usage** - Use the same semantic color choices for similar elements
+6. **Match interactive states** - Use consistent hover/active/focus states (`hover:bg-primary/90`, etc.)
+7. **Follow layout patterns** - Match flex/grid patterns, gaps, and alignment
+
+### Consistency Checklist
+
+When adding or modifying styles:
+
+- [ ] Reviewed similar existing components for patterns
+- [ ] Matched spacing scale used elsewhere (`p-4`, `gap-6`, etc.)
+- [ ] Used consistent border radius values
+- [ ] Matched typography sizes and weights
+- [ ] Used semantic colors consistently with existing code
+- [ ] Applied consistent interactive states (hover, focus, active)
+- [ ] Followed existing responsive breakpoint patterns
+- [ ] Matched card/layout patterns where applicable
+
+### Examples
+
+```tsx
+// ✅ Good - Matches existing patterns
+// If other cards use: className="mb-6"
+<Card className="mb-6">
+  <CardHeader>
+    <CardTitle className="text-xl">Title</CardTitle>
+  </CardHeader>
+</Card>
+
+// ❌ Bad - Creates inconsistent spacing
+// If other cards use: className="mb-6"
+<Card className="mb-8">  // Different spacing breaks cohesion
+  <CardHeader>
+    <CardTitle className="text-2xl">Title</CardTitle>  // Different size breaks cohesion
+  </CardHeader>
+</Card>
+```
+
+```tsx
+// ✅ Good - Matches existing icon styling
+// If other icons use: className="h-5 w-5 text-primary"
+<BarChart3 className="h-5 w-5 text-primary" />
+
+// ❌ Bad - Creates inconsistent icon styling
+<BarChart3 className="h-6 w-6 text-blue-500" />  // Different size and color breaks cohesion
+```
+
+## Color Usage - Semantic Colors Only
+
+**CRITICAL**: Always use semantic color names instead of explicit color names like red, green, blue, etc.
+
+### Available Semantic Colors
+
+Use these semantic color names from the theme:
+
+- `primary` / `primary-foreground` - Main brand color
+- `secondary` / `secondary-foreground` - Secondary brand color
+- `accent` / `accent-foreground` - Accent/highlight color
+- `destructive` / `destructive-foreground` - Error/danger states
+- `muted` / `muted-foreground` - Muted/subdued elements
+- `background` / `foreground` - Base background and text
+- `card` / `card-foreground` - Card components
+- `popover` / `popover-foreground` - Popover components
+- `border` - Border colors
+- `input` - Input border colors
+- `ring` - Focus ring colors
+
+### ❌ FORBIDDEN Color Usage
+
+Do NOT use explicit color names like:
+
+- `bg-red-500`, `text-green-600`, `border-blue-400`
+- `bg-[#ff0000]`, `text-[rgb(0,255,0)]`
+- Any Tailwind color palette names (red, green, blue, yellow, etc.) unless absolutely necessary for non-semantic purposes
+
+### ✅ CORRECT Color Usage Examples
+
+```tsx
+// ✅ Good - Using semantic colors
+<div className="bg-primary text-primary-foreground">
+<button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+<div className="border border-border bg-card text-card-foreground">
+<span className="text-muted-foreground">Subdued text</span>
+<button className="bg-destructive text-destructive-foreground">Delete</button>
+
+// ❌ Bad - Using explicit colors
+<div className="bg-blue-500 text-white">
+<button className="bg-red-600 hover:bg-red-700 text-white">
+<div className="border border-gray-300 bg-white text-black">
+```
+
+## Styling Patterns
+
+### Background and Text Colors
+
+```tsx
+// ✅ Good
+<div className="bg-background text-foreground">
+<div className="bg-primary text-primary-foreground">
+<div className="bg-muted text-muted-foreground">
+
+// ❌ Bad
+<div className="bg-white text-black">
+<div className="bg-blue-500 text-white">
+```
+
+### Borders
+
+```tsx
+// ✅ Good
+<div className="border border-border">
+<input className="border border-input">
+
+// ❌ Bad
+<div className="border border-gray-300">
+<input className="border border-[#ccc]">
+```
+
+### Interactive States
+
+```tsx
+// ✅ Good
+<button className="bg-primary hover:bg-primary/90 active:bg-primary/80">
+<button className="bg-accent hover:bg-accent/90 text-accent-foreground">
+<button className="ring-2 ring-ring focus:ring-ring">
+
+// ❌ Bad
+<button className="bg-blue-500 hover:bg-blue-600">
+<button className="ring-2 ring-blue-500">
+```
+
+### Muted/Secondary Elements
+
+```tsx
+// ✅ Good
+<span className="text-muted-foreground">Helper text</span>
+<div className="bg-muted text-muted-foreground">Secondary content</div>
+
+// ❌ Bad
+<span className="text-gray-500">Helper text</span>
+<div className="bg-gray-100 text-gray-600">Secondary content</div>
+```
+
+## Exception Cases
+
+### When Explicit Colors Are Acceptable
+
+Only use explicit Tailwind colors in these rare cases:
+
+1. **Charts/Data Visualization** - When displaying data that requires distinct colors (e.g., `chart-1`, `chart-2` colors from theme)
+2. **Non-semantic decorative elements** - Patterns, backgrounds that don't convey meaning
+3. **Third-party component overrides** - When modifying third-party components that don't support semantic colors
+
+Even in these cases, prefer theme colors like `chart-1`, `chart-2`, etc. when available.
+
+## Spacing and Layout
+
+- Use Tailwind's spacing scale: `p-4`, `m-2`, `gap-4`, etc.
+- Use Tailwind's responsive breakpoints: `sm:`, `md:`, `lg:`, `xl:`, `2xl:`
+- Use Tailwind's flexbox/grid utilities: `flex`, `grid`, `items-center`, `justify-between`
+
+## Responsive Design
+
+Always use Tailwind's responsive prefixes:
+
+```tsx
+// ✅ Good
+<div className="p-4 md:p-6 lg:p-8">
+<div className="text-sm md:text-base lg:text-lg">
+<div className="flex-col md:flex-row">
+
+// ❌ Bad
+<div style={{ padding: '1rem' }}> // Don't use inline styles
+```
+
+## Dark Mode Support
+
+Semantic colors automatically support dark mode through CSS variables defined in `globals.css`. No additional code needed - colors will switch automatically based on the `.dark` class on the root element.
+
+## Component Styling Checklist
+
+Before committing any component with styling:
+
+- [ ] Reviewed existing similar components for styling patterns
+- [ ] Matched spacing, typography, and layout patterns from existing code
+- [ ] All styles use Tailwind utility classes
+- [ ] No inline `style` attributes (except dynamic calculations)
+- [ ] No custom CSS files created
+- [ ] All colors use semantic names (primary, secondary, accent, etc.)
+- [ ] No explicit color names (red, blue, green, etc.) used
+- [ ] Responsive classes use Tailwind breakpoints
+- [ ] Dark mode works automatically (test with `.dark` class)
+- [ ] Consistent with existing component patterns (icons, cards, buttons, etc.)
+
+## Component Examples
+
+### ✅ Correct Component Styling
+
+```tsx
+export function Button({ children, variant = 'primary' }: ButtonProps) {
+  return (
+    <button
+      className={cn(
+        "px-4 py-2 rounded-md font-medium transition-colors",
+        variant === 'primary' && "bg-primary text-primary-foreground hover:bg-primary/90",
+        variant === 'secondary' && "bg-secondary text-secondary-foreground hover:bg-secondary/90",
+        variant === 'destructive' && "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+```
+
+### ❌ Incorrect Component Styling
+
+```tsx
+// ❌ Bad - Using explicit colors
+export function Button({ children }: ButtonProps) {
+  return (
+    <button
+      className="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600"
+      style={{ padding: '0.5rem' }} // ❌ Inline styles
+    >
+      {children}
+    </button>
+  );
+}
+
+// ❌ Bad - Using CSS modules
+import styles from './Button.module.css';
+export function Button({ children }: ButtonProps) {
+  return <button className={styles.button}>{children}</button>;
+}
+```
+
+## Reference
+
+- Theme colors are defined in `next-app/app/globals.css`
+- TailwindCSS v4 documentation: <https://tailwindcss.com/docs>
+- shadcn/ui components use semantic colors - follow their patterns

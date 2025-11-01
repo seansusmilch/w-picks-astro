@@ -1,6 +1,5 @@
 ---
 description: Rules for modifying and creating new pages in the Next.js app
-globs: next-app/app/**/page.tsx
 alwaysApply: false
 ---
 [nextjs.mdc](mdc:.cursor/rules/nextjs.mdc)
