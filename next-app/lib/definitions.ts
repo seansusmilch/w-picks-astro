@@ -34,3 +34,52 @@ export const StatZ = z.object({
 });
 
 export type StatType = z.infer<typeof StatZ>;
+
+export const MatchupZ = BaseZ.extend({
+  code: z.string().length(15),
+  time_utc: z.string(),
+  home_code: z.string().length(3),
+  away_code: z.string().length(3),
+  home_meta: z
+    .object({
+      wins: z.number().min(0),
+      losses: z.number().min(0),
+    })
+    .nullable(),
+  away_meta: z
+    .object({
+      wins: z.number().min(0),
+      losses: z.number().min(0),
+    })
+    .nullable(),
+  scoreboard: z.string().length(15).or(z.literal('')),
+});
+
+export type MatchupType = z.infer<typeof MatchupZ>;
+
+export const ScoreboardZ = BaseZ.extend({
+  code: z.string().length(15),
+  status: z.number().min(0).max(3),
+  status_text: z.string(),
+  home_score: z.number().min(0),
+  away_score: z.number().min(0),
+});
+
+export type ScoreboardType = z.infer<typeof ScoreboardZ>;
+
+export const PickZ = BaseZ.extend({
+  matchup: z.string().length(15),
+  win_prediction: z.string().length(3),
+  comment: z.string(),
+  user: z.string().length(15),
+  status: z.string(),
+  result: z.string(),
+  expand: z
+    .object({
+      user: UserZ,
+      matchup: MatchupZ,
+    })
+    .optional(),
+}).required({ matchup: true, win_prediction: true, user: true });
+
+export type PickType = z.infer<typeof PickZ>;

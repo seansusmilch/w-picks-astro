@@ -3,17 +3,19 @@ import { cn } from '@/lib/utils';
 
 interface UserAvatarProps {
   avatarUrl?: string | null;
-  username: string;
+  username?: string;
   className?: string;
 }
 
 export function UserAvatar({ avatarUrl, username, className }: UserAvatarProps) {
   const initials = username
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+    ? username
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : '?';
 
   return (
     <Avatar className={cn('border-2 border-border', className)}>
