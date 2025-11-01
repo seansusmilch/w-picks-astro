@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutDashboard, User, LogIn, LogOut } from 'lucide-react';
+import { Home, LayoutDashboard, User, LogIn, LogOut, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
@@ -42,6 +42,18 @@ export function TopNav({ isAuthenticated, username }: TopNavProps) {
             >
               <Home className="h-4 w-4" />
               <span>Home</span>
+            </Link>
+            <Link
+              href="/leaderboard"
+              className={cn(
+                'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground',
+                pathname.startsWith('/leaderboard')
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-muted-foreground'
+              )}
+            >
+              <Trophy className="h-4 w-4" />
+              <span>Leaderboard</span>
             </Link>
             {isAuthenticated && (
               <>
@@ -100,4 +112,3 @@ export function TopNav({ isAuthenticated, username }: TopNavProps) {
     </header>
   );
 }
-

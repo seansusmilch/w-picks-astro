@@ -35,6 +35,15 @@ export const StatZ = z.object({
 
 export type StatType = z.infer<typeof StatZ>;
 
+export const WeeklyStatZ = StatZ.extend({
+  year_week: z
+    .string()
+    .length(8)
+    .regex(/^\d{4}-W\d{2}$/),
+});
+
+export type WeeklyStatType = z.infer<typeof WeeklyStatZ>;
+
 export const MatchupZ = BaseZ.extend({
   code: z.string().length(15),
   time_utc: z.string(),
