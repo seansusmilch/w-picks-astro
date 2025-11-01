@@ -14,7 +14,6 @@ let adminPb: PocketBase | null = null;
 let adminAuthPromise: Promise<PocketBase> | null = null;
 
 export function createPocketBase(): PocketBase {
-  console.log('createPocketBase', POCKETBASE_URL);
   const pb = new PocketBase(POCKETBASE_URL);
   pb.autoCancellation(false);
   return pb;
