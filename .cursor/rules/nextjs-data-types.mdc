@@ -1,0 +1,13 @@
+---
+description: Definitions for any custom types used in the Next.js codebase
+globs: next-app/**/*
+alwaysApply: false
+---
+[data-types.mdc](mdc:.cursor/rules/data-types.mdc) - Common data type rules
+
+- All shared types and Zod schemas are defined in `next-app/lib/definitions.ts`
+- Import types using: `import type { TypeName } from '@/lib/definitions'`
+- Available types include: `UserType`, `UserSettingsType` (and others as they're added)
+- Server Actions should export their own state types (e.g., `LoginFormState`, `SignupFormState`)
+[definitions.ts](mdc:next-app/lib/definitions.ts)
+

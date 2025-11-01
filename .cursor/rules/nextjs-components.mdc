@@ -1,0 +1,15 @@
+---
+description: Rules for modifying or creating React components (Next.js-specific)
+globs: next-app/components/**/*.tsx
+alwaysApply: false
+---
+[react-components.mdc](mdc:.cursor/rules/react-components.mdc) - Common React component rules
+
+- React components live in `next-app/components` folder
+- Use existing shadcn/ui components where possible from `next-app/components/ui`
+- If more shadcn components are needed, use the command `pnpm dlx shadcn@latest add component-name` (run from the `next-app` directory)
+- Use Server Components by default - only mark with `'use client'` when necessary
+- Server Components can be async and fetch data directly
+- Client Components must be marked with `'use client'` and can use React hooks
+- Import types from `@/lib/definitions` for shared data types (from `next-app/lib/definitions.ts`)
+

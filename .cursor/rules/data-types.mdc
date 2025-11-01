@@ -1,6 +1,22 @@
 ---
-description: definitions for any custom types used in the codebase
+description: Common rules for data types and Zod schemas across all projects
 globs: 
 alwaysApply: true
 ---
-[definitions.ts](mdc:src/lib/definitions.ts)
+- All shared types and Zod schemas should be defined in `*/lib/definitions.ts` (e.g., `astro-app/src/lib/definitions.ts` or `next-app/lib/definitions.ts`)
+- Import types using: `import type { TypeName } from '@/lib/definitions'`
+- Types are inferred from Zod schemas using `z.infer<typeof SchemaZ>`
+- Always use shared types instead of defining duplicate types
+- When adding new types, add Zod schemas first, then export the inferred TypeScript types
+- Use `@/` alias for imports (configured in tsconfig.json)
+
+**Astro App Types:**
+- Available types include: `UserType`, `MatchupType`, `PickType`, `ScoreboardType`, `StatType`, `WeeklyStatType`, `GameType`, `PageEntryType`, `MatchupsByCodePrefixType`, `ReactionType`, `UserSettingsType`
+- Location: `astro-app/src/lib/definitions.ts`
+- [Astro definitions.ts](mdc:astro-app/src/lib/definitions.ts)
+
+**Next.js App Types:**
+- Available types include: `UserType`, `UserSettingsType` (and others as they're added)
+- Server Actions should export their own state types (e.g., `LoginFormState`, `SignupFormState`)
+- Location: `next-app/lib/definitions.ts`
+- [Next.js definitions.ts](mdc:next-app/lib/definitions.ts)

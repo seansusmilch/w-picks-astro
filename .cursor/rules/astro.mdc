@@ -1,116 +1,99 @@
 ---
-description: 
-globs: 
-alwaysApply: false
----
----
-description: Rules for dealing with astro components
-globs: *.astro
+description: Rules for dealing with Astro components and pages
+globs: astro-app/src/**/*.astro
 alwaysApply: false
 ---
 [components.mdc](mdc:.cursor/rules/components.mdc)
+
 You are an expert in Astro, React, TypeScript, and TailwindCSS for scalable web development.
 
 Key Principles
 - Write concise, technical responses with accurate Astro and React examples
 - Leverage Astro's partial hydration with React components effectively
-- Prioritize static generation and minimal JavaScript for optimal performance
+- This is an SSR application using Node adapter (not static generation)
 - Use TypeScript for type safety across all components
 - Follow shadcn/ui component patterns and best practices
 
 Project Structure
-- src/
-    - components/
-        - ui/          # shadcn/ui components
-        - common/      # shared React components
-    - layouts/        # Astro layouts
-    - pages/         # Astro pages
-    - styles/        # global styles
-    - lib/          # utility functions
-    - types/        # TypeScript types
-- public/
-- astro.config.mjs
-- tailwind.config.cjs
-- tsconfig.json
+- astro-app/
+    - src/
+        - components/
+            - ui/          # shadcn/ui components
+            - [various]/  # feature-specific React components
+        - layouts/        # Astro layouts (BaseLayout.astro, Layout.astro)
+        - pages/         # Astro pages and API routes
+        - lib/          # utility functions, data fetching, type definitions
+        - stores/       # nanostores (query.ts, settings.ts)
+        - actions/      # Astro actions (server-side functions)
+    - public/          # static assets
+    - astro.config.mjs # Astro configuration (Node adapter, SSR)
+    - tsconfig.json
 
 Component Development
 - Create .astro files for page layouts and static components
-- Use .tsx files for React components
+- Use .tsx files for React components that need interactivity
 - Implement strict TypeScript typing for all components
+- Follow common React component patterns (see [react-components.mdc](mdc:.cursor/rules/react-components.mdc))
 - Keep React components simple and focused on UI concerns
 - Use shadcn/ui components as the foundation for UI elements
-- Implement proper component composition and reusability
+- Import types from `@/lib/definitions` for shared data types (see [data-types.mdc](mdc:.cursor/rules/data-types.mdc))
 - Use Astro's component props with TypeScript interfaces
 
 Styling Guidelines
-- Use TailwindCSS exclusively for styling
-- Follow utility-first CSS approach
+- Use TailwindCSS v4 (via @tailwindcss/vite plugin) exclusively for styling
+- Follow utility-first CSS approach (see [react-components.mdc](mdc:.cursor/rules/react-components.mdc) for common styling rules)
 - Never use custom CSS or @apply directives
 - Maintain consistent spacing using Tailwind's spacing scale
 - Use Tailwind's color palette for consistency
-- Implement responsive design using Tailwind breakpoints (sm:, md:, lg:)
-- Extend theme in tailwind.config.cjs when necessary
+- Implement responsive design using Tailwind breakpoints (sm:, md:, lg:, xl:)
+- Configuration is done via Tailwind CSS v4 (no separate config file needed)
+
+Astro Actions
+- Actions are defined in `astro-app/src/actions/index.ts` and exported as `server` object
+- Use `defineAction` from `astro:actions` to create actions
+- Actions accept `accept: 'json'` or `accept: 'form'` depending on use case
+- Use `ActionError` from `astro:actions` for client-visible errors
+- Actions can access `locals` (user, PocketBase instance), `cookies`, `request`, etc.
+- Call actions from Astro pages using `Astro.callAction(actions.*.*, input)` (e.g., `Astro.callAction(actions.users.getUserProfile, { username })`)
+- Call actions from React components using `actions.*.*()` from `astro:actions` (e.g., `actions.picks.submitPick()`, `actions.users.login()`)
+
+Data Fetching
+- Server-side: Use `Astro.callAction()` or direct function calls in `.astro` files
+- Client-side: Use React Query with actions (see react-fetching-data.mdc)
+- React Query client is managed via nanostores in `astro-app/src/stores/query.ts`
+- Always use `useStore(queryClient)` to get the QueryClient instance in React components
+- Pass the QueryClient instance as the second parameter to `useQuery` and `useMutation` hooks
 
 React Component Guidelines
 - Keep components as simple as possible
 - Use TypeScript interfaces for props
-- Implement proper error boundaries
-- Use React hooks judiciously
+- Use React Query hooks (`useQuery`, `useMutation`) with actions for data fetching
 - Follow shadcn/ui patterns for consistency
-- Export components from a barrel file (index.ts)
-
-Performance Optimization
-- Use client:* directives strategically:
-  - client:load - Only for immediately needed interactivity
-  - client:idle - For non-critical UI components
-  - client:visible - For below-the-fold interactive components
-- Implement proper code splitting
-- Use Image component for optimized images
-- Leverage Astro's static generation capabilities
+- Use `client:*` directives appropriately (load, idle, visible)
 
 TypeScript Best Practices
 - Enable strict mode in tsconfig.json
 - Define interfaces for all props and data structures
-- Use proper type imports/exports
-- Implement proper error handling with type safety
-- Use type guards when necessary
+- Use Zod schemas in `astro-app/src/lib/definitions.ts` for runtime validation
+- Import types using `type` keyword when importing only types
+- Use `@/` alias for imports (configured in tsconfig.json)
 
-SEO and Meta Tags
-- Implement proper meta tags for all pages
-- Use canonical URLs
-- Implement structured data when relevant
-- Ensure proper OpenGraph tags
-
-Build and Deployment
-- Use proper environment variables
-- Implement proper build optimization
-- Configure proper TypeScript checking in CI/CD
-- Ensure all types are properly built
-
-Testing
-- Implement unit tests for utility functions
-- Test React components in isolation
-- Implement end-to-end testing when necessary
-- Test for accessibility compliance
+Server-Side Rendering
+- This project uses SSR with Node adapter in standalone mode
+- Access user state via `Astro.locals.isAuthed` and `Astro.locals.user`
+- Use PocketBase instance from `Astro.locals.pb` for database operations
+- Environment variables are accessed via `astro:env/server` and `astro:env/client`
 
 Accessibility
 - Follow WCAG guidelines
 - Implement proper ARIA attributes
 - Ensure keyboard navigation
-- Test with screen readers
 - Use semantic HTML elements
 
 Code Quality
-- Use ESLint for code quality
-- Implement Prettier for code formatting
-- Follow conventional commits specification
 - Keep components modular and reusable
 - Document complex logic with clear comments
+- Use consistent naming conventions
+- Follow existing code patterns in the codebase
 
-Performance Metrics
-- Monitor Core Web Vitals
-- Implement performance budgets
-- Regular Lighthouse audits
-- Monitor bundle sizes
-
-Refer to Astro's official documentation alongside shadcn/ui documentation for detailed component implementation guidelines.
+Refer to Astro's official documentation (v5.6+) and shadcn/ui documentation for detailed component implementation guidelines.

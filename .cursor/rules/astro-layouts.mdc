@@ -1,12 +1,14 @@
 ---
-description: 
-globs: 
-alwaysApply: false
----
----
-description: working with Astro layouts
-globs: src/layouts/*.astro
+description: Working with Astro layouts
+globs: astro-app/src/layouts/*.astro
 alwaysApply: false
 ---
 [astro.mdc](mdc:.cursor/rules/astro.mdc)
+
+- Layouts are located in `astro-app/src/layouts/`
+- `BaseLayout.astro` provides the base HTML structure
+- `Layout.astro` wraps pages with common UI elements (Header, etc.)
+- Pages should import and use `Layout` from `@/layouts/Layout.astro`
 - Make the user experience generic and streamlined
+- Layouts handle authentication state via `Astro.locals.isAuthed` and `Astro.locals.user`
+- Pass page-specific props (like `title`) to Layout components

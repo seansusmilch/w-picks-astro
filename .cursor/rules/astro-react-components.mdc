@@ -1,0 +1,16 @@
+---
+description: Rules for modifying or creating React components (Astro-specific)
+globs: astro-app/src/components/**/*.tsx
+alwaysApply: false
+---
+[react-components.mdc](mdc:.cursor/rules/react-components.mdc) - Common React component rules
+
+- React components live in `astro-app/src/components` folder
+- Use existing shadcn/ui components where possible from `astro-app/src/components/ui`
+- If more shadcn components are needed, use the command `pnpm dlx shadcn@latest add component-name` (run from the `astro-app` directory)
+- Use `client:*` directives strategically:
+  - `client:load` - For immediately needed interactivity
+  - `client:idle` - For non-critical UI components
+  - `client:visible` - For below-the-fold interactive components
+- Import types from `@/lib/definitions` for shared data types (from `astro-app/src/lib/definitions.ts`)
+[components.mdc](mdc:.cursor/rules/components.mdc)

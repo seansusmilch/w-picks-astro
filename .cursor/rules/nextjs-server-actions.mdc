@@ -1,0 +1,20 @@
+---
+description: Rules for creating and using Server Actions in Next.js
+globs: next-app/app/actions/**/*.ts
+alwaysApply: false
+---
+[nextjs.mdc](mdc:.cursor/rules/nextjs.mdc)
+
+- Server Actions are defined in `next-app/app/actions/` directory
+- Mark the entire file with `'use server'` directive at the top (not per-function)
+- Actions accept `FormData` or typed parameters and return state objects
+- Use Zod schemas for input validation (e.g., `loginSchema.safeParse()`)
+- Return error states as objects: `{ error?: string; success?: boolean; message?: string }`
+- Use `createPocketBase()` from `@/lib/pocketbase-server` for database operations
+- Access cookies via `cookies()` from `next/headers` (must await: `await cookies()`)
+- Use `redirect()` from `next/navigation` for navigation after successful actions
+- Handle redirect errors by checking for `NEXT_REDIRECT` digest (use `isRedirectError` helper)
+- Handle PocketBase `ClientResponseError` instances with proper error messages
+- Log actions for debugging (use consistent format like `[actionName] message`)
+- Export action types alongside actions (e.g., `LoginFormState`, `SignupFormState`)
+- Actions can be used in forms via `action` prop or called directly from Client Components

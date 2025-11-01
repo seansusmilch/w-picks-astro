@@ -1,17 +1,17 @@
 ---
-description: 
-globs: 
+description: Rules for fetching data in React components
+globs: astro-app/src/components/**/*.tsx
 alwaysApply: false
 ---
----
-description: rules for fetching data in react
-globs: *.tsx
-alwaysApply: false
----
-- Use the existing react query nano store from here [query.ts](mdc:src/stores/query.ts)
-- Be sure to set the client when using any hook from `react-query`
-- Every react query should be pointing to an Astro Action
-- Astro Actions can be found in `src/actions/*`
-- Astro Actions can be accessed by importing `actions` from the package `astro:actions` and using `actions.*()`
-- Gracefully handle errors in astro actions
-- When needing to throw errors for the client to see, throw the `ActionError` class
+- Use the existing React Query nanostores store from here [query.ts](mdc:astro-app/src/stores/query.ts)
+- Import `queryClient` from `@/stores/query` and use `useStore(queryClient)` to get the QueryClient instance
+- Pass the QueryClient instance as the second parameter to React Query hooks: `useQuery({...}, client)` or `useMutation({...}, client)`
+- The QueryClient instance can be named `client` or `$queryClient` (following nanostores convention)
+- Every React query should call an Astro Action
+- Astro Actions are defined in `astro-app/src/actions/index.ts` and exported as the `server` object
+- Astro Actions are accessed by importing `actions` from `astro:actions` and using `actions.*()` (e.g., `actions.picks.submitPick()`, `actions.users.login()`, `actions.reactions.addReaction()`)
+- Actions use `defineAction` with `accept: 'json'` or `accept: 'form'` depending on the use case
+- Gracefully handle errors in React components when calling actions (check for `error` property in response)
+- Actions should throw `ActionError` class (from `astro:actions`) when errors occur that should be visible to the client
+- Use `useQuery` for fetching data and `useMutation` for mutations
+- Always provide proper query keys for cache management

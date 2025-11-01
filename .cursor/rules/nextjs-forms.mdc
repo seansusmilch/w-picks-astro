@@ -1,0 +1,20 @@
+---
+description: Rules for handling forms with Server Actions in Next.js
+globs: next-app/app/**/*.tsx
+alwaysApply: false
+---
+[nextjs.mdc](mdc:.cursor/rules/nextjs.mdc)
+[nextjs-server-actions.mdc](mdc:.cursor/rules/nextjs-server-actions.mdc)
+
+- Forms must be in Client Components (mark with `'use client'`)
+- Use `useActionState` hook from React for form state management
+- Import Server Actions from `@/app/actions/*`
+- Pass action to `useActionState(action, initialState)` as first parameter
+- Use `formAction` from `useActionState` as the `action` prop on `<form>`
+- Display errors from action state: `{state?.error && <div>{state.error}</div>}`
+- Display success messages: `{state?.success && state?.message && <div>{state.message}</div>}`
+- Use `isPending` from `useActionState` to disable form inputs during submission
+- Use proper form inputs with `name` attributes matching Server Action expectations
+- Use shadcn/ui form components (`Input`, `Label`, `Button`, etc.) for consistent styling
+- Set appropriate `autoComplete` attributes for accessibility
+- Handle loading states with disabled inputs and loading text on buttons
