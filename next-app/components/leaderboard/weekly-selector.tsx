@@ -4,7 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { DateTime } from 'luxon';
 import { cn } from '@/lib/utils';
 
-interface WeekSelectorProps {
+interface WeeklySelectorProps {
   selectedWeek: string;
   weekList: string[];
   className?: string;
@@ -28,11 +28,11 @@ function formatWeekDisplay(weekString: string): string {
   return `Week ${formatDate(firstDay)} to ${formatDate(lastDay)}`;
 }
 
-export function WeekSelector({
+export function WeeklySelector({
   selectedWeek,
   weekList,
   className,
-}: WeekSelectorProps) {
+}: WeeklySelectorProps) {
   const router = useRouter();
   const pathname = usePathname();
 

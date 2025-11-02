@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getWeeklyStatsAction, getWeekListAction } from '@/app/actions/stats';
 import { getAuthenticatedUser } from '@/lib/pocketbase-server';
 import { LeaderboardTable } from '@/components/leaderboard/leaderboard-table';
-import { WeekSelector } from '@/components/leaderboard/week-selector';
+import { WeeklySelector } from '@/components/leaderboard/weekly-selector';
 import { Card, CardContent } from '@/components/ui/card';
 import { Trophy } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -70,7 +70,7 @@ export default async function WeeklyLeaderboardPage({ params }: WeeklyLeaderboar
       <Card className="mb-2">
         <CardContent className="p-3">
           {weekList && weekList.length > 0 && (
-            <WeekSelector selectedWeek={selectedWeek} weekList={weekList} />
+            <WeeklySelector selectedWeek={selectedWeek} weekList={weekList} />
           )}
         </CardContent>
       </Card>

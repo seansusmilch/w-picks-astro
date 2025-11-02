@@ -1,6 +1,6 @@
 import { getGamesByCodePrefix } from '@/app/actions/matchups';
 import { getTodayCodePrefix } from '@/lib/date-utils';
-import { WeekGamesView } from '@/components/weekly/week-games-view';
+import { GamesView } from '@/components/weekly/games-view';
 import { Card, CardContent } from '@/components/ui/card';
 import type { Metadata } from 'next';
 
@@ -18,7 +18,7 @@ export default async function HomePage() {
     <div className='container mx-auto px-0 sm:px-4 py-4 max-w-6xl'>
       <Card>
         <CardContent className='p-0'>
-          <WeekGamesView
+          <GamesView
             initialDateCode={todayCodePrefix}
             initialGames={initialGames}
           />

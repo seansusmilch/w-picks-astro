@@ -4,15 +4,12 @@ import { WeeklyMatchupCard } from './weekly-matchup-card';
 import type { GameType } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
 
-interface WeekGamesSummaryProps {
+interface GamesSummaryProps {
   games: GameType[];
   isLoading?: boolean;
 }
 
-export function WeekGamesSummary({
-  games,
-  isLoading = false,
-}: WeekGamesSummaryProps) {
+export function GamesSummary({ games, isLoading = false }: GamesSummaryProps) {
   // Sort games by matchup code (game code portion)
   const sortedGames = [...games].sort((a, b) => {
     const [, gameCodeA] = a.matchup.code.split('/');

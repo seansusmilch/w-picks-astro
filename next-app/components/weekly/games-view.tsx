@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { DateRibbon } from './date-ribbon';
-import { WeekGamesSummary } from './week-games-summary';
+import { GamesSummary } from './games-summary';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { GameType } from '@/lib/definitions';
@@ -14,15 +14,15 @@ import {
 } from '@/lib/date-utils';
 import { getGamesByCodePrefix } from '@/app/actions/matchups';
 
-interface WeekGamesViewProps {
+interface GamesViewProps {
   initialDateCode: string;
   initialGames: GameType[];
 }
 
-export function WeekGamesView({
+export function GamesView({
   initialDateCode,
   initialGames,
-}: WeekGamesViewProps) {
+}: GamesViewProps) {
   const [dateRange, setDateRange] = useState<string[]>(getInitialDateRange());
   const [selectedDate, setSelectedDate] = useState<string>(initialDateCode);
   const [gamesCache, setGamesCache] = useState<Record<string, GameType[]>>({
@@ -146,7 +146,7 @@ export function WeekGamesView({
       </div>
 
       {/* Games display */}
-      <WeekGamesSummary games={currentGames} isLoading={isLoading} />
+      <GamesSummary games={currentGames} isLoading={isLoading} />
     </div>
   );
 }
