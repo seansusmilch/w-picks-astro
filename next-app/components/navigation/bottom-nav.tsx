@@ -20,7 +20,7 @@ export function BottomNav({ isAuthenticated }: BottomNavProps) {
   const pathname = usePathname();
 
   const navItems: NavItem[] = [
-    { href: '/', label: 'Home', icon: Home, id: 'home' },
+    { href: '/home', label: 'Home', icon: Home, id: 'home' },
     ...(isAuthenticated
       ? [
           { href: '/leaderboard', label: 'Leaderboard', icon: Trophy, id: 'leaderboard' },

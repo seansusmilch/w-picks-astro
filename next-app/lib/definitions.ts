@@ -99,3 +99,11 @@ export const ReactionZ = z.object({
 });
 
 export type ReactionType = z.infer<typeof ReactionZ>;
+
+export const GameZ = z.object({
+  matchup: MatchupZ,
+  scoreboard: ScoreboardZ.optional(),
+  picks: z.array(PickZ),
+});
+
+export type GameType = z.infer<typeof GameZ>;

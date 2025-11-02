@@ -1,7 +1,12 @@
 'use server';
 
 import { initPocketBase, getAdminPocketBase } from '@/lib/pocketbase-server';
-import type { MatchupType, ScoreboardType, PickType } from '@/lib/definitions';
+import type {
+  MatchupType,
+  ScoreboardType,
+  PickType,
+  GameType,
+} from '@/lib/definitions';
 import { MatchupZ, ScoreboardZ, PickZ, UserZ } from '@/lib/definitions';
 import { getCurrentWeekCodePrefixes } from '@/lib/date-utils';
 import { getLogger } from '@/lib/logger';
@@ -529,6 +534,255 @@ export async function getCurrentWeekMatchups(): Promise<MatchupType[]> {
     return allMatchups;
   } catch (error) {
     console.error('Failed to fetch current week matchups', error);
+    return [];
+  }
+}
+
+/**
+ * Fetches scoreboards for a given code prefix (date code)
+ */
+export async function getScoreboardsByCodePrefix(
+  codePrefix: string
+): Promise<ScoreboardType[]> {
+  logger.debug({ codePrefix }, 'Fetching scoreboards by code prefix');
+
+  const pb = await getAdminPocketBase();
+
+  try {
+    const scoreboardRecords = await pb
+      .collection('scoreboards')
+      .getFullList({
+        filter: `code ?~ "${codePrefix}"`,
+      })
+      .catch((error) => {
+        logger.error(
+          {
+            codePrefix,
+            error: error instanceof Error ? error.message : String(error),
+          },
+          'Failed to fetch scoreboards'
+        );
+        return [];
+      });
+
+    const scoreboards: ScoreboardType[] = [];
+    for (const record of scoreboardRecords) {
+      const parsed = ScoreboardZ.safeParse(record);
+      if (parsed.success) {
+        scoreboards.push(parsed.data);
+      }
+    }
+
+    logger.debug(
+      { codePrefix, count: scoreboards.length },
+      'Fetched scoreboards by code prefix'
+    );
+    return scoreboards;
+  } catch (error) {
+    logger.error(
+      {
+        codePrefix,
+        error: error instanceof Error ? error.message : String(error),
+      },
+      'Failed to fetch scoreboards by code prefix'
+    );
+    return [];
+  }
+}
+
+/**
+ * Fetches matchups with picks for a given code prefix (date code)
+ */
+export async function getMatchupsAndPicksByCodePrefix(
+  codePrefix: string
+): Promise<any[]> {
+  logger.debug({ codePrefix }, 'Fetching matchups and picks by code prefix');
+
+  const pb = await getAdminPocketBase();
+
+  try {
+    const matchupRecords = await pb
+      .collection('matchups')
+      .getFullList({
+        filter: `code ?~ "${codePrefix}"`,
+        sort: '+time_utc',
+        expand: ['picks_via_matchup', 'picks_via_matchup.user'].join(','),
+      })
+      .catch((error) => {
+        logger.error(
+          {
+            codePrefix,
+            error: error instanceof Error ? error.message : String(error),
+          },
+          'Failed to fetch matchups'
+        );
+        return [];
+      });
+
+    logger.debug(
+      { codePrefix, count: matchupRecords.length },
+      'Fetched matchups and picks by code prefix'
+    );
+    return matchupRecords;
+  } catch (error) {
+    logger.error(
+      {
+        codePrefix,
+        error: error instanceof Error ? error.message : String(error),
+      },
+      'Failed to fetch matchups and picks by code prefix'
+    );
+    return [];
+  }
+}
+
+/**
+ * Fetches games (matchups + scoreboards + picks) for a given code prefix
+ * Returns GameType[] matching the astro-app structure
+ */
+export async function getGamesByCodePrefix(
+  codePrefix: string
+): Promise<GameType[]> {
+  logger.debug({ codePrefix }, 'Fetching games by code prefix');
+
+  try {
+    const [matchupsAndPicks, scoreboards] = await Promise.all([
+      getMatchupsAndPicksByCodePrefix(codePrefix),
+      getScoreboardsByCodePrefix(codePrefix),
+    ]);
+
+    const games: GameType[] = [];
+
+    for (const matchupRecord of matchupsAndPicks) {
+      // Extract picks from expanded relation
+      // Type assertion needed because PocketBase's expand is typed as any
+      const picksRecords = (matchupRecord.expand as any)?.picks_via_matchup || [];
+      const picks: PickType[] = [];
+      let validPicks = 0;
+      let invalidPicks = 0;
+
+      logger.debug(
+        {
+          codePrefix,
+          matchupId: matchupRecord.id,
+          picksRecordsCount: picksRecords.length,
+          expandType: Array.isArray(picksRecords) ? 'array' : typeof picksRecords,
+        },
+        'Extracting picks from expanded relation'
+      );
+
+      for (const pickRecord of picksRecords) {
+        // When picks come from expanded relation, they're already valid PocketBase records
+        // We don't need strict validation - just ensure basic structure exists
+        // This matches how getMatchupPageData handles picks from expanded relations
+        if (
+          pickRecord.id &&
+          pickRecord.matchup &&
+          pickRecord.user &&
+          pickRecord.win_prediction
+        ) {
+          // Use the pick record as-is, similar to getMatchupPageData's approach
+          // The expand structure is already correct from PocketBase
+          const pick: PickType = {
+            id: pickRecord.id,
+            created: pickRecord.created,
+            updated: pickRecord.updated,
+            matchup:
+              typeof pickRecord.matchup === 'string'
+                ? pickRecord.matchup
+                : pickRecord.matchup.id || pickRecord.matchup,
+            win_prediction: pickRecord.win_prediction,
+            comment: pickRecord.comment || '',
+            user:
+              typeof pickRecord.user === 'string'
+                ? pickRecord.user
+                : pickRecord.user.id || pickRecord.user,
+            status: pickRecord.status || '',
+            result: pickRecord.result || '',
+            expand: pickRecord.expand
+              ? {
+                  user: pickRecord.expand.user,
+                  matchup: pickRecord.expand.matchup,
+                }
+              : undefined,
+          } as PickType;
+
+          picks.push(pick);
+          validPicks++;
+        } else {
+          invalidPicks++;
+          logger.warn(
+            {
+              codePrefix,
+              matchupId: matchupRecord.id,
+              pickId: pickRecord.id,
+              pickRecordKeys: Object.keys(pickRecord),
+              hasMatchup: !!pickRecord.matchup,
+              hasUser: !!pickRecord.user,
+              hasWinPrediction: !!pickRecord.win_prediction,
+            },
+            'Pick record missing required fields in getGamesByCodePrefix'
+          );
+        }
+      }
+
+      logger.debug(
+        {
+          codePrefix,
+          matchupId: matchupRecord.id,
+          totalRecords: picksRecords.length,
+          validPicks,
+          invalidPicks,
+        },
+        'Parsed picks from expanded relation'
+      );
+
+      // Parse matchup (remove expand property)
+      const { expand, ...matchupWithoutExpand } = matchupRecord;
+      const parsedMatchup = MatchupZ.safeParse(matchupWithoutExpand);
+
+      if (!parsedMatchup.success) {
+        logger.warn(
+          {
+            codePrefix,
+            matchupId: matchupRecord.id,
+            validationErrors: parsedMatchup.error.issues,
+          },
+          'Failed to validate matchup'
+        );
+        continue;
+      }
+
+      const matchup = parsedMatchup.data;
+
+      // Find matching scoreboard
+      const scoreboard =
+        scoreboards.find((sb) => sb.code === matchup.code) || null;
+
+      // Expand avatar URLs for picks
+      const picksWithAvatars = expandAvatarUrls(picks);
+
+      games.push({
+        matchup,
+        scoreboard: scoreboard || undefined,
+        picks: picksWithAvatars,
+      });
+    }
+
+    logger.debug(
+      { codePrefix, gamesCount: games.length },
+      'Successfully fetched games by code prefix'
+    );
+
+    return games;
+  } catch (error) {
+    logger.error(
+      {
+        codePrefix,
+        error: error instanceof Error ? error.message : String(error),
+      },
+      'Failed to fetch games by code prefix'
+    );
     return [];
   }
 }

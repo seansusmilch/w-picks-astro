@@ -21,7 +21,7 @@ export function TopNav({ isAuthenticated, username }: TopNavProps) {
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <Link
-            href={isAuthenticated ? '/dashboard' : '/'}
+            href={isAuthenticated ? '/dashboard' : '/home'}
             className="flex items-center gap-2 font-bold text-xl transition-opacity hover:opacity-80"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
@@ -34,10 +34,10 @@ export function TopNav({ isAuthenticated, username }: TopNavProps) {
           <Separator orientation="vertical" className="h-6" />
           <nav className="flex items-center gap-1">
             <Link
-              href="/"
+              href="/home"
               className={cn(
                 'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground',
-                pathname === '/' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
+                pathname === '/home' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
               )}
             >
               <Home className="h-4 w-4" />

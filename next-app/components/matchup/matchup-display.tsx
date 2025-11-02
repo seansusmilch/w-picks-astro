@@ -2,6 +2,7 @@
 
 import { DateTime } from 'luxon';
 import { Logo } from '@/components/nba/logo';
+import { Badge } from '@/components/ui/badge';
 import type { MatchupType, ScoreboardType } from '@/lib/definitions';
 
 interface TeamMeta {
@@ -9,13 +10,13 @@ interface TeamMeta {
   losses?: number;
 }
 
-
 interface PreGameProps {
   away_code: string;
   home_code: string;
   time_utc: string;
   away_meta?: TeamMeta;
   home_meta?: TeamMeta;
+  showStatusBadge?: boolean;
 }
 
 function PreGame({
@@ -24,33 +25,46 @@ function PreGame({
   time_utc,
   away_meta,
   home_meta,
+  showStatusBadge = false,
 }: PreGameProps) {
   const gameTime = DateTime.fromSQL(time_utc).toJSDate();
   const gameDate = DateTime.fromSQL(time_utc);
-  const formattedTime = DateTime.fromJSDate(gameTime).toLocaleString({
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: true,
-  }).replace(' AM', 'a').replace(' PM', 'p');
+  const formattedTime = DateTime.fromJSDate(gameTime)
+    .toLocaleString({
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+    })
+    .replace(' AM', 'a')
+    .replace(' PM', 'p');
   const formattedDate = gameDate.toFormat('ccc, MMM d');
 
   return (
-    <div className="w-full flex items-center gap-2 sm:gap-4">
+    <div className='w-full flex items-center gap-2 sm:gap-4'>
       {/* Away Team Logo */}
-      <Logo tricode={away_code} className="h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0" />
+      <Logo
+        tricode={away_code}
+        className='h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0'
+      />
 
       {/* Game Info */}
-      <div className="flex-1 flex flex-col items-center justify-center min-w-0">
-        <div className="text-xs sm:text-sm font-semibold text-muted-foreground">
+      <div className='flex-1 flex flex-col items-center justify-center min-w-0 gap-1'>
+        {showStatusBadge && (
+          <Badge variant='outline' className='text-xs'>
+            Upcoming
+          </Badge>
+        )}
+        <div className='text-xs sm:text-sm font-semibold text-muted-foreground'>
           {formattedDate}
         </div>
-        <div className="text-lg sm:text-xl font-bold">
-          {formattedTime}
-        </div>
+        <div className='text-lg sm:text-xl font-bold'>{formattedTime}</div>
       </div>
 
       {/* Home Team Logo */}
-      <Logo tricode={home_code} className="h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0" />
+      <Logo
+        tricode={home_code}
+        className='h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0'
+      />
     </div>
   );
 }
@@ -65,6 +79,7 @@ interface LiveScoreProps {
   time_utc?: string;
   home_meta?: TeamMeta;
   away_meta?: TeamMeta;
+  showStatusBadge?: boolean;
 }
 
 function LiveScore({
@@ -77,10 +92,11 @@ function LiveScore({
   time_utc,
   home_meta,
   away_meta,
+  showStatusBadge = false,
 }: LiveScoreProps) {
   let statusText = status_text;
   let gameDate: string | null = null;
-  
+
   if (status === 1 && time_utc) {
     const etTime = DateTime.fromFormat(statusText, "h:mm a 'ET'", {
       zone: 'America/New_York',
@@ -94,34 +110,48 @@ function LiveScore({
   }
 
   return (
-    <div className="w-full flex items-center gap-2 sm:gap-4">
+    <div className='w-full relative flex items-center gap-2 sm:gap-4'>
       {/* Away Team Logo */}
-      <Logo tricode={away_code} className="h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0" />
+      <Logo
+        tricode={away_code}
+        className='h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0'
+      />
 
       {/* Away Score */}
-      <span className="text-xl sm:text-2xl font-bold tabular-nums flex-shrink-0">
+      <span className='text-xl sm:text-2xl font-bold tabular-nums flex-shrink-0'>
         {away_score}
       </span>
 
-      {/* Game Info */}
-      <div className="flex-1 flex flex-col items-center justify-center min-w-0">
+      {/* Spacer to push scores apart */}
+      <div className='flex-1' />
+
+      {/* Game Info - Absolutely positioned in center */}
+      <div className='absolute left-1/2 -translate-x-1/2 pointer-events-none flex flex-col items-center justify-center gap-1'>
+        {showStatusBadge && (
+          <Badge className='bg-destructive text-destructive-foreground text-xs'>
+            Live
+          </Badge>
+        )}
         {gameDate && (
-          <div className="text-xs sm:text-sm font-semibold text-muted-foreground mb-0.5">
+          <div className='text-xs sm:text-sm font-semibold text-muted-foreground whitespace-nowrap'>
             {gameDate}
           </div>
         )}
-        <div className="text-xs sm:text-sm font-semibold text-muted-foreground">
+        <div className='text-xs sm:text-sm font-semibold text-muted-foreground whitespace-nowrap'>
           {statusText}
         </div>
       </div>
 
       {/* Home Score */}
-      <span className="text-xl sm:text-2xl font-bold tabular-nums flex-shrink-0">
+      <span className='text-xl sm:text-2xl font-bold tabular-nums flex-shrink-0'>
         {home_score}
       </span>
 
       {/* Home Team Logo */}
-      <Logo tricode={home_code} className="h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0" />
+      <Logo
+        tricode={home_code}
+        className='h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0'
+      />
     </div>
   );
 }
@@ -134,6 +164,7 @@ interface PostGameProps {
   status_text: string;
   home_meta?: TeamMeta;
   away_meta?: TeamMeta;
+  showStatusBadge?: boolean;
 }
 
 function PostGame({
@@ -144,31 +175,41 @@ function PostGame({
   status_text,
   home_meta,
   away_meta,
+  showStatusBadge = false,
 }: PostGameProps) {
   return (
-    <div className="w-full flex items-center gap-2 sm:gap-4">
+    <div className='w-full relative flex items-center gap-2 sm:gap-4'>
       {/* Away Team Logo */}
-      <Logo tricode={away_code} className="h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0" />
+      <Logo
+        tricode={away_code}
+        className='h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0'
+      />
 
       {/* Away Score */}
-      <span className="text-xl sm:text-2xl font-bold tabular-nums flex-shrink-0">
+      <span className='text-xl sm:text-2xl font-bold tabular-nums flex-shrink-0'>
         {away_score}
       </span>
 
-      {/* Game Info */}
-      <div className="flex-1 flex flex-col items-center justify-center min-w-0">
-        <div className="text-xs sm:text-sm font-semibold uppercase text-muted-foreground">
+      {/* Spacer to push scores apart */}
+      <div className='flex-1' />
+
+      {/* Game Status - Absolutely positioned in center */}
+      <div className='absolute left-1/2 -translate-x-1/2 pointer-events-none'>
+        <div className='text-xs sm:text-sm font-semibold uppercase text-muted-foreground whitespace-nowrap'>
           {status_text}
         </div>
       </div>
 
       {/* Home Score */}
-      <span className="text-xl sm:text-2xl font-bold tabular-nums flex-shrink-0">
+      <span className='text-xl sm:text-2xl font-bold tabular-nums flex-shrink-0'>
         {home_score}
       </span>
 
       {/* Home Team Logo */}
-      <Logo tricode={home_code} className="h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0" />
+      <Logo
+        tricode={home_code}
+        className='h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0'
+      />
     </div>
   );
 }
@@ -176,13 +217,18 @@ function PostGame({
 interface MatchupDisplayProps {
   matchup: MatchupType;
   scoreboard?: ScoreboardType;
+  showStatusBadge?: boolean;
 }
 
-export function MatchupDisplay({ matchup, scoreboard }: MatchupDisplayProps) {
+export function MatchupDisplay({
+  matchup,
+  scoreboard,
+  showStatusBadge = false,
+}: MatchupDisplayProps) {
   const gameStatus = scoreboard?.status || 0;
 
   return (
-    <div className="w-full">
+    <div className='w-full'>
       {gameStatus === 0 && (
         <PreGame
           away_code={matchup.away_code}
@@ -190,6 +236,7 @@ export function MatchupDisplay({ matchup, scoreboard }: MatchupDisplayProps) {
           time_utc={matchup.time_utc}
           away_meta={matchup.away_meta || undefined}
           home_meta={matchup.home_meta || undefined}
+          showStatusBadge={showStatusBadge}
         />
       )}
       {[1, 2].includes(gameStatus) && scoreboard && (
@@ -203,6 +250,7 @@ export function MatchupDisplay({ matchup, scoreboard }: MatchupDisplayProps) {
           time_utc={matchup.time_utc}
           home_meta={matchup.home_meta || undefined}
           away_meta={matchup.away_meta || undefined}
+          showStatusBadge={showStatusBadge}
         />
       )}
       {gameStatus === 3 && scoreboard && (
@@ -214,9 +262,9 @@ export function MatchupDisplay({ matchup, scoreboard }: MatchupDisplayProps) {
           status_text={scoreboard.status_text}
           home_meta={matchup.home_meta || undefined}
           away_meta={matchup.away_meta || undefined}
+          showStatusBadge={showStatusBadge}
         />
       )}
     </div>
   );
 }
-
