@@ -32,7 +32,8 @@ export function useSubmitPick() {
       matchup: string;
       matchupCode?: string; // For optimistic updates
       optimisticPick?: PickType; // For optimistic updates
-    }
+    },
+    { previousMatchupData: MatchupPageData | null }
   >({
     mutationFn: async (variables) => {
       const formData = new FormData();
@@ -144,7 +145,8 @@ export function useDeletePick() {
       matchup: string;
       matchupCode?: string; // For optimistic updates
       userId?: string; // For optimistic updates
-    }
+    },
+    { previousMatchupData: MatchupPageData | null }
   >({
     mutationFn: async (variables) => {
       const formData = new FormData();
@@ -217,7 +219,7 @@ export function useDeletePick() {
 export function useAddReaction() {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, string>({
+  return useMutation<void, Error, string, { previousReactions: ReactionData | undefined }>({
     mutationFn: async (pickId: string) => {
       return await addReaction(pickId);
     },
@@ -269,7 +271,7 @@ export function useAddReaction() {
 export function useRemoveReaction() {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, string>({
+  return useMutation<void, Error, string, { previousReactions: ReactionData | undefined }>({
     mutationFn: async (pickId: string) => {
       return await removeReaction(pickId);
     },

@@ -53,10 +53,17 @@ export async function getStatsByUserId(userId: string): Promise<StatType | null>
   }
 }
 
+export type StatWithExpand = StatType &
+  RecordModel & {
+    expand?: {
+      user?: UserType;
+    };
+  };
+
 /**
  * Get all-time stats for all verified users, sorted by win_pick_rate
  */
-export async function getAllStats() {
+export async function getAllStats(): Promise<StatWithExpand[]> {
   const pb = await getAdminPocketBase();
   const sortedBy = 'win_pick_rate';
 
@@ -67,13 +74,20 @@ export async function getAllStats() {
     fields: '*,expand.user.id,expand.user.avatar,expand.user.username',
   });
 
-  return expandAvatarUrls(userStats);
+  return expandAvatarUrls(userStats) as StatWithExpand[];
 }
+
+export type WeeklyStatWithExpand = WeeklyStatType &
+  RecordModel & {
+    expand?: {
+      user?: UserType;
+    };
+  };
 
 /**
  * Get weekly stats for a specific week
  */
-export async function getWeeklyStats(week: string) {
+export async function getWeeklyStats(week: string): Promise<WeeklyStatWithExpand[]> {
   const pb = await getAdminPocketBase();
 
   const weekStats = await pb.collection('weekly_stats').getFullList({
@@ -82,7 +96,7 @@ export async function getWeeklyStats(week: string) {
     sort: '-win_pick_rate',
   });
 
-  return expandAvatarUrls(weekStats);
+  return expandAvatarUrls(weekStats) as WeeklyStatWithExpand[];
 }
 
 /**

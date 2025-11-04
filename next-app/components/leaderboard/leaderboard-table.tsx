@@ -8,18 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import type { StatType, UserType } from '@/lib/definitions';
-import type { RecordModel } from 'pocketbase';
-
-type StatWithExpand = StatType &
-  RecordModel & {
-    expand?: {
-      user?: UserType;
-    };
-  };
+import type { StatWithExpand } from '@/lib/stats';
 
 interface LeaderboardTableProps {
-  data: StatWithExpand[];
+  data: StatWithExpand[] | import('@/lib/stats').WeeklyStatWithExpand[];
   currentUserId?: string;
 }
 

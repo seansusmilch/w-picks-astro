@@ -86,7 +86,7 @@ export async function loginAction(
       model: pb.authStore.model,
     };
     const cookieValue = JSON.stringify(cookieAuthData);
-    
+
     console.log('[loginAction] Auth store serialized', {
       email: validatedEmail,
       hasToken: !!pb.authStore.token,
@@ -178,7 +178,9 @@ export async function signupAction(
     const { email: validatedEmail, password, confirm_password } = result.data;
 
     if (password !== confirm_password) {
-      console.warn('[signupAction] Passwords do not match', { email: validatedEmail });
+      console.warn('[signupAction] Passwords do not match', {
+        email: validatedEmail,
+      });
       return {
         error: 'Passwords do not match!',
       };

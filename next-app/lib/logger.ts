@@ -14,18 +14,25 @@ class Logger {
     this.name = name;
   }
 
-  private formatMessage(level: LogLevel, context: LogContext | undefined, message: string): void {
+  private formatMessage(
+    level: LogLevel,
+    context: LogContext | undefined,
+    message: string
+  ): void {
     const timestamp = new Date().toISOString();
     const prefix = `[${timestamp}] [${level.toUpperCase()}] [${this.name}]`;
-    
+
     if (context) {
-      console[level === 'fatal' ? 'error' : level](`${prefix} ${message}`, context);
+      console[level === 'fatal' ? 'error' : level](
+        `${prefix} ${message}`,
+        context
+      );
     } else {
       console[level === 'fatal' ? 'error' : level](`${prefix} ${message}`);
     }
   }
 
-  trace(context: LogContext | undefined, message: string): void;
+  trace(context: LogContext, message: string): void;
   trace(message: string): void;
   trace(contextOrMessage: LogContext | string, message?: string): void {
     if (typeof contextOrMessage === 'string') {
@@ -35,7 +42,7 @@ class Logger {
     }
   }
 
-  debug(context: LogContext | undefined, message: string): void;
+  debug(context: LogContext, message: string): void;
   debug(message: string): void;
   debug(contextOrMessage: LogContext | string, message?: string): void {
     if (typeof contextOrMessage === 'string') {
@@ -45,7 +52,7 @@ class Logger {
     }
   }
 
-  info(context: LogContext | undefined, message: string): void;
+  info(context: LogContext, message: string): void;
   info(message: string): void;
   info(contextOrMessage: LogContext | string, message?: string): void {
     if (typeof contextOrMessage === 'string') {
@@ -55,7 +62,7 @@ class Logger {
     }
   }
 
-  warn(context: LogContext | undefined, message: string): void;
+  warn(context: LogContext, message: string): void;
   warn(message: string): void;
   warn(contextOrMessage: LogContext | string, message?: string): void {
     if (typeof contextOrMessage === 'string') {
@@ -65,7 +72,7 @@ class Logger {
     }
   }
 
-  error(context: LogContext | undefined, message: string): void;
+  error(context: LogContext, message: string): void;
   error(message: string): void;
   error(contextOrMessage: LogContext | string, message?: string): void {
     if (typeof contextOrMessage === 'string') {
@@ -75,7 +82,7 @@ class Logger {
     }
   }
 
-  fatal(context: LogContext | undefined, message: string): void;
+  fatal(context: LogContext, message: string): void;
   fatal(message: string): void;
   fatal(contextOrMessage: LogContext | string, message?: string): void {
     if (typeof contextOrMessage === 'string') {
@@ -97,4 +104,3 @@ export function getLogger(name: string): Logger {
 
 // Default logger (for backward compatibility)
 export default getLogger('app');
-

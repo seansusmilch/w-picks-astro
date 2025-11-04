@@ -21,7 +21,9 @@ import type { ScoreboardType } from '@/lib/definitions';
 // Create a named logger for this file
 const logger = getLogger('update-scoreboards');
 
-function parseScoreboards(rawData: NBAScoreboardsResponse): ScoreboardType[] {
+function parseScoreboards(
+  rawData: NBAScoreboardsResponse
+): Omit<ScoreboardType, 'id' | 'created' | 'updated'>[] {
   const todaysScoreboards = rawData.scoreboard.games;
   return todaysScoreboards.map((game) => ({
     code: game.gameCode,
@@ -32,7 +34,9 @@ function parseScoreboards(rawData: NBAScoreboardsResponse): ScoreboardType[] {
   }));
 }
 
-async function updatePicksStatus(scoreboard: ScoreboardType) {
+async function updatePicksStatus(
+  scoreboard: Omit<ScoreboardType, 'id' | 'created' | 'updated'>
+) {
   logger.info(
     { code: scoreboard.code, status: scoreboard.status },
     'Updating picks status'

@@ -172,7 +172,7 @@ export function PickForm({
           userId: pick?.user,
         });
       }
-    } else {
+    } else if (winPrediction) {
       // Submit pick with optimistic update
       const optimisticPick: PickType | undefined = pick?.expand?.user
         ? {

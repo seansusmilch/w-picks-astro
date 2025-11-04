@@ -182,7 +182,7 @@ export async function updatePicksStatus(
  * Create or update a scoreboard record
  */
 export async function updateScoreboard(
-  scoreboard: ScoreboardType
+  scoreboard: Omit<ScoreboardType, 'id' | 'created' | 'updated'>
 ): Promise<{ action: 'CREATED' | 'UPDATED' | 'FAILED'; id?: string; error?: string }> {
   const pb = await getAdminPocketBase();
 

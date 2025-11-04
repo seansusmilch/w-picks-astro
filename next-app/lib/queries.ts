@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, type Query } from '@tanstack/react-query';
 import {
   getGamesByCodePrefix,
   getMatchupPageData,
@@ -45,7 +45,10 @@ export function useMatchupPageData(
   code: string,
   options?: {
     enabled?: boolean;
-    refetchInterval?: number | false;
+    refetchInterval?:
+      | number
+      | false
+      | ((query: Query<MatchupPageData | null>) => number | false);
   }
 ) {
   return useQuery<MatchupPageData | null>({
