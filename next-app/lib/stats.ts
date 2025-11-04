@@ -1,34 +1,47 @@
 import { initPocketBase, getAdminPocketBase } from './pocketbase-server';
-import { StatZ, WeeklyStatZ, type StatType, type WeeklyStatType, type UserType } from './definitions';
+import {
+  StatZ,
+  WeeklyStatZ,
+  type StatType,
+  type WeeklyStatType,
+  type UserType,
+} from './definitions';
 import type { RecordModel } from 'pocketbase';
 
 const POCKETBASE_URL = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
 
-export function getUserAvatarUrl(userId: string, filename: string): string | null {
+export function getUserAvatarUrl(
+  userId: string,
+  filename: string
+): string | null {
   if (!filename || !userId) return null;
-  return new URL(`/api/files/users/${userId}/${filename}`, POCKETBASE_URL).toString();
+  return new URL(
+    `/api/files/users/${userId}/${filename}`,
+    POCKETBASE_URL
+  ).toString();
 }
 
 /**
  * Expand avatar URLs for stats with user expansion
  */
-export function expandAvatarUrls<T extends RecordModel & { expand?: { user?: UserType } }>(
-  items: T[]
-): T[] {
+export function expandAvatarUrls<
+  T extends RecordModel & { expand?: { user?: UserType } }
+>(items: T[]): T[] {
   return items.map((item) => {
     if (item.expand?.user) {
-      item.expand.user.avatar_url = getUserAvatarUrl(
-        item.expand.user.id,
-        item.expand.user.avatar
-      ) || undefined;
+      item.expand.user.avatar_url =
+        getUserAvatarUrl(item.expand.user.id, item.expand.user.avatar) ||
+        undefined;
     }
     return item;
   });
 }
 
-export async function getStatsByUserId(userId: string): Promise<StatType | null> {
+export async function getStatsByUserId(
+  userId: string
+): Promise<StatType | null> {
   const pb = await initPocketBase();
-  
+
   try {
     const stats = await pb
       .collection('stats')
@@ -87,7 +100,9 @@ export type WeeklyStatWithExpand = WeeklyStatType &
 /**
  * Get weekly stats for a specific week
  */
-export async function getWeeklyStats(week: string): Promise<WeeklyStatWithExpand[]> {
+export async function getWeeklyStats(
+  week: string
+): Promise<WeeklyStatWithExpand[]> {
   const pb = await getAdminPocketBase();
 
   const weekStats = await pb.collection('weekly_stats').getFullList({
@@ -110,4 +125,3 @@ export async function getWeekList(): Promise<string[]> {
   });
   return Array.from(new Set(weekList.map((week) => week.year_week)));
 }
-
