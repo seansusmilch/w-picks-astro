@@ -7,19 +7,7 @@ import {
   type UserType,
 } from './definitions';
 import type { RecordModel } from 'pocketbase';
-
-const POCKETBASE_URL = process.env.POCKETBASE_URL || 'http://127.0.0.1:8090';
-
-export function getUserAvatarUrl(
-  userId: string,
-  filename: string
-): string | null {
-  if (!filename || !userId) return null;
-  return new URL(
-    `/api/files/users/${userId}/${filename}`,
-    POCKETBASE_URL
-  ).toString();
-}
+import { getUserAvatarUrl } from './utils';
 
 /**
  * Expand avatar URLs for stats with user expansion

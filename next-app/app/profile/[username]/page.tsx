@@ -1,7 +1,8 @@
 import { notFound, redirect } from 'next/navigation';
 import { getAuthenticatedUser } from '@/lib/pocketbase-server';
 import { getUserByUsername } from '@/app/actions/users';
-import { getStatsByUserId, getUserAvatarUrl } from '@/lib/stats';
+import { getStatsByUserId } from '@/lib/stats';
+import { getUserAvatarUrl } from '@/lib/utils';
 import { ProfileHeader } from '@/components/profile/profile-header';
 import { AllTimeStatsCard } from '@/components/profile/all-time-stats-card';
 

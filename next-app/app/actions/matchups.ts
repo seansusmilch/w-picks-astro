@@ -10,18 +10,9 @@ import type {
 import { MatchupZ, ScoreboardZ, PickZ, UserZ } from '@/lib/definitions';
 import { getCurrentWeekCodePrefixes } from '@/lib/date-utils';
 import { getLogger } from '@/lib/logger';
+import { getUserAvatarUrl } from '@/lib/utils';
 
 const logger = getLogger('matchups');
-
-const POCKETBASE_URL = process.env.POCKETBASE_URL;
-
-function getUserAvatarUrl(userId: string, filename: string): string | null {
-  if (!filename || !userId) return null;
-  return new URL(
-    `/api/files/users/${userId}/${filename}`,
-    POCKETBASE_URL
-  ).toString();
-}
 
 function expandAvatarUrls(picks: PickType[]): PickType[] {
   return picks.map((pick) => {

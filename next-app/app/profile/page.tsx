@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getAuthenticatedUser } from '@/lib/pocketbase-server';
-import { getStatsByUserId, getUserAvatarUrl } from '@/lib/stats';
+import { getStatsByUserId } from '@/lib/stats';
+import { getUserAvatarUrl } from '@/lib/utils';
 import {
   Card,
   CardContent,
