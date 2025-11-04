@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { DateTime } from 'luxon';
 import { Logo } from '@/components/nba/logo';
 import {
@@ -17,14 +16,15 @@ interface MatchupRibbonProps {
   games: GameType[];
   currentGameCode: string;
   dateCode: string;
+  onSelectGame?: (game: GameType) => void;
 }
 
 export function MatchupRibbon({
   games,
   currentGameCode,
   dateCode,
+  onSelectGame,
 }: MatchupRibbonProps) {
-  const router = useRouter();
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
 
@@ -41,7 +41,7 @@ export function MatchupRibbon({
 
     // Use a small timeout to ensure carousel is fully initialized
     const timeoutId = setTimeout(() => {
-      api.scrollTo(currentIndex, false); // Use smooth scroll
+      api.scrollTo(currentIndex); // Smooth scroll to center
       setCurrent(currentIndex);
     }, 100);
 
@@ -62,9 +62,9 @@ export function MatchupRibbon({
     };
   }, [api]);
 
-  const handleMatchupClick = (game: GameType) => {
-    const [gameDateCode, gameCode] = game.matchup.code.split('/');
-    router.push(`/matchup/${gameDateCode}/${gameCode}`);
+  const handleMatchupClick = (game: GameType, index: number) => {
+    api?.scrollTo(index);
+    onSelectGame?.(game);
   };
 
   const formatTime = (timeUtc: string) => {
@@ -84,7 +84,7 @@ export function MatchupRibbon({
     <div className='w-full border-b border-border bg-background'>
       <Carousel
         opts={{
-          align: 'start',
+          align: 'center',
           dragFree: true,
         }}
         setApi={setApi}
@@ -99,7 +99,7 @@ export function MatchupRibbon({
             return (
               <CarouselItem key={matchup.code} className='basis-auto pl-2'>
                 <button
-                  onClick={() => handleMatchupClick(game)}
+                  onClick={() => handleMatchupClick(game, index)}
                   className={cn(
                     'flex flex-col items-center gap-1 px-3 py-2 rounded-lg',
                     'transition-all shrink-0',
