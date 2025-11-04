@@ -79,7 +79,6 @@ interface LiveScoreProps {
   time_utc?: string;
   home_meta?: TeamMeta;
   away_meta?: TeamMeta;
-  showStatusBadge?: boolean;
 }
 
 function LiveScore({
@@ -92,7 +91,6 @@ function LiveScore({
   time_utc,
   home_meta,
   away_meta,
-  showStatusBadge = false,
 }: LiveScoreProps) {
   let statusText = status_text;
   let gameDate: string | null = null;
@@ -127,7 +125,7 @@ function LiveScore({
 
       {/* Game Info - Absolutely positioned in center */}
       <div className='absolute left-1/2 -translate-x-1/2 pointer-events-none flex flex-col items-center justify-center gap-1'>
-        {showStatusBadge && (
+        {status === 2 && (
           <Badge className='bg-destructive text-destructive-foreground text-xs'>
             Live
           </Badge>
@@ -164,7 +162,6 @@ interface PostGameProps {
   status_text: string;
   home_meta?: TeamMeta;
   away_meta?: TeamMeta;
-  showStatusBadge?: boolean;
 }
 
 function PostGame({
@@ -175,7 +172,6 @@ function PostGame({
   status_text,
   home_meta,
   away_meta,
-  showStatusBadge = false,
 }: PostGameProps) {
   return (
     <div className='w-full relative flex items-center gap-2 sm:gap-4'>
@@ -250,7 +246,6 @@ export function MatchupDisplay({
           time_utc={matchup.time_utc}
           home_meta={matchup.home_meta || undefined}
           away_meta={matchup.away_meta || undefined}
-          showStatusBadge={showStatusBadge}
         />
       )}
       {gameStatus === 3 && scoreboard && (
@@ -262,7 +257,6 @@ export function MatchupDisplay({
           status_text={scoreboard.status_text}
           home_meta={matchup.home_meta || undefined}
           away_meta={matchup.away_meta || undefined}
-          showStatusBadge={showStatusBadge}
         />
       )}
     </div>
