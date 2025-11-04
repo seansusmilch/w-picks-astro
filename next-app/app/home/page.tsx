@@ -15,7 +15,7 @@ export default async function HomePage() {
   const initialGames = await getGamesByCodePrefix(todayCodePrefix);
 
   return (
-    <div className='container mx-auto px-0 sm:px-4 py-4 max-w-6xl'>
+    <div className='container mx-auto px-0 sm:px-4 py-0 sm:py-4 max-w-6xl'>
       <Card>
         <CardContent className='p-0'>
           <GamesView
