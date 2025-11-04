@@ -162,8 +162,9 @@ export async function updateProfileAction(
       };
     }
 
-    // Revalidate profile page
+    // Revalidate profile pages
     revalidatePath('/profile');
+    revalidatePath('/profile/edit');
 
     return {
       success: true,

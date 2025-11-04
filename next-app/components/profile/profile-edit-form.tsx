@@ -31,7 +31,9 @@ export function ProfileEditForm({
   // Handle successful update
   useEffect(() => {
     if (state?.success) {
-      onSuccess?.();
+      if (onSuccess) {
+        onSuccess();
+      }
     }
   }, [state?.success, onSuccess]);
 

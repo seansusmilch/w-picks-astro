@@ -49,8 +49,10 @@ export function AvatarEditSection({
       }
       // Clear any file errors
       setFileError(null);
-      // Call success callback to refresh page
-      onSuccess?.();
+      // Call success callback if provided
+      if (onSuccess) {
+        onSuccess();
+      }
     }
   }, [state?.success, onSuccess]);
 
