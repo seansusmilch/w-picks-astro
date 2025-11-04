@@ -119,58 +119,61 @@ export function AvatarEditSection({
   const hasFileSelected = (inputRef.current?.files?.length ?? 0) > 0;
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-6 items-start">
-        <div className="flex-shrink-0">
+    <div className='space-y-4'>
+      <div className='flex flex-col sm:flex-row gap-6 items-start'>
+        <div className='flex-shrink-0'>
           <UserAvatar
             avatarUrl={avatarPreview}
             username={username}
-            className="h-24 w-24 sm:h-32 sm:w-32"
+            className='h-24 w-24 sm:h-32 sm:w-32'
           />
         </div>
-        <form action={formAction} className="flex-1 min-w-0">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="avatar" className="text-sm font-medium">
+        <form action={formAction} className='flex-1 min-w-0'>
+          <div className='space-y-4'>
+            <div className='space-y-2'>
+              <label htmlFor='avatar' className='text-sm font-medium'>
                 Choose Image
               </label>
               <Input
                 ref={inputRef}
-                id="avatar"
-                name="avatar"
-                type="file"
-                className="w-full file:text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground file:cursor-pointer hover:file:bg-primary/90"
-                accept={['image/png', 'image/jpeg', 'image/gif', 'image/webp'].join(
-                  ','
-                )}
+                id='avatar'
+                name='avatar'
+                type='file'
+                className='w-full file:text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground file:cursor-pointer hover:file:bg-primary/90'
+                accept={[
+                  'image/png',
+                  'image/jpeg',
+                  'image/gif',
+                  'image/webp',
+                ].join(',')}
                 onChange={handleFileChange}
                 disabled={isPending}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className='text-xs text-muted-foreground'>
                 Maximum file size: 5MB. Supported formats: PNG, JPEG, GIF, WebP
               </p>
             </div>
             {(state?.error || fileError) && (
-              <div className="rounded-md bg-destructive/10 p-3">
-                <p className="text-sm text-destructive">
+              <div className='rounded-md bg-destructive/10 p-3'>
+                <p className='text-sm text-destructive'>
                   {fileError || state?.error}
                 </p>
               </div>
             )}
             {hasFileSelected && (
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className='flex flex-col sm:flex-row gap-3'>
                 <Button
-                  className="flex-1 sm:basis-1/2"
-                  variant="outline"
-                  type="button"
+                  className='flex-1 sm:basis-1/2'
+                  variant='outline'
+                  type='button'
                   disabled={isPending}
                   onClick={handleCancel}
                 >
                   Cancel
                 </Button>
                 <Button
-                  className="flex-1 sm:basis-1/2"
-                  type="submit"
+                  className='flex-1 sm:basis-1/2'
+                  type='submit'
                   disabled={isPending}
                 >
                   {isPending ? 'Uploading...' : 'Upload'}
@@ -183,4 +186,3 @@ export function AvatarEditSection({
     </div>
   );
 }
-
