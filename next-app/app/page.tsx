@@ -25,8 +25,8 @@ export default async function Home() {
         </div>
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
           {user ? (
-            <Link href="/dashboard">
-              <Button size="lg">Go to Dashboard</Button>
+            <Link href="/home">
+              <Button size="lg">Go to Home</Button>
             </Link>
           ) : (
             <Link href="/login">

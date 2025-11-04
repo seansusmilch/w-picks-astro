@@ -14,7 +14,7 @@ export default async function LoginPage() {
   // Redirect if already authenticated
   const user = await getAuthenticatedUser();
   if (user) {
-    redirect('/dashboard');
+    redirect('/home');
   }
 
   return (

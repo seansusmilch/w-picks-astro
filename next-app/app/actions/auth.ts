@@ -102,15 +102,15 @@ export async function loginAction(
       maxAge: 60 * 60 * 24 * 7 * 2, // 14 days
     });
 
-    console.log('[loginAction] Auth cookie set, redirecting to dashboard', {
+    console.log('[loginAction] Auth cookie set, redirecting to home', {
       email: validatedEmail,
       duration: Date.now() - startTime,
     });
 
-    redirect('/dashboard');
+    redirect('/home');
   } catch (error) {
     if (isRedirectError(error)) {
-      console.log('[loginAction] Redirecting to dashboard', {
+      console.log('[loginAction] Redirecting to home', {
         email,
         duration: Date.now() - startTime,
       });
