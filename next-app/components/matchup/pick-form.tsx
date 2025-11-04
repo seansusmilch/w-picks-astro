@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useRef } from 'react';
 import { useActionState } from 'react';
 import { useRouter } from 'next/navigation';
 import { XIcon, Loader2, Lock } from 'lucide-react';
@@ -31,12 +31,14 @@ interface PickFormProps {
   matchup: MatchupType;
   pick?: PickType;
   scoreboardStatus?: number; // 0 = pre-game, 1-2 = live, 3 = finished
+  onPickUpdate?: (pick?: PickType) => void | Promise<void>; // Callback to refetch picks after submission, optionally with optimistic pick data
 }
 
 export function PickForm({
   matchup,
   pick,
   scoreboardStatus = 0,
+  onPickUpdate,
 }: PickFormProps) {
   const router = useRouter();
   const { home_code, away_code } = matchup;
@@ -66,16 +68,45 @@ export function PickForm({
     matchup: matchup.id,
   });
 
+  // Track last processed submission to prevent infinite loops
+  // Track by pick ID + updated timestamp to allow multiple updates of same pick
+  const lastProcessedSubmissionRef = useRef<{
+    pickId: string;
+    updated: string;
+  } | null>(null);
+  // Track if we've initialized the accordion state
+  const accordionInitializedRef = useRef<boolean>(false);
+
   // Update form state when pick changes
+  // Only sync accordion state on initial mount or when pick is deleted
+  // Otherwise, let user interaction or submission success control the accordion
   useEffect(() => {
     if (pick) {
-      setFormState({
-        win_prediction: pick.win_prediction,
-        comment: pick.comment || '',
-        pickId: pick.id,
-        matchup: matchup.id,
+      // Only update form state if the pick data has actually changed
+      // This prevents unnecessary updates and ensures we sync with refetched data
+      setFormState((prev) => {
+        // Check if pick data has changed
+        if (
+          prev.pickId === pick.id &&
+          prev.win_prediction === pick.win_prediction &&
+          prev.comment === (pick.comment || '')
+        ) {
+          // No change, return previous state
+          return prev;
+        }
+        // Pick data changed, update form state
+        return {
+          win_prediction: pick.win_prediction,
+          comment: pick.comment || '',
+          pickId: pick.id,
+          matchup: matchup.id,
+        };
       });
-      setAccordionValue(''); // Close accordion when pick exists
+      // Only set accordion to closed on initial mount when pick exists
+      if (!accordionInitializedRef.current) {
+        setAccordionValue('');
+        accordionInitializedRef.current = true;
+      }
     } else {
       setFormState({
         win_prediction: 'indeterminate',
@@ -83,27 +114,92 @@ export function PickForm({
         pickId: '',
         matchup: matchup.id,
       });
-      setAccordionValue('pick-form'); // Open accordion when no pick
+      // Always open accordion when no pick exists
+      setAccordionValue('pick-form');
+      accordionInitializedRef.current = true;
     }
   }, [pick, matchup.id]);
 
   // Handle successful submission
   useEffect(() => {
     if (submitState.success && submitState.pick) {
+      const pickId = submitState.pick.id;
+      const updated = submitState.pick.updated;
+
+      // Only process if we haven't already processed this exact submission
+      // Compare by pick ID + updated timestamp to allow multiple updates of same pick
+      const lastProcessed = lastProcessedSubmissionRef.current;
+      if (
+        lastProcessed &&
+        lastProcessed.pickId === pickId &&
+        lastProcessed.updated === updated
+      ) {
+        return;
+      }
+
+      // Track this submission
+      lastProcessedSubmissionRef.current = {
+        pickId,
+        updated,
+      };
+
       setFormState({
         win_prediction: submitState.pick.win_prediction,
         comment: submitState.pick.comment || '',
         pickId: submitState.pick.id,
         matchup: matchup.id,
       });
-      setAccordionValue(''); // Close accordion after successful save
-      router.refresh();
+
+      // Refetch picks list instantly for seamless UX with optimistic update
+      if (onPickUpdate) {
+        // Use current pick prop value for user expansion, but don't react to its changes
+        // We capture it at the time of submission, not as a dependency
+        const currentPick = pick;
+        const optimisticPick = currentPick?.expand?.user
+          ? {
+              ...submitState.pick,
+              expand: { ...currentPick.expand, user: currentPick.expand.user },
+            }
+          : submitState.pick;
+        onPickUpdate(optimisticPick);
+      } else {
+        router.refresh();
+      }
+    } else if (!submitState.success && submitState.error === undefined) {
+      // Reset ref when submission state is reset (new submission starting)
+      lastProcessedSubmissionRef.current = null;
     }
-  }, [submitState.success, submitState.pick, matchup.id, router]);
+  }, [
+    submitState.success,
+    submitState.pick,
+    submitState.error,
+    matchup.id,
+    router,
+    onPickUpdate,
+    // Note: intentionally NOT including 'pick' in dependencies to prevent infinite loop
+  ]);
+
+  // Close accordion when submission succeeds - separate effect to ensure animation
+  useEffect(() => {
+    if (submitState.success && submitState.pick) {
+      // Close accordion with animation - this will trigger the collapse animation
+      setAccordionValue('');
+    }
+  }, [submitState.success, submitState.pick]);
+
+  // Track last processed deletion to prevent infinite loops
+  const lastProcessedDeletionRef = useRef<boolean>(false);
 
   // Handle successful deletion
   useEffect(() => {
     if (deleteState.success) {
+      // Only process if we haven't already processed this deletion
+      if (lastProcessedDeletionRef.current) {
+        return;
+      }
+
+      lastProcessedDeletionRef.current = true;
+
       setFormState({
         win_prediction: 'indeterminate',
         comment: '',
@@ -111,9 +207,29 @@ export function PickForm({
         matchup: matchup.id,
       });
       setAccordionValue('pick-form'); // Open accordion after deletion
-      router.refresh();
+
+      // Refetch picks list instantly for seamless UX with optimistic update
+      if (onPickUpdate) {
+        // Use current pick prop value, but don't react to its changes
+        const currentPick = pick;
+        if (currentPick) {
+          // Create an optimistic pick with indeterminate to trigger removal
+          const optimisticPick = {
+            ...currentPick,
+            win_prediction: 'indeterminate' as const,
+          };
+          onPickUpdate(optimisticPick);
+        } else {
+          onPickUpdate();
+        }
+      } else {
+        router.refresh();
+      }
+    } else {
+      // Reset flag when deletion state resets
+      lastProcessedDeletionRef.current = false;
     }
-  }, [deleteState.success, matchup.id, router]);
+  }, [deleteState.success, matchup.id, router, onPickUpdate]);
 
   const [isPending, startTransition] = useTransition();
   const [isDeletingPending, setIsDeletingPending] = useState(false);

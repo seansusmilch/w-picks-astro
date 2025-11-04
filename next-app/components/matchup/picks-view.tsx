@@ -13,7 +13,14 @@ export function PicksView({ picks }: PicksViewProps) {
       {picks.map((pick) => {
         const user = pick.expand?.user;
         if (!user) return null;
-        return <PickSlab key={pick.id} pick={pick} user={user} />;
+        return (
+          <div
+            key={pick.id}
+            className='animate-in fade-in-0 slide-in-from-bottom-2 duration-200'
+          >
+            <PickSlab pick={pick} user={user} />
+          </div>
+        );
       })}
     </div>
   );
