@@ -13,17 +13,15 @@ import {
   getTodayCodePrefix,
   isToday,
 } from '@/lib/date-utils';
-import { useGamesByDateCode, queryKeys, useGamesPolling } from '@/lib/queries';
+import { useGamesByDateCode, queryKeys } from '@/lib/queries';
+import { REFRESH_INTERVALS } from '@/lib/constants';
 
 interface GamesViewProps {
   initialDateCode: string;
   initialGames: GameType[];
 }
 
-export function GamesView({
-  initialDateCode,
-  initialGames,
-}: GamesViewProps) {
+export function GamesView({ initialDateCode, initialGames }: GamesViewProps) {
   const queryClient = useQueryClient();
   const [dateRange, setDateRange] = useState<string[]>(getInitialDateRange());
   const [selectedDate, setSelectedDate] = useState<string>(initialDateCode);
@@ -34,24 +32,29 @@ export function GamesView({
     queryClient.setQueryData(queryKeys.games(initialDateCode), initialGames);
   }, [queryClient, initialDateCode, initialGames]);
 
-  // Get games for selected date - determine polling based on live games
+  // Get games for selected date with automatic refresh
+  // First get games to determine refresh interval
   const currentGamesData = useGamesByDateCode(selectedDate, {
     enabled: !!selectedDate,
   });
   const currentGames = currentGamesData.data || initialGames;
-  const isLoading = currentGamesData.isLoading;
 
-  // Determine if we should poll (has live games)
-  const refetchInterval = useGamesPolling(currentGames);
+  // Compute refresh interval based on scoreboard presence
+  const refetchInterval = useMemo(() => {
+    const hasScoreboard = currentGames.some((game) => game.scoreboard);
+    return hasScoreboard
+      ? REFRESH_INTERVALS.WITH_SCOREBOARD
+      : REFRESH_INTERVALS.WITHOUT_SCOREBOARD;
+  }, [currentGames]);
 
-  // Use a second query with polling for live games when needed
-  const { data: polledGames } = useGamesByDateCode(selectedDate, {
-    enabled: !!selectedDate && refetchInterval !== false,
+  // Use a second query with automatic refresh for always-on polling
+  const { data: refreshedGames } = useGamesByDateCode(selectedDate, {
+    enabled: !!selectedDate,
     refetchInterval: refetchInterval,
   });
 
-  // Use polled data if available, otherwise use regular query data
-  const finalGames = polledGames || currentGames;
+  const finalGames = refreshedGames || currentGames;
+  const isLoading = currentGamesData.isLoading;
 
   // Prefetch games for dates in the date range
   useEffect(() => {
@@ -64,7 +67,9 @@ export function GamesView({
         queryClient.prefetchQuery({
           queryKey: queryKeys.games(dateCode),
           queryFn: async () => {
-            const { getGamesByCodePrefix } = await import('@/app/actions/matchups');
+            const { getGamesByCodePrefix } = await import(
+              '@/app/actions/matchups'
+            );
             return await getGamesByCodePrefix(dateCode);
           },
         });

@@ -20,6 +20,7 @@ import {
   useGamesByDateCode,
   queryKeys,
 } from '@/lib/queries';
+import { REFRESH_INTERVALS } from '@/lib/constants';
 
 interface MatchupPageClientProps {
   initialGames: GameType[];
@@ -57,13 +58,21 @@ export function MatchupPageClient({
   }, [queryClient, selectedCode, initialData, initialDateCode, initialGames]);
 
   // Get current matchup data from React Query
+  // Refresh interval dynamically adjusts based on scoreboard presence
   const {
     data: currentMatchupData,
     isLoading: isLoadingMatchup,
     isFetching: isFetchingMatchup,
   } = useMatchupPageData(selectedCode, {
     enabled: !!gameCode,
-    refetchInterval: scoreboardStatus >= 1 && scoreboardStatus <= 2 ? 5000 : false,
+    refetchInterval: (query) => {
+      // Dynamically determine interval based on current query data
+      const data = query.state.data as MatchupPageData | null | undefined;
+      const hasScoreboard = !!data?.scoreboard;
+      return hasScoreboard
+        ? REFRESH_INTERVALS.WITH_SCOREBOARD
+        : REFRESH_INTERVALS.WITHOUT_SCOREBOARD;
+    },
   });
 
   // Get games for current date

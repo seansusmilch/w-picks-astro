@@ -8,6 +8,7 @@ import {
 } from '@/app/actions/matchups';
 import { getReactions, type ReactionData } from '@/app/actions/reactions';
 import type { GameType } from '@/lib/definitions';
+import { REFRESH_INTERVALS } from '@/lib/constants';
 
 // Query keys factory
 export const queryKeys = {
@@ -78,14 +79,12 @@ export function useReactions(
 }
 
 /**
- * Helper hook to check if games are live (for polling)
+ * Helper hook to determine refresh interval based on games scoreboard status
+ * Returns refresh interval: 10 seconds if any game has a scoreboard, 60 seconds otherwise
  */
-export function useGamesPolling(games: GameType[] | undefined) {
-  const hasLiveGames = games?.some(
-    (game) =>
-      game.scoreboard?.status === 1 || game.scoreboard?.status === 2
-  );
-
-  return hasLiveGames ? 5000 : false; // Poll every 5 seconds if live games exist
+export function useGamesRefreshInterval(games: GameType[] | undefined): number {
+  const hasScoreboard = games?.some((game) => game.scoreboard);
+  return hasScoreboard
+    ? REFRESH_INTERVALS.WITH_SCOREBOARD
+    : REFRESH_INTERVALS.WITHOUT_SCOREBOARD;
 }
-
