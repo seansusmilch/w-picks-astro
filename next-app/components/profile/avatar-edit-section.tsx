@@ -116,7 +116,7 @@ export function AvatarEditSection({
     setFileError(null);
   };
 
-  const hasFileSelected = inputRef.current?.files?.length > 0;
+  const hasFileSelected = (inputRef.current?.files?.length ?? 0) > 0;
 
   return (
     <div className="space-y-4">
