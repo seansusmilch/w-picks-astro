@@ -10,7 +10,9 @@ import { revalidatePath } from 'next/cache';
 /**
  * Fetch a user record by username using an admin PocketBase instance.
  */
-export async function getUserByUsername(username: string): Promise<UserType | null> {
+export async function getUserByUsername(
+  username: string
+): Promise<UserType | null> {
   const pb = await getAdminPocketBase();
 
   try {
@@ -156,7 +158,10 @@ export async function updateProfileAction(
     // Validate response
     const parsed = UserZ.safeParse(updatedUser);
     if (!parsed.success) {
-      console.error('updateProfileAction: user validation failed', parsed.error);
+      console.error(
+        'updateProfileAction: user validation failed',
+        parsed.error
+      );
       return {
         error: 'Failed to update profile',
       };
@@ -196,4 +201,3 @@ export async function updateProfileAction(
     };
   }
 }
-
