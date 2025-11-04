@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { DateRibbon } from './date-ribbon';
 import { GamesSummary } from './games-summary';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,7 @@ import {
   getTodayCodePrefix,
   isToday,
 } from '@/lib/date-utils';
-import { getGamesByCodePrefix } from '@/app/actions/matchups';
+import { useGamesByDateCode, queryKeys, useGamesPolling } from '@/lib/queries';
 
 interface GamesViewProps {
   initialDateCode: string;
@@ -23,76 +24,70 @@ export function GamesView({
   initialDateCode,
   initialGames,
 }: GamesViewProps) {
+  const queryClient = useQueryClient();
   const [dateRange, setDateRange] = useState<string[]>(getInitialDateRange());
   const [selectedDate, setSelectedDate] = useState<string>(initialDateCode);
-  const [gamesCache, setGamesCache] = useState<Record<string, GameType[]>>({
-    [initialDateCode]: initialGames,
-  });
-  const [loadingDates, setLoadingDates] = useState<Set<string>>(new Set());
-  const [gamesCounts, setGamesCounts] = useState<Record<string, number>>({
-    [initialDateCode]: initialGames.length,
-  });
   const todayCodePrefix = getTodayCodePrefix();
 
-  // Fetch games for a specific date
-  const fetchGamesForDate = useCallback(
-    async (dateCode: string) => {
-      if (gamesCache[dateCode] || loadingDates.has(dateCode)) {
-        return;
-      }
+  // Hydrate initial data into React Query cache
+  useEffect(() => {
+    queryClient.setQueryData(queryKeys.games(initialDateCode), initialGames);
+  }, [queryClient, initialDateCode, initialGames]);
 
-      setLoadingDates((prev) => new Set(prev).add(dateCode));
+  // Get games for selected date - determine polling based on live games
+  const currentGamesData = useGamesByDateCode(selectedDate, {
+    enabled: !!selectedDate,
+  });
+  const currentGames = currentGamesData.data || initialGames;
+  const isLoading = currentGamesData.isLoading;
 
-      try {
-        const games = await getGamesByCodePrefix(dateCode);
-        setGamesCache((prev) => ({ ...prev, [dateCode]: games }));
-        setGamesCounts((prev) => ({ ...prev, [dateCode]: games.length }));
-      } catch (error) {
-        console.error(`Failed to fetch games for ${dateCode}:`, error);
-        setGamesCache((prev) => ({ ...prev, [dateCode]: [] }));
-        setGamesCounts((prev) => ({ ...prev, [dateCode]: 0 }));
-      } finally {
-        setLoadingDates((prev) => {
-          const next = new Set(prev);
-          next.delete(dateCode);
-          return next;
+  // Determine if we should poll (has live games)
+  const refetchInterval = useGamesPolling(currentGames);
+
+  // Use a second query with polling for live games when needed
+  const { data: polledGames } = useGamesByDateCode(selectedDate, {
+    enabled: !!selectedDate && refetchInterval !== false,
+    refetchInterval: refetchInterval,
+  });
+
+  // Use polled data if available, otherwise use regular query data
+  const finalGames = polledGames || currentGames;
+
+  // Prefetch games for dates in the date range
+  useEffect(() => {
+    dateRange.forEach((dateCode) => {
+      // Don't prefetch if we already have data or it's the selected date
+      const existingData = queryClient.getQueryData<GameType[]>(
+        queryKeys.games(dateCode)
+      );
+      if (!existingData && dateCode !== selectedDate) {
+        queryClient.prefetchQuery({
+          queryKey: queryKeys.games(dateCode),
+          queryFn: async () => {
+            const { getGamesByCodePrefix } = await import('@/app/actions/matchups');
+            return await getGamesByCodePrefix(dateCode);
+          },
         });
       }
-    },
-    [gamesCache, loadingDates]
-  );
+    });
+  }, [dateRange, selectedDate, queryClient]);
 
-  // Auto-refetch live games every 5 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Only refetch dates that have games and might be live
-      Object.keys(gamesCache).forEach((dateCode) => {
-        const games = gamesCache[dateCode];
-        if (games && games.length > 0) {
-          // Check if any game might be live (status 1 or 2)
-          const hasLiveGames = games.some(
-            (game) =>
-              game.scoreboard?.status === 1 || game.scoreboard?.status === 2
-          );
-          if (hasLiveGames) {
-            fetchGamesForDate(dateCode);
-          }
-        }
-      });
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [gamesCache, fetchGamesForDate]);
-
-  // Fetch games when date is selected
-  useEffect(() => {
-    fetchGamesForDate(selectedDate);
-  }, [selectedDate, fetchGamesForDate]);
+  // Compute games counts from query cache
+  const gamesCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    dateRange.forEach((dateCode) => {
+      const games = queryClient.getQueryData<GameType[]>(
+        queryKeys.games(dateCode)
+      );
+      counts[dateCode] = games?.length || 0;
+    });
+    return counts;
+  }, [dateRange, queryClient]);
 
   // Handle date selection
   const handleDateSelect = (dateCode: string) => {
     setSelectedDate(dateCode);
-    fetchGamesForDate(dateCode);
+    // React Query will automatically fetch if not in cache
   };
 
   // Handle date range expansion
@@ -103,12 +98,9 @@ export function GamesView({
   // Handle "Back to Today" click
   const handleBackToToday = () => {
     setSelectedDate(todayCodePrefix);
-    fetchGamesForDate(todayCodePrefix);
-    // Scroll to today in the ribbon (handled by DateRibbon component)
+    // React Query will automatically fetch if not in cache
   };
 
-  const currentGames = gamesCache[selectedDate] || [];
-  const isLoading = loadingDates.has(selectedDate);
   const showBackToToday = !isToday(selectedDate);
 
   return (
@@ -146,7 +138,7 @@ export function GamesView({
       </div>
 
       {/* Games display */}
-      <GamesSummary games={currentGames} isLoading={isLoading} />
+      <GamesSummary games={finalGames || []} isLoading={isLoading} />
     </div>
   );
 }

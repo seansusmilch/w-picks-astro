@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { MatchupRibbon } from './matchup-ribbon';
 import { MatchupDisplay } from './matchup-display';
 import { PicksSummary } from './picks-summary';
@@ -11,14 +12,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type {
   GameType,
   MatchupType,
-  ScoreboardType,
   PickType,
 } from '@/lib/definitions';
+import type { MatchupPageData } from '@/app/actions/matchups';
 import {
-  getMatchupPageData,
-  getGamesByCodePrefix,
-  type MatchupPageData,
-} from '@/app/actions/matchups';
+  useMatchupPageData,
+  useGamesByDateCode,
+  queryKeys,
+} from '@/lib/queries';
 
 interface MatchupPageClientProps {
   initialGames: GameType[];
@@ -39,20 +40,83 @@ export function MatchupPageClient({
 }: MatchupPageClientProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
 
   const [dateCode, setDateCode] = useState<string>(initialDateCode);
   const [gameCode, setGameCode] = useState<string>(initialGameCode);
-  const [games, setGames] = useState<GameType[]>(initialGames);
-  const [dataByCode, setDataByCode] = useState<Map<string, MatchupPageData>>(
-    () => new Map([[`${initialDateCode}/${initialGameCode}`, initialData]])
+  const [displayedCode, setDisplayedCode] = useState<string>(
+    `${initialDateCode}/${initialGameCode}`
   );
-  const [loading, setLoading] = useState<boolean>(false);
 
   const selectedCode = `${dateCode}/${gameCode}`;
-  const currentData = dataByCode.get(selectedCode) || initialData;
+
+  // Hydrate initial data into React Query cache
+  useEffect(() => {
+    queryClient.setQueryData(queryKeys.matchup(selectedCode), initialData);
+    queryClient.setQueryData(queryKeys.games(initialDateCode), initialGames);
+  }, [queryClient, selectedCode, initialData, initialDateCode, initialGames]);
+
+  // Get current matchup data from React Query
+  const {
+    data: currentMatchupData,
+    isLoading: isLoadingMatchup,
+    isFetching: isFetchingMatchup,
+  } = useMatchupPageData(selectedCode, {
+    enabled: !!gameCode,
+    refetchInterval: scoreboardStatus >= 1 && scoreboardStatus <= 2 ? 5000 : false,
+  });
+
+  // Get games for current date
+  const {
+    data: games,
+    isLoading: isLoadingGames,
+  } = useGamesByDateCode(dateCode, {
+    enabled: !!dateCode,
+  });
+
+  // Update displayed code when new matchup data is ready
+  useEffect(() => {
+    const cachedData = queryClient.getQueryData<MatchupPageData | null>(
+      queryKeys.matchup(selectedCode)
+    );
+    
+    if (
+      (currentMatchupData || cachedData) &&
+      selectedCode === `${dateCode}/${gameCode}` &&
+      displayedCode !== selectedCode
+    ) {
+      // New matchup data is ready (either from query or cache), update displayed code
+      setDisplayedCode(selectedCode);
+    }
+  }, [currentMatchupData, selectedCode, dateCode, gameCode, displayedCode, queryClient]);
+
+  // Check if we have data cached for the selected matchup
+  const hasCachedData = !!queryClient.getQueryData<MatchupPageData | null>(
+    queryKeys.matchup(selectedCode)
+  );
+
+  // Determine if we should show loading skeleton
+  // Show skeleton only when:
+  // 1. We're switching to a different matchup (displayedCode !== selectedCode), AND
+  // 2. We don't have cached data for the new matchup yet
+  const isLoadingNewMatchup =
+    displayedCode !== selectedCode && !hasCachedData && (isLoadingMatchup || isFetchingMatchup);
+
+  // Use data for the displayed matchup to prevent flickering
+  // Keep showing old matchup until new one loads
+  const displayedMatchupData =
+    displayedCode === selectedCode && currentMatchupData
+      ? currentMatchupData
+      : queryClient.getQueryData<MatchupPageData | null>(
+          queryKeys.matchup(displayedCode)
+        ) || (displayedCode === `${initialDateCode}/${initialGameCode}` ? initialData : null) || initialData;
+
+  const currentData = displayedMatchupData;
   const currentMatchup = currentData.matchup as MatchupType;
   const currentScoreboard = currentData.scoreboard;
   const currentPicks = currentData.picks;
+  const currentGames = games || initialGames;
+  const loading = isLoadingNewMatchup;
 
   const updateUrl = useCallback(
     (nextDate: string, nextGame: string) => {
@@ -64,61 +128,38 @@ export function MatchupPageClient({
     [pathname, router]
   );
 
-  const fetchGamesForDate = useCallback(async (nextDate: string) => {
-    try {
-      return await getGamesByCodePrefix(nextDate);
-    } catch (error) {
-      console.error('Failed to fetch games:', error);
-      return [] as GameType[];
-    }
-  }, []);
-
-  const fetchMatchupData = useCallback(
-    async (nextDate: string, nextGame: string) => {
-      try {
-        const code = `${nextDate}/${nextGame}`;
-        return await getMatchupPageData(code);
-      } catch (error) {
-        console.error('Failed to fetch matchup data:', error);
-        return null as MatchupPageData | null;
-      }
-    },
-    []
-  );
-
   const handleSelectGame = useCallback(
-    async (game: GameType) => {
+    (game: GameType) => {
       const [nextDate, nextGame] = game.matchup.code.split('/');
       if (nextDate === dateCode && nextGame === gameCode) return;
+
+      const nextCode = `${nextDate}/${nextGame}`;
 
       setDateCode(nextDate);
       setGameCode(nextGame);
       updateUrl(nextDate, nextGame);
 
-      // Ensure we have games for this date (for ribbon)
-      if (nextDate !== dateCode) {
-        const newGames = await fetchGamesForDate(nextDate);
-        setGames(newGames);
-      }
+      // Prefetch matchup data immediately to minimize loading time
+      queryClient.prefetchQuery({
+        queryKey: queryKeys.matchup(nextCode),
+        queryFn: async () => {
+          const { getMatchupPageData } = await import('@/app/actions/matchups');
+          return await getMatchupPageData(nextCode);
+        },
+      });
 
-      const key = `${nextDate}/${nextGame}`;
-      if (!dataByCode.get(key)) {
-        setLoading(true);
-        const nextData = await fetchMatchupData(nextDate, nextGame);
-        if (nextData) {
-          setDataByCode((prev) => new Map(prev).set(key, nextData));
-        }
-        setLoading(false);
+      // Prefetch games for the new date if needed
+      if (nextDate !== dateCode) {
+        queryClient.prefetchQuery({
+          queryKey: queryKeys.games(nextDate),
+          queryFn: async () => {
+            const { getGamesByCodePrefix } = await import('@/app/actions/matchups');
+            return await getGamesByCodePrefix(nextDate);
+          },
+        });
       }
     },
-    [
-      dateCode,
-      gameCode,
-      dataByCode,
-      updateUrl,
-      fetchGamesForDate,
-      fetchMatchupData,
-    ]
+    [dateCode, gameCode, updateUrl, queryClient]
   );
 
   // Find the current user's pick from the picks list
@@ -133,64 +174,22 @@ export function MatchupPageClient({
     return userPick;
   }, [currentPicks, userPick]);
 
-  // Refetch matchup data to update picks list instantly with optimistic updates
+  // Refetch matchup data - mutations will handle optimistic updates
   const refetchMatchupData = useCallback(
     async (optimisticPick?: PickType) => {
       if (!gameCode || !dateCode) return;
-
-      // Optimistically update picks list immediately for instant feedback
-      if (optimisticPick) {
-        const key = `${dateCode}/${gameCode}`;
-        setDataByCode((prev) => {
-          const currentData = prev.get(key) || initialData;
-          const existingPicks = currentData.picks;
-
-          // Check if pick already exists (update) or needs to be added
-          // Prioritize matching by ID if available, then by user
-          const pickIndex = existingPicks.findIndex((p) => {
-            if (optimisticPick.id && p.id === optimisticPick.id) return true;
-            if (p.user === optimisticPick.user) return true;
-            return false;
-          });
-
-          let updatedPicks: PickType[];
-          if (pickIndex >= 0) {
-            // Update existing pick - replace it entirely with the new optimistic pick
-            updatedPicks = [...existingPicks];
-            updatedPicks[pickIndex] = optimisticPick;
-          } else {
-            // Add new pick (if it's not indeterminate)
-            if (optimisticPick.win_prediction !== 'indeterminate') {
-              updatedPicks = [...existingPicks, optimisticPick];
-            } else {
-              // Remove pick if indeterminate (deletion)
-              updatedPicks = existingPicks.filter(
-                (p) => p.user !== optimisticPick.user
-              );
-            }
-          }
-
-          return new Map(prev).set(key, {
-            ...currentData,
-            picks: updatedPicks,
-          });
-        });
-      }
-
-      // Then refetch to sync with server
-      const newData = await fetchMatchupData(dateCode, gameCode);
-      if (newData) {
-        const key = `${dateCode}/${gameCode}`;
-        setDataByCode((prev) => new Map(prev).set(key, newData));
-      }
+      // Mutations handle optimistic updates, so we just need to refetch
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.matchup(selectedCode),
+      });
     },
-    [dateCode, gameCode, fetchMatchupData, initialData]
+    [dateCode, gameCode, selectedCode, queryClient]
   );
 
   return (
     <>
       <MatchupRibbon
-        games={games}
+        games={currentGames}
         currentGameCode={gameCode}
         dateCode={dateCode}
         onSelectGame={handleSelectGame}

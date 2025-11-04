@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { DateTime } from 'luxon';
 import { FlameIcon, ExternalLinkIcon } from 'lucide-react';
@@ -10,7 +9,8 @@ import { Logo } from '@/components/nba/logo';
 import { UserAvatar } from '@/components/profile/user-avatar';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { getReactions, addReaction, removeReaction, type ReactionData } from '@/app/actions/reactions';
+import { useReactions } from '@/lib/queries';
+import { useAddReaction, useRemoveReaction } from '@/lib/mutations';
 
 interface PickSlabProps {
   pick: PickType;
@@ -35,66 +35,31 @@ export function PickSlab({ pick, user, matchupUrl }: PickSlabProps) {
     .replace(' ago', '')
     .trim();
 
-  // State for reactions
-  const [reactionData, setReactionData] = useState<ReactionData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isMutating, setIsMutating] = useState(false);
+  // Fetch reactions using React Query
+  const {
+    data: reactionData,
+    isLoading,
+  } = useReactions(pick.id, {
+    enabled: !!pick.id,
+  });
 
-  // Fetch reactions on mount
-  useEffect(() => {
-    let mounted = true;
+  // Mutations for adding/removing reactions
+  const addReactionMutation = useAddReaction();
+  const removeReactionMutation = useRemoveReaction();
 
-    async function fetchReactions() {
-      try {
-        const data = await getReactions(pick.id);
-        if (mounted) {
-          setReactionData(data);
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error('Failed to fetch reactions:', error);
-        if (mounted) {
-          setIsLoading(false);
-        }
-      }
-    }
+  const handleLike = () => {
+    if (!reactionData || isLoading) return;
 
-    fetchReactions();
-
-    return () => {
-      mounted = false;
-    };
-  }, [pick.id]);
-
-  const handleLike = async () => {
-    if (!reactionData || isMutating) return;
-
-    const previousData = reactionData;
     const willLike = !reactionData.isLiked;
 
-    // Optimistic update
-    setReactionData({
-      isLiked: willLike,
-      totalItems: willLike
-        ? previousData.totalItems + 1
-        : Math.max(0, previousData.totalItems - 1),
-    });
-    setIsMutating(true);
-
-    try {
-      if (willLike) {
-        await addReaction(pick.id);
-      } else {
-        await removeReaction(pick.id);
-      }
-    } catch (error) {
-      console.error('Failed to toggle reaction:', error);
-      // Revert on error
-      setReactionData(previousData);
-    } finally {
-      setIsMutating(false);
+    if (willLike) {
+      addReactionMutation.mutate(pick.id);
+    } else {
+      removeReactionMutation.mutate(pick.id);
     }
   };
+
+  const isMutating = addReactionMutation.isPending || removeReactionMutation.isPending;
 
   // Team accent colors for colorful picks (simplified - can be enhanced with user settings later)
   const teamInfo = TeamMap[teamCode as keyof typeof TeamMap];

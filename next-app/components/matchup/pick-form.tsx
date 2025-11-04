@@ -1,8 +1,6 @@
 'use client';
 
-import { useState, useEffect, useTransition, useRef } from 'react';
-import { useActionState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef } from 'react';
 import { XIcon, Loader2, Lock } from 'lucide-react';
 import { TeamPicker } from './team-picker';
 import { HelpDialog } from './help-dialog';
@@ -19,12 +17,7 @@ import {
 import { Logo } from '@/components/nba/logo';
 import { TeamMap } from '@/lib/team-map';
 import type { MatchupType, PickType } from '@/lib/definitions';
-import {
-  submitPickAction,
-  deletePickAction,
-  type SubmitPickFormState,
-  type DeletePickFormState,
-} from '@/app/actions/picks';
+import { useSubmitPick, useDeletePick } from '@/lib/mutations';
 import { cn } from '@/lib/utils';
 
 interface PickFormProps {
@@ -40,26 +33,18 @@ export function PickForm({
   scoreboardStatus = 0,
   onPickUpdate,
 }: PickFormProps) {
-  const router = useRouter();
   const { home_code, away_code } = matchup;
 
   // Check if picks are locked (game has started)
-  console.log('scoreboardStatus', scoreboardStatus);
   const picksLocked = scoreboardStatus >= 2;
 
   const [accordionValue, setAccordionValue] = useState<string>(
     pick ? '' : 'pick-form'
   );
 
-  const [submitState, submitAction, isSubmitting] = useActionState(
-    submitPickAction,
-    {} as SubmitPickFormState
-  );
-
-  const [deleteState, deleteAction, isDeleting] = useActionState(
-    deletePickAction,
-    {} as DeletePickFormState
-  );
+  // React Query mutations
+  const submitPickMutation = useSubmitPick();
+  const deletePickMutation = useDeletePick();
 
   const [formState, setFormState] = useState({
     win_prediction: pick?.win_prediction || 'indeterminate',
@@ -68,12 +53,6 @@ export function PickForm({
     matchup: matchup.id,
   });
 
-  // Track last processed submission to prevent infinite loops
-  // Track by pick ID + updated timestamp to allow multiple updates of same pick
-  const lastProcessedSubmissionRef = useRef<{
-    pickId: string;
-    updated: string;
-  } | null>(null);
   // Track if we've initialized the accordion state
   const accordionInitializedRef = useRef<boolean>(false);
 
@@ -120,86 +99,38 @@ export function PickForm({
     }
   }, [pick, matchup.id]);
 
-  // Handle successful submission
+  // Handle successful submission via mutation callback
   useEffect(() => {
-    if (submitState.success && submitState.pick) {
-      const pickId = submitState.pick.id;
-      const updated = submitState.pick.updated;
-
-      // Only process if we haven't already processed this exact submission
-      // Compare by pick ID + updated timestamp to allow multiple updates of same pick
-      const lastProcessed = lastProcessedSubmissionRef.current;
-      if (
-        lastProcessed &&
-        lastProcessed.pickId === pickId &&
-        lastProcessed.updated === updated
-      ) {
-        return;
-      }
-
-      // Track this submission
-      lastProcessedSubmissionRef.current = {
-        pickId,
-        updated,
-      };
+    if (submitPickMutation.isSuccess && submitPickMutation.data?.pick) {
+      const submittedPick = submitPickMutation.data.pick;
 
       setFormState({
-        win_prediction: submitState.pick.win_prediction,
-        comment: submitState.pick.comment || '',
-        pickId: submitState.pick.id,
+        win_prediction: submittedPick.win_prediction,
+        comment: submittedPick.comment || '',
+        pickId: submittedPick.id,
         matchup: matchup.id,
       });
 
-      // Refetch picks list instantly for seamless UX with optimistic update
+      // Close accordion with animation
+      setAccordionValue('');
+
+      // Callback for parent component (mutations handle React Query updates)
       if (onPickUpdate) {
-        // Use current pick prop value for user expansion, but don't react to its changes
-        // We capture it at the time of submission, not as a dependency
         const currentPick = pick;
         const optimisticPick = currentPick?.expand?.user
           ? {
-              ...submitState.pick,
+              ...submittedPick,
               expand: { ...currentPick.expand, user: currentPick.expand.user },
             }
-          : submitState.pick;
+          : submittedPick;
         onPickUpdate(optimisticPick);
-      } else {
-        router.refresh();
       }
-    } else if (!submitState.success && submitState.error === undefined) {
-      // Reset ref when submission state is reset (new submission starting)
-      lastProcessedSubmissionRef.current = null;
     }
-  }, [
-    submitState.success,
-    submitState.pick,
-    submitState.error,
-    matchup.id,
-    router,
-    onPickUpdate,
-    // Note: intentionally NOT including 'pick' in dependencies to prevent infinite loop
-  ]);
+  }, [submitPickMutation.isSuccess, submitPickMutation.data, matchup.id, onPickUpdate, pick]);
 
-  // Close accordion when submission succeeds - separate effect to ensure animation
+  // Handle successful deletion via mutation callback
   useEffect(() => {
-    if (submitState.success && submitState.pick) {
-      // Close accordion with animation - this will trigger the collapse animation
-      setAccordionValue('');
-    }
-  }, [submitState.success, submitState.pick]);
-
-  // Track last processed deletion to prevent infinite loops
-  const lastProcessedDeletionRef = useRef<boolean>(false);
-
-  // Handle successful deletion
-  useEffect(() => {
-    if (deleteState.success) {
-      // Only process if we haven't already processed this deletion
-      if (lastProcessedDeletionRef.current) {
-        return;
-      }
-
-      lastProcessedDeletionRef.current = true;
-
+    if (deletePickMutation.isSuccess) {
       setFormState({
         win_prediction: 'indeterminate',
         comment: '',
@@ -208,12 +139,10 @@ export function PickForm({
       });
       setAccordionValue('pick-form'); // Open accordion after deletion
 
-      // Refetch picks list instantly for seamless UX with optimistic update
+      // Callback for parent component
       if (onPickUpdate) {
-        // Use current pick prop value, but don't react to its changes
         const currentPick = pick;
         if (currentPick) {
-          // Create an optimistic pick with indeterminate to trigger removal
           const optimisticPick = {
             ...currentPick,
             win_prediction: 'indeterminate' as const,
@@ -222,67 +151,64 @@ export function PickForm({
         } else {
           onPickUpdate();
         }
-      } else {
-        router.refresh();
       }
-    } else {
-      // Reset flag when deletion state resets
-      lastProcessedDeletionRef.current = false;
     }
-  }, [deleteState.success, matchup.id, router, onPickUpdate]);
+  }, [deletePickMutation.isSuccess, matchup.id, onPickUpdate, pick]);
 
-  const [isPending, startTransition] = useTransition();
-  const [isDeletingPending, setIsDeletingPending] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
     const winPrediction = formData.get('win_prediction')?.toString();
+    const comment = formData.get('comment')?.toString() || '';
 
-    startTransition(() => {
-      if (winPrediction === 'indeterminate') {
-        // Delete pick if indeterminate
-        if (formState.pickId) {
-          setIsDeletingPending(true);
-          deleteAction(formData);
-        }
-      } else {
-        // Submit pick
-        setIsDeletingPending(false);
-        submitAction(formData);
+    if (winPrediction === 'indeterminate') {
+      // Delete pick if indeterminate
+      if (formState.pickId) {
+        deletePickMutation.mutate({
+          id: formState.pickId,
+          matchup: formState.matchup,
+          matchupCode: matchup.code,
+          userId: pick?.user,
+        });
       }
-    });
+    } else {
+      // Submit pick with optimistic update
+      const optimisticPick: PickType | undefined = pick?.expand?.user
+        ? {
+            ...pick,
+            win_prediction: winPrediction,
+            comment: comment,
+            updated: new Date().toISOString(),
+          }
+        : undefined;
+
+      submitPickMutation.mutate({
+        id: formState.pickId || undefined,
+        win_prediction: winPrediction,
+        comment: comment,
+        matchup: formState.matchup,
+        matchupCode: matchup.code,
+        optimisticPick,
+      });
+    }
   };
 
   const handleDelete = () => {
     if (!formState.pickId) return;
-    const formData = new FormData();
-    formData.append('id', formState.pickId);
-    formData.append('matchup', formState.matchup);
-    setIsDeletingPending(true);
-    startTransition(() => {
-      deleteAction(formData);
+    deletePickMutation.mutate({
+      id: formState.pickId,
+      matchup: formState.matchup,
+      matchupCode: matchup.code,
+      userId: pick?.user,
     });
   };
 
-  // Reset pending state when actions complete
-  useEffect(() => {
-    if (submitState.success || submitState.error) {
-      setIsDeletingPending(false);
-    }
-  }, [submitState.success, submitState.error]);
-
-  useEffect(() => {
-    if (deleteState.success || deleteState.error) {
-      setIsDeletingPending(false);
-    }
-  }, [deleteState.success, deleteState.error]);
-
-  const loading = isSubmitting || isDeleting || isPending;
-  const isDeletingState = isDeleting || isDeletingPending;
-  const isSubmittingState = isSubmitting || (isPending && !isDeletingPending);
-  const error = submitState.error || deleteState.error;
+  const loading = submitPickMutation.isPending || deletePickMutation.isPending;
+  const isDeletingState = deletePickMutation.isPending;
+  const isSubmittingState = submitPickMutation.isPending;
+  const error =
+    submitPickMutation.data?.error || deletePickMutation.data?.error;
 
   const teamCode = pick?.win_prediction;
   const teamInfo = teamCode ? TeamMap[teamCode as keyof typeof TeamMap] : null;
