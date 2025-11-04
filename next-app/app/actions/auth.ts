@@ -55,10 +55,10 @@ export async function loginAction(
     if (!result.success) {
       console.warn('[loginAction] Validation failed', {
         email,
-        errors: result.error.errors,
+        errors: result.error.issues,
       });
       return {
-        error: result.error.errors[0]?.message || 'Invalid input',
+        error: result.error.issues[0]?.message || 'Invalid input',
       };
     }
 
@@ -168,10 +168,10 @@ export async function signupAction(
     if (!result.success) {
       console.warn('[signupAction] Validation failed', {
         email,
-        errors: result.error.errors,
+        errors: result.error.issues,
       });
       return {
-        error: result.error.errors[0]?.message || 'Invalid input',
+        error: result.error.issues[0]?.message || 'Invalid input',
       };
     }
 
