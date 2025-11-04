@@ -14,12 +14,11 @@ import type {
   ScoreboardType,
   PickType,
 } from '@/lib/definitions';
-
-interface MatchupPageData {
-  matchup: MatchupType;
-  scoreboard: ScoreboardType | null;
-  picks: PickType[];
-}
+import {
+  getMatchupPageData,
+  getGamesByCodePrefix,
+  type MatchupPageData,
+} from '@/app/actions/matchups';
 
 interface MatchupPageClientProps {
   initialGames: GameType[];
@@ -66,20 +65,23 @@ export function MatchupPageClient({
   );
 
   const fetchGamesForDate = useCallback(async (nextDate: string) => {
-    const res = await fetch(`/api/games/${nextDate}`, { cache: 'no-store' });
-    if (!res.ok) return [] as GameType[];
-    const json = await res.json();
-    return (json?.games || []) as GameType[];
+    try {
+      return await getGamesByCodePrefix(nextDate);
+    } catch (error) {
+      console.error('Failed to fetch games:', error);
+      return [] as GameType[];
+    }
   }, []);
 
   const fetchMatchupData = useCallback(
     async (nextDate: string, nextGame: string) => {
-      const res = await fetch(`/api/matchup/${nextDate}/${nextGame}`, {
-        cache: 'no-store',
-      });
-      if (!res.ok) return null as MatchupPageData | null;
-      const json = await res.json();
-      return (json || null) as MatchupPageData | null;
+      try {
+        const code = `${nextDate}/${nextGame}`;
+        return await getMatchupPageData(code);
+      } catch (error) {
+        console.error('Failed to fetch matchup data:', error);
+        return null as MatchupPageData | null;
+      }
     },
     []
   );
@@ -205,10 +207,44 @@ export function MatchupPageClient({
           <Card className='mb-4 sm:mb-6'>
             <CardContent className='p-4 sm:p-6'>
               {loading ? (
-                <div className='animate-pulse space-y-4'>
-                  <div className='h-6 bg-muted rounded w-1/3' />
-                  <div className='h-24 bg-muted rounded' />
-                  <div className='h-4 bg-muted rounded w-1/2' />
+                <div className='animate-pulse'>
+                  {/* MatchupDisplay skeleton */}
+                  <div className='w-full flex items-center gap-2 sm:gap-4'>
+                    {/* Away logo */}
+                    <div className='h-12 w-12 sm:h-16 sm:w-16 bg-muted rounded shrink-0' />
+                    {/* Center content */}
+                    <div className='flex-1 flex flex-col items-center justify-center gap-1'>
+                      <div className='h-4 bg-muted rounded w-24' />
+                      <div className='h-5 sm:h-6 bg-muted rounded w-20' />
+                    </div>
+                    {/* Home logo */}
+                    <div className='h-12 w-12 sm:h-16 sm:w-16 bg-muted rounded shrink-0' />
+                  </div>
+                  {/* Separator skeleton */}
+                  <div className='h-px bg-border self-stretch my-3 sm:my-4' />
+                  {/* PicksSummary skeleton */}
+                  <div className='flex w-full gap-1 items-center'>
+                    {/* Away team */}
+                    <div className='flex-1 flex items-center gap-2 justify-between pl-2 sm:pl-4'>
+                      <div className='grow flex -space-x-2 items-center justify-center'>
+                        <div className='h-7 w-7 sm:h-8 sm:w-8 bg-muted rounded-full' />
+                        <div className='h-7 w-7 sm:h-8 sm:w-8 bg-muted rounded-full' />
+                        <div className='h-7 w-7 sm:h-8 sm:w-8 bg-muted rounded-full' />
+                      </div>
+                      <div className='h-4 sm:h-5 bg-muted rounded w-6' />
+                    </div>
+                    {/* Divider */}
+                    <div className='w-px bg-border self-stretch mx-1' />
+                    {/* Home team */}
+                    <div className='flex-1 flex items-center gap-2 justify-between pr-2 sm:pr-4'>
+                      <div className='h-4 sm:h-5 bg-muted rounded w-6' />
+                      <div className='grow flex -space-x-2 items-center justify-center'>
+                        <div className='h-7 w-7 sm:h-8 sm:w-8 bg-muted rounded-full' />
+                        <div className='h-7 w-7 sm:h-8 sm:w-8 bg-muted rounded-full' />
+                        <div className='h-7 w-7 sm:h-8 sm:w-8 bg-muted rounded-full' />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <>
