@@ -23,23 +23,30 @@ export function BottomNav({ isAuthenticated }: BottomNavProps) {
     { href: '/home', label: 'Home', icon: Home, id: 'home' },
     ...(isAuthenticated
       ? [
-          { href: '/leaderboard', label: 'Leaderboard', icon: Trophy, id: 'leaderboard' },
+          {
+            href: '/leaderboard',
+            label: 'Leaderboard',
+            icon: Trophy,
+            id: 'leaderboard',
+          },
           { href: '/profile', label: 'Profile', icon: User, id: 'profile' },
         ]
-      : [
-          { href: '/login', label: 'Login', icon: LogIn, id: 'login' },
-        ]),
+      : [{ href: '/login', label: 'Login', icon: LogIn, id: 'login' }]),
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden shadow-lg">
-      <div 
-        className="flex h-16 items-center justify-around"
+    <nav className='fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden shadow-lg'>
+      <div
+        className='flex h-16 items-center justify-around'
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href === '/leaderboard' && pathname.startsWith('/leaderboard')) || (item.href === '/login' && pathname === '/login');
+          const isActive =
+            pathname === item.href ||
+            (item.href === '/leaderboard' &&
+              pathname.startsWith('/leaderboard')) ||
+            (item.href === '/login' && pathname === '/login');
           return (
             <Link
               key={item.id}
@@ -57,9 +64,14 @@ export function BottomNav({ isAuthenticated }: BottomNavProps) {
                   isActive && 'bg-primary/10'
                 )}
               >
-                <Icon className={cn('h-5 w-5 transition-transform', isActive && 'scale-110')} />
+                <Icon
+                  className={cn(
+                    'h-5 w-5 transition-transform',
+                    isActive && 'scale-110'
+                  )}
+                />
               </div>
-              <span className="text-xs font-medium">{item.label}</span>
+              <span className='text-xs font-medium'>{item.label}</span>
             </Link>
           );
         })}
@@ -67,4 +79,3 @@ export function BottomNav({ isAuthenticated }: BottomNavProps) {
     </nav>
   );
 }
-
