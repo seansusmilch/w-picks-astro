@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ProfileHeader } from '@/components/profile/profile-header';
+import { ProfileEditWrapper } from '@/components/profile/profile-edit-wrapper';
 import { AllTimeStatsCard } from '@/components/profile/all-time-stats-card';
 import { LogOut } from 'lucide-react';
 import { logoutAction } from '@/app/actions/auth';
@@ -36,11 +36,10 @@ export default async function ProfilePage() {
 
   return (
     <div className="container mx-auto p-4 py-8 max-w-4xl">
-      <ProfileHeader
+      <ProfileEditWrapper
         avatarUrl={avatarUrl}
         username={user.record.username}
         bio={user.record.bio}
-        actionButton={logoutButton}
       />
 
       <AllTimeStatsCard stats={stats} />
