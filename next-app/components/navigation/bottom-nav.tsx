@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, User, Trophy } from 'lucide-react';
+import { Home, User, Trophy, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NavItem {
@@ -26,7 +26,9 @@ export function BottomNav({ isAuthenticated }: BottomNavProps) {
           { href: '/leaderboard', label: 'Leaderboard', icon: Trophy, id: 'leaderboard' },
           { href: '/profile', label: 'Profile', icon: User, id: 'profile' },
         ]
-      : []),
+      : [
+          { href: '/login', label: 'Login', icon: LogIn, id: 'login' },
+        ]),
   ];
 
   return (
@@ -37,7 +39,7 @@ export function BottomNav({ isAuthenticated }: BottomNavProps) {
       >
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href === '/leaderboard' && pathname.startsWith('/leaderboard'));
+          const isActive = pathname === item.href || (item.href === '/leaderboard' && pathname.startsWith('/leaderboard')) || (item.href === '/login' && pathname === '/login');
           return (
             <Link
               key={item.id}
