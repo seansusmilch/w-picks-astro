@@ -128,7 +128,11 @@ export function AvatarEditSection({
             className='h-24 w-24 sm:h-32 sm:w-32'
           />
         </div>
-        <form action={formAction} encType='multipart/form-data' className='flex-1 min-w-0'>
+        <form
+          action={formAction}
+          encType='multipart/form-data'
+          className='flex-1 min-w-0'
+        >
           <div className='space-y-4'>
             <div className='space-y-2'>
               <label htmlFor='avatar' className='text-sm font-medium'>
