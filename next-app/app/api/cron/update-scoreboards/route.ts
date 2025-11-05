@@ -6,7 +6,6 @@ import {
   updatePicksStatusByCode,
   updateScoreboard as updateScoreboardRecord,
 } from '@/app/actions/cron';
-import { getScoreboardByCode } from '@/app/actions/matchups';
 import { getLogger } from '@/lib/logger';
 import { DateTime } from 'luxon';
 import {
@@ -208,4 +207,3 @@ export async function POST(request: Request) {
     return NextResponse.json(errorData, { status: 500 });
   }
 }
-

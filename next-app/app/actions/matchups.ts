@@ -11,6 +11,7 @@ import { MatchupZ, ScoreboardZ, PickZ, UserZ } from '@/lib/definitions';
 import { getCurrentWeekCodePrefixes } from '@/lib/date-utils';
 import { getLogger } from '@/lib/logger';
 import { getUserAvatarUrl } from '@/lib/utils';
+import { getScoreboardByCode, getScoreboardsByCodePrefix } from '@/app/actions/scoreboards';
 
 const logger = getLogger('matchups');
 
@@ -90,61 +91,8 @@ export async function getMatchupByCode(
   }
 }
 
-export async function getScoreboardByCode(
-  code: string
-): Promise<ScoreboardType | null> {
-  logger.debug({ code }, 'Fetching scoreboard by code');
-
-  const pb = await initPocketBase();
-
-  try {
-    const scoreboardRecord = await pb
-      .collection('scoreboards')
-      .getFirstListItem(`code = "${code}"`)
-      .catch((error) => {
-        logger.debug(
-          {
-            code,
-            error: error instanceof Error ? error.message : String(error),
-          },
-          'Scoreboard not found in PocketBase'
-        );
-        return null;
-      });
-
-    if (!scoreboardRecord) {
-      logger.debug({ code }, 'Scoreboard record is null');
-      return null;
-    }
-
-    const parsedScoreboard = ScoreboardZ.safeParse(scoreboardRecord);
-    if (!parsedScoreboard.success) {
-      logger.error(
-        {
-          code,
-          validationErrors: parsedScoreboard.error.issues,
-        },
-        'Scoreboard validation failed'
-      );
-      return null;
-    }
-
-    logger.debug(
-      { code, scoreboardId: parsedScoreboard.data.id },
-      'Scoreboard fetched and validated'
-    );
-    return parsedScoreboard.data;
-  } catch (error) {
-    logger.error(
-      {
-        code,
-        error: error instanceof Error ? error.message : String(error),
-      },
-      'Failed to fetch scoreboard'
-    );
-    return null;
-  }
-}
+// getScoreboardByCode is now imported from @/app/actions/scoreboards
+// This function fetches from NBA API instead of database
 
 /**
  * Fetches picks for a specific matchup by its ID.
@@ -529,57 +477,8 @@ export async function getCurrentWeekMatchups(): Promise<MatchupType[]> {
   }
 }
 
-/**
- * Fetches scoreboards for a given code prefix (date code)
- */
-export async function getScoreboardsByCodePrefix(
-  codePrefix: string
-): Promise<ScoreboardType[]> {
-  logger.debug({ codePrefix }, 'Fetching scoreboards by code prefix');
-
-  const pb = await getAdminPocketBase();
-
-  try {
-    const scoreboardRecords = await pb
-      .collection('scoreboards')
-      .getFullList({
-        filter: `code ?~ "${codePrefix}"`,
-      })
-      .catch((error) => {
-        logger.error(
-          {
-            codePrefix,
-            error: error instanceof Error ? error.message : String(error),
-          },
-          'Failed to fetch scoreboards'
-        );
-        return [];
-      });
-
-    const scoreboards: ScoreboardType[] = [];
-    for (const record of scoreboardRecords) {
-      const parsed = ScoreboardZ.safeParse(record);
-      if (parsed.success) {
-        scoreboards.push(parsed.data);
-      }
-    }
-
-    logger.debug(
-      { codePrefix, count: scoreboards.length },
-      'Fetched scoreboards by code prefix'
-    );
-    return scoreboards;
-  } catch (error) {
-    logger.error(
-      {
-        codePrefix,
-        error: error instanceof Error ? error.message : String(error),
-      },
-      'Failed to fetch scoreboards by code prefix'
-    );
-    return [];
-  }
-}
+// getScoreboardsByCodePrefix is now imported from @/app/actions/scoreboards
+// This function fetches from NBA API instead of database
 
 /**
  * Fetches matchups with picks for a given code prefix (date code)
