@@ -21,11 +21,13 @@ interface GamesViewProps {
   initialGames: GameType[];
 }
 
-// Sort games by matchup code
-const sortGamesByCode = (games: GameType[]): GameType[] => {
-  return [...games].sort((a, b) =>
-    a.matchup.code.localeCompare(b.matchup.code)
-  );
+// Sort games by start time (earliest first)
+const sortGamesByTime = (games: GameType[]): GameType[] => {
+  return [...games].sort((a, b) => {
+    const timeA = new Date(a.matchup.time_utc).getTime();
+    const timeB = new Date(b.matchup.time_utc).getTime();
+    return timeA - timeB;
+  });
 };
 
 export function GamesView({ initialDateCode, initialGames }: GamesViewProps) {
@@ -36,7 +38,7 @@ export function GamesView({ initialDateCode, initialGames }: GamesViewProps) {
 
   // Hydrate initial data into React Query cache (sorted)
   useEffect(() => {
-    const sortedInitialGames = sortGamesByCode(initialGames);
+    const sortedInitialGames = sortGamesByTime(initialGames);
     queryClient.setQueryData(
       queryKeys.games(initialDateCode),
       sortedInitialGames
@@ -64,10 +66,10 @@ export function GamesView({ initialDateCode, initialGames }: GamesViewProps) {
     refetchInterval: refetchInterval,
   });
 
-  // Sort final games by matchup code
+  // Sort final games by start time
   const finalGames = useMemo(() => {
     const games = refreshedGames || currentGames;
-    return sortGamesByCode(games);
+    return sortGamesByTime(games);
   }, [refreshedGames, currentGames]);
 
   const isLoading = currentGamesData.isLoading;
@@ -87,7 +89,7 @@ export function GamesView({ initialDateCode, initialGames }: GamesViewProps) {
               '@/app/actions/matchups'
             );
             const games = await getGamesByCodePrefix(dateCode);
-            return sortGamesByCode(games);
+            return sortGamesByTime(games);
           },
         });
       }

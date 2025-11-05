@@ -10,6 +10,15 @@ import { getReactions, type ReactionData } from '@/app/actions/reactions';
 import type { GameType } from '@/lib/definitions';
 import { REFRESH_INTERVALS } from '@/lib/constants';
 
+// Sort games by start time (earliest first)
+const sortGamesByTime = (games: GameType[]): GameType[] => {
+  return [...games].sort((a, b) => {
+    const timeA = new Date(a.matchup.time_utc).getTime();
+    const timeB = new Date(b.matchup.time_utc).getTime();
+    return timeA - timeB;
+  });
+};
+
 // Query keys factory
 export const queryKeys = {
   games: (dateCode: string) => ['games', dateCode] as const,
@@ -30,7 +39,8 @@ export function useGamesByDateCode(
   return useQuery<GameType[]>({
     queryKey: queryKeys.games(dateCode),
     queryFn: async () => {
-      return await getGamesByCodePrefix(dateCode);
+      const games = await getGamesByCodePrefix(dateCode);
+      return sortGamesByTime(games);
     },
     enabled: options?.enabled !== false && !!dateCode,
     refetchInterval: options?.refetchInterval,

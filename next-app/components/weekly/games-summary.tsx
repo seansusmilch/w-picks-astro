@@ -10,13 +10,7 @@ interface GamesSummaryProps {
 }
 
 export function GamesSummary({ games, isLoading = false }: GamesSummaryProps) {
-  // Sort games by matchup code (game code portion)
-  const sortedGames = [...games].sort((a, b) => {
-    const [, gameCodeA] = a.matchup.code.split('/');
-    const [, gameCodeB] = b.matchup.code.split('/');
-    return gameCodeA.localeCompare(gameCodeB);
-  });
-
+  // Games are already sorted by time in the parent component
   if (isLoading) {
     return (
       <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 p-4'>
@@ -27,7 +21,7 @@ export function GamesSummary({ games, isLoading = false }: GamesSummaryProps) {
     );
   }
 
-  if (sortedGames.length === 0) {
+  if (games.length === 0) {
     return (
       <div className='text-center py-12 px-4'>
         <p className='text-muted-foreground text-sm sm:text-base'>
@@ -39,7 +33,7 @@ export function GamesSummary({ games, isLoading = false }: GamesSummaryProps) {
 
   return (
     <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 p-4'>
-      {sortedGames.map((game) => (
+      {games.map((game) => (
         <WeeklyMatchupCard key={game.matchup.id} game={game} />
       ))}
     </div>
