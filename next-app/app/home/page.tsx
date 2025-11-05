@@ -9,17 +9,22 @@ export const metadata: Metadata = {
   description: 'View NBA matchups for the week',
 };
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ date?: string }>
+}) {
   // Await everything before rendering - loading.tsx will show spinner until this completes
-  const todayCodePrefix = getTodayCodePrefix();
-  const initialGames = await getGamesByCodePrefix(todayCodePrefix);
+  const { date } = await searchParams;
+  const initialDateCode = date || getTodayCodePrefix();
+  const initialGames = await getGamesByCodePrefix(initialDateCode);
 
   return (
     <div className='container mx-auto px-0 sm:px-4 py-0 sm:py-4 max-w-6xl'>
       <Card>
         <CardContent className='p-0'>
           <GamesView
-            initialDateCode={todayCodePrefix}
+            initialDateCode={initialDateCode}
             initialGames={initialGames}
           />
         </CardContent>

@@ -108,9 +108,37 @@ export function GamesView({ initialDateCode, initialGames }: GamesViewProps) {
     return counts;
   }, [dateRange, queryClient]);
 
+  // Ensure URL reflects the selected date on first load
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    const current = url.searchParams.get('date');
+    if (current !== selectedDate) {
+      url.searchParams.set('date', selectedDate);
+      window.history.replaceState({ date: selectedDate }, '', url);
+    }
+  }, []);
+
+  // Sync selected date with browser back/forward
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onPopState = () => {
+      const url = new URL(window.location.href);
+      const param = url.searchParams.get('date');
+      setSelectedDate(param || todayCodePrefix);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [todayCodePrefix]);
+
   // Handle date selection
   const handleDateSelect = (dateCode: string) => {
     setSelectedDate(dateCode);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('date', dateCode);
+      window.history.pushState({ date: dateCode }, '', url);
+    }
     // React Query will automatically fetch if not in cache
   };
 
@@ -122,6 +150,11 @@ export function GamesView({ initialDateCode, initialGames }: GamesViewProps) {
   // Handle "Back to Today" click
   const handleBackToToday = () => {
     setSelectedDate(todayCodePrefix);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('date', todayCodePrefix);
+      window.history.pushState({ date: todayCodePrefix }, '', url);
+    }
     // React Query will automatically fetch if not in cache
   };
 
