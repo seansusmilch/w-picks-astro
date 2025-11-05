@@ -93,11 +93,14 @@ export async function getTodayScoreboards(): Promise<ScoreboardType[]> {
 export async function getScoreboardsByCodePrefix(
   codePrefix: string
 ): Promise<ScoreboardType[]> {
-  logger.debug({ codePrefix }, 'Fetching scoreboards by code prefix from NBA API');
+  logger.debug(
+    { codePrefix },
+    'Fetching scoreboards by code prefix from NBA API'
+  );
 
   try {
     const allScoreboards = await getTodayScoreboards();
-    
+
     // Filter scoreboards that match the code prefix
     const filtered = allScoreboards.filter((sb) =>
       sb.code.startsWith(codePrefix)
@@ -107,7 +110,7 @@ export async function getScoreboardsByCodePrefix(
       { codePrefix, count: filtered.length },
       'Filtered scoreboards by code prefix'
     );
-    
+
     return filtered;
   } catch (error) {
     logger.error(
@@ -120,4 +123,3 @@ export async function getScoreboardsByCodePrefix(
     return [];
   }
 }
-
