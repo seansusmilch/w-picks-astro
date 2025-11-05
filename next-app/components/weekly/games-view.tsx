@@ -21,15 +21,26 @@ interface GamesViewProps {
   initialGames: GameType[];
 }
 
+// Sort games by matchup code
+const sortGamesByCode = (games: GameType[]): GameType[] => {
+  return [...games].sort((a, b) =>
+    a.matchup.code.localeCompare(b.matchup.code)
+  );
+};
+
 export function GamesView({ initialDateCode, initialGames }: GamesViewProps) {
   const queryClient = useQueryClient();
   const [dateRange, setDateRange] = useState<string[]>(getInitialDateRange());
   const [selectedDate, setSelectedDate] = useState<string>(initialDateCode);
   const todayCodePrefix = getTodayCodePrefix();
 
-  // Hydrate initial data into React Query cache
+  // Hydrate initial data into React Query cache (sorted)
   useEffect(() => {
-    queryClient.setQueryData(queryKeys.games(initialDateCode), initialGames);
+    const sortedInitialGames = sortGamesByCode(initialGames);
+    queryClient.setQueryData(
+      queryKeys.games(initialDateCode),
+      sortedInitialGames
+    );
   }, [queryClient, initialDateCode, initialGames]);
 
   // Get games for selected date with automatic refresh
@@ -53,7 +64,12 @@ export function GamesView({ initialDateCode, initialGames }: GamesViewProps) {
     refetchInterval: refetchInterval,
   });
 
-  const finalGames = refreshedGames || currentGames;
+  // Sort final games by matchup code
+  const finalGames = useMemo(() => {
+    const games = refreshedGames || currentGames;
+    return sortGamesByCode(games);
+  }, [refreshedGames, currentGames]);
+
   const isLoading = currentGamesData.isLoading;
 
   // Prefetch games for dates in the date range
@@ -70,7 +86,8 @@ export function GamesView({ initialDateCode, initialGames }: GamesViewProps) {
             const { getGamesByCodePrefix } = await import(
               '@/app/actions/matchups'
             );
-            return await getGamesByCodePrefix(dateCode);
+            const games = await getGamesByCodePrefix(dateCode);
+            return sortGamesByCode(games);
           },
         });
       }

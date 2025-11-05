@@ -16,7 +16,7 @@ export function WeeklyMatchupCard({ game }: WeeklyMatchupCardProps) {
   const [dateCode, gameCode] = matchup.code.split('/');
 
   return (
-    <Link href={`/matchup/${dateCode}/${gameCode}`} className="block">
+    <Link href={`/matchup?date=${dateCode}&game=${gameCode}`} className="block">
       <Card
         className={cn(
           'transition-all hover:shadow-md hover:border-primary/50',
