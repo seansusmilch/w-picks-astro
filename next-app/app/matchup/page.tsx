@@ -27,6 +27,7 @@ export default async function MatchupIndexPage({ searchParams }: MatchupIndexPag
         initialData={{ matchup: {} as any, scoreboard: null, picks: [] }}
         initialDateCode={dateCode}
         initialGameCode={''}
+        userId={user.record.id}
       />
     );
   }
@@ -42,8 +43,7 @@ export default async function MatchupIndexPage({ searchParams }: MatchupIndexPag
       initialGameCode={gameCode}
       userPick={initialData.picks.find((p) => p.user === user.record.id)}
       scoreboardStatus={initialData.scoreboard?.status || 0}
+      userId={user.record.id}
     />
   );
 }
-
-

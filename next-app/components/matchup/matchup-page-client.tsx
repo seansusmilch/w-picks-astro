@@ -27,6 +27,7 @@ interface MatchupPageClientProps {
   initialData: MatchupPageData;
   initialDateCode: string;
   initialGameCode: string;
+  userId: string;
   userPick?: PickType;
   scoreboardStatus?: number;
 }
@@ -36,6 +37,7 @@ export function MatchupPageClient({
   initialData,
   initialDateCode,
   initialGameCode,
+  userId,
   userPick,
   scoreboardStatus = 0,
 }: MatchupPageClientProps) {
@@ -174,14 +176,26 @@ export function MatchupPageClient({
   // Find the current user's pick from the picks list
   // This ensures we always have the latest pick data after refetches
   const userPickForCurrent = useMemo(() => {
-    // First try to find from currentPicks (most up-to-date)
-    if (userPick?.user) {
-      const foundPick = currentPicks.find((p) => p.user === userPick.user);
-      if (foundPick) return foundPick;
+    const foundPick = currentPicks.find((p) => p.user === userId);
+    if (foundPick) return foundPick;
+
+    if (
+      userPick &&
+      userPick.user === userId &&
+      displayedCode === `${initialDateCode}/${initialGameCode}`
+    ) {
+      return userPick;
     }
-    // Fallback to userPick prop if not found in currentPicks
-    return userPick;
-  }, [currentPicks, userPick]);
+
+    return undefined;
+  }, [
+    currentPicks,
+    userId,
+    userPick,
+    displayedCode,
+    initialDateCode,
+    initialGameCode,
+  ]);
 
   // Refetch matchup data - mutations will handle optimistic updates
   const refetchMatchupData = useCallback(
