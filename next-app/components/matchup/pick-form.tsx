@@ -101,30 +101,33 @@ export function PickForm({
 
   // Handle successful submission via mutation callback
   useEffect(() => {
-    if (submitPickMutation.isSuccess && submitPickMutation.data?.pick) {
-      const submittedPick = submitPickMutation.data.pick;
+    if (!submitPickMutation.isSuccess) return;
+    const submittedPick = submitPickMutation.data?.pick;
+    if (!submittedPick) return;
 
-      setFormState({
-        win_prediction: submittedPick.win_prediction,
-        comment: submittedPick.comment || '',
-        pickId: submittedPick.id,
-        matchup: matchup.id,
-      });
+    // Ignore submissions from other matchups when navigating between games
+    if (submittedPick.matchup !== matchup.id) return;
 
-      // Close accordion with animation
-      setAccordionValue('');
+    setFormState({
+      win_prediction: submittedPick.win_prediction,
+      comment: submittedPick.comment || '',
+      pickId: submittedPick.id,
+      matchup: matchup.id,
+    });
 
-      // Callback for parent component (mutations handle React Query updates)
-      if (onPickUpdate) {
-        const currentPick = pick;
-        const optimisticPick = currentPick?.expand?.user
-          ? {
-              ...submittedPick,
-              expand: { ...currentPick.expand, user: currentPick.expand.user },
-            }
-          : submittedPick;
-        onPickUpdate(optimisticPick);
-      }
+    // Close accordion with animation
+    setAccordionValue('');
+
+    // Callback for parent component (mutations handle React Query updates)
+    if (onPickUpdate) {
+      const currentPick = pick;
+      const optimisticPick = currentPick?.expand?.user
+        ? {
+            ...submittedPick,
+            expand: { ...currentPick.expand, user: currentPick.expand.user },
+          }
+        : submittedPick;
+      onPickUpdate(optimisticPick);
     }
   }, [submitPickMutation.isSuccess, submitPickMutation.data, matchup.id, onPickUpdate, pick]);
 
