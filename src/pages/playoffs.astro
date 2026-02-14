@@ -1,0 +1,315 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { PlayoffBracket } from '@/components/PlayoffBracket/PlayoffBracket';
+import type { PlayoffBracketResponse, BracketData } from '@/lib/types/playoff-bracket';
+
+// Mock Data for a Full Playoff Bracket
+const mockData: PlayoffBracketResponse = {
+    bracket: {
+        playoffBracketSeries: [
+            // --- Round 1: East ---
+            {
+                roundNumber: 1,
+                seriesConference: 'East',
+                seriesText: 'CLE wins 4-1',
+                highSeedCity: 'Cleveland',
+                highSeedName: 'Cavaliers',
+                highSeedTricode: 'CLE',
+                highSeedRank: 1,
+                highSeedSeriesWins: 4,
+                lowSeedCity: 'Chicago',
+                lowSeedName: 'Bulls',
+                lowSeedTricode: 'CHI',
+                lowSeedRank: 8,
+                lowSeedSeriesWins: 1,
+                displayOrderNumber: 4,
+                poRoundDesc: 'First Round',
+            },
+            {
+                roundNumber: 1,
+                seriesConference: 'East',
+                seriesText: 'NYK wins 4-3',
+                highSeedCity: 'New York',
+                highSeedName: 'Knicks',
+                highSeedTricode: 'NYK',
+                highSeedRank: 4,
+                highSeedSeriesWins: 4,
+                lowSeedCity: 'Miami',
+                lowSeedName: 'Heat',
+                lowSeedTricode: 'MIA',
+                lowSeedRank: 5,
+                lowSeedSeriesWins: 3,
+                displayOrderNumber: 5,
+                poRoundDesc: 'First Round',
+            },
+            {
+                roundNumber: 1,
+                seriesConference: 'East',
+                seriesText: 'BOS wins 4-0',
+                highSeedCity: 'Boston',
+                highSeedName: 'Celtics',
+                highSeedTricode: 'BOS',
+                highSeedRank: 2,
+                highSeedSeriesWins: 4,
+                lowSeedCity: 'Philadelphia',
+                lowSeedName: '76ers',
+                lowSeedTricode: 'PHI',
+                lowSeedRank: 7,
+                lowSeedSeriesWins: 0,
+                displayOrderNumber: 7,
+                poRoundDesc: 'First Round',
+            },
+            {
+                roundNumber: 1,
+                seriesConference: 'East',
+                seriesText: 'MIL wins 4-2',
+                highSeedCity: 'Milwaukee',
+                highSeedName: 'Bucks',
+                highSeedTricode: 'MIL',
+                highSeedRank: 3,
+                highSeedSeriesWins: 4,
+                lowSeedCity: 'Indiana',
+                lowSeedName: 'Pacers',
+                lowSeedTricode: 'IND',
+                lowSeedRank: 6,
+                lowSeedSeriesWins: 2,
+                displayOrderNumber: 6,
+                poRoundDesc: 'First Round',
+            },
+            // --- Round 1: West ---
+            {
+                roundNumber: 1,
+                seriesConference: 'West',
+                seriesText: 'OKC wins 4-0',
+                highSeedCity: 'Oklahoma City',
+                highSeedName: 'Thunder',
+                highSeedTricode: 'OKC',
+                highSeedRank: 1,
+                highSeedSeriesWins: 4,
+                lowSeedCity: 'New Orleans',
+                lowSeedName: 'Pelicans',
+                lowSeedTricode: 'NOP',
+                lowSeedRank: 8,
+                lowSeedSeriesWins: 0,
+                displayOrderNumber: 0,
+                poRoundDesc: 'First Round',
+            },
+            {
+                roundNumber: 1,
+                seriesConference: 'West',
+                seriesText: 'LAC wins 4-2',
+                highSeedCity: 'LA',
+                highSeedName: 'Clippers',
+                highSeedTricode: 'LAC',
+                highSeedRank: 4,
+                highSeedSeriesWins: 4,
+                lowSeedCity: 'Dallas',
+                lowSeedName: 'Mavericks',
+                lowSeedTricode: 'DAL',
+                lowSeedRank: 5,
+                lowSeedSeriesWins: 2,
+                displayOrderNumber: 1,
+                poRoundDesc: 'First Round',
+            },
+            {
+                roundNumber: 1,
+                seriesConference: 'West',
+                seriesText: 'DEN wins 4-1',
+                highSeedCity: 'Denver',
+                highSeedName: 'Nuggets',
+                highSeedTricode: 'DEN',
+                highSeedRank: 2,
+                highSeedSeriesWins: 4,
+                lowSeedCity: 'Los Angeles',
+                lowSeedName: 'Lakers',
+                lowSeedTricode: 'LAL',
+                lowSeedRank: 7,
+                lowSeedSeriesWins: 1,
+                displayOrderNumber: 3,
+                poRoundDesc: 'First Round',
+            },
+            {
+                roundNumber: 1,
+                seriesConference: 'West',
+                seriesText: 'MIN wins 4-0',
+                highSeedCity: 'Minnesota',
+                highSeedName: 'Timberwolves',
+                highSeedTricode: 'MIN',
+                highSeedRank: 3,
+                highSeedSeriesWins: 4,
+                lowSeedCity: 'Phoenix',
+                lowSeedName: 'Suns',
+                lowSeedTricode: 'PHX',
+                lowSeedRank: 6,
+                lowSeedSeriesWins: 0,
+                displayOrderNumber: 2,
+                poRoundDesc: 'First Round',
+            },
+            // --- Round 2: East (Conf Semis) ---
+            {
+                roundNumber: 2,
+                seriesConference: 'East',
+                seriesText: 'CLE wins 4-2',
+                highSeedCity: 'Cleveland',
+                highSeedName: 'Cavaliers',
+                highSeedTricode: 'CLE',
+                highSeedRank: 1,
+                highSeedSeriesWins: 4,
+                lowSeedCity: 'New York',
+                lowSeedName: 'Knicks',
+                lowSeedTricode: 'NYK',
+                lowSeedRank: 4,
+                lowSeedSeriesWins: 2,
+                displayOrderNumber: 2,
+                poRoundDesc: 'Conf. Semifinals',
+            },
+            {
+                roundNumber: 2,
+                seriesConference: 'East',
+                seriesText: 'BOS wins 4-1',
+                highSeedCity: 'Boston',
+                highSeedName: 'Celtics',
+                highSeedTricode: 'BOS',
+                highSeedRank: 2,
+                highSeedSeriesWins: 4,
+                lowSeedCity: 'Milwaukee',
+                lowSeedName: 'Bucks',
+                lowSeedTricode: 'MIL',
+                lowSeedRank: 3,
+                lowSeedSeriesWins: 1,
+                displayOrderNumber: 3,
+                poRoundDesc: 'Conf. Semifinals',
+            },
+            // --- Round 2: West (Conf Semis) ---
+            {
+                roundNumber: 2,
+                seriesConference: 'West',
+                seriesText: 'OKC wins 4-3',
+                highSeedCity: 'Oklahoma City',
+                highSeedName: 'Thunder',
+                highSeedTricode: 'OKC',
+                highSeedRank: 1,
+                highSeedSeriesWins: 4,
+                lowSeedCity: 'LA',
+                lowSeedName: 'Clippers',
+                lowSeedTricode: 'LAC',
+                lowSeedRank: 4,
+                lowSeedSeriesWins: 3,
+                displayOrderNumber: 0,
+                poRoundDesc: 'Conf. Semifinals',
+            },
+            {
+                roundNumber: 2,
+                seriesConference: 'West',
+                seriesText: 'MIN wins 4-3',
+                highSeedCity: 'Denver',
+                highSeedName: 'Nuggets',
+                highSeedTricode: 'DEN',
+                highSeedRank: 2,
+                highSeedSeriesWins: 3,
+                lowSeedCity: 'Minnesota',
+                lowSeedName: 'Timberwolves',
+                lowSeedTricode: 'MIN',
+                lowSeedRank: 3,
+                lowSeedSeriesWins: 4,
+                displayOrderNumber: 1,
+                poRoundDesc: 'Conf. Semifinals',
+            },
+            // --- Round 3: East (Conf Finals) ---
+            {
+                roundNumber: 3,
+                seriesConference: 'East',
+                seriesText: 'BOS wins 4-2',
+                highSeedCity: 'Cleveland',
+                highSeedName: 'Cavaliers',
+                highSeedTricode: 'CLE',
+                highSeedRank: 1,
+                highSeedSeriesWins: 2,
+                lowSeedCity: 'Boston',
+                lowSeedName: 'Celtics',
+                lowSeedTricode: 'BOS',
+                lowSeedRank: 2,
+                lowSeedSeriesWins: 4,
+                displayOrderNumber: 1,
+                poRoundDesc: 'Conf. Finals',
+            },
+            // --- Round 3: West (Conf Finals) ---
+            {
+                roundNumber: 3,
+                seriesConference: 'West',
+                seriesText: 'MIN wins 4-1',
+                highSeedCity: 'Oklahoma City',
+                highSeedName: 'Thunder',
+                highSeedTricode: 'OKC',
+                highSeedRank: 1,
+                highSeedSeriesWins: 1,
+                lowSeedCity: 'Minnesota',
+                lowSeedName: 'Timberwolves',
+                lowSeedTricode: 'MIN',
+                lowSeedRank: 3,
+                lowSeedSeriesWins: 4,
+                displayOrderNumber: 0,
+                poRoundDesc: 'Conf. Finals',
+            },
+            // --- Round 4: NBA Finals ---
+            {
+                roundNumber: 4,
+                seriesConference: 'NBA Finals',
+                seriesText: 'BOS wins 4-2',
+                highSeedCity: 'Boston',
+                highSeedName: 'Celtics',
+                highSeedTricode: 'BOS',
+                highSeedRank: 0,
+                highSeedSeriesWins: 4,
+                lowSeedCity: 'Minnesota',
+                lowSeedName: 'Timberwolves',
+                lowSeedTricode: 'MIN',
+                lowSeedRank: 0,
+                lowSeedSeriesWins: 2,
+                displayOrderNumber: 0,
+                poRoundDesc: 'NBA Finals',
+            },
+        ],
+        currentRound: 4,
+    },
+};
+
+// Use mock data instead of fetching
+const response = await fetch(
+    'https://cdn.nba.com/static/json/staticData/brackets/2023/PlayoffBracket.json'
+);
+const data: PlayoffBracketResponse = await response.json();
+// Process data into a structure suitable for bracket layout
+const bracketData: BracketData = data.bracket.playoffBracketSeries.reduce(
+    (acc, series) => {
+        const { roundNumber, seriesConference } = series;
+
+        if (seriesConference === 'East' || seriesConference === 'West') {
+            if (!acc[seriesConference][roundNumber]) {
+                acc[seriesConference][roundNumber] = [];
+            }
+            // Sort within round by displayOrderNumber for consistent placement
+            acc[seriesConference][roundNumber].push(series);
+            acc[seriesConference][roundNumber].sort(
+                (a, b) => a.displayOrderNumber - b.displayOrderNumber
+            );
+        } else if (seriesConference === 'NBA Finals') {
+            acc.Finals = series;
+        }
+
+        return acc;
+    },
+    { East: {}, West: {}, Finals: null } as BracketData
+);
+
+const roundNames = ['First Round', 'Conf. Semifinals', 'Conf. Finals', 'NBA Finals'];
+---
+
+<Layout title='NBA Playoffs'>
+    <h1 class='text-3xl font-bold text-center pb-4'>Playoffs</h1>
+
+    {/* Single horizontal scroll container */}
+    <div class='overflow-scroll h-[calc(100vh-9rem)]'>
+        <PlayoffBracket client:visible bracketData={bracketData} roundNames={roundNames} />
+    </div>
+</Layout>
