@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { Navigation } from '@/components/navigation/navigation';
 import { QueryProvider } from '@/components/providers/query-provider';
@@ -60,6 +61,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Script
+          src='https://rybbit.umuumi.ipv64.de/api/script.js'
+          data-site-id='b8121a37e67d'
+          strategy='afterInteractive'
+        />
         <QueryProvider>
           <Navigation />
           <main className='min-h-screen pb-16 md:pb-0'>{children}</main>
