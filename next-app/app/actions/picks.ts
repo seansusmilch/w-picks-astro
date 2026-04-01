@@ -1,11 +1,11 @@
 'use server';
 
 import { z } from 'zod';
-import { getAuthenticatedUser } from '@/lib/pocketbase-server';
-import { initPocketBase } from '@/lib/pocketbase-server';
+import { getAuthenticatedUser, getAdminPocketBase, initPocketBase } from '@/lib/pocketbase-server';
 import { PickZ, type PickType } from '@/lib/definitions';
 import { getLogger } from '@/lib/logger';
 import { revalidatePath } from 'next/cache';
+import { getProfilesByIds, type UserProfile } from '@/lib/users';
 
 const logger = getLogger('picks');
 
@@ -271,6 +271,35 @@ export async function deletePickAction(
           ? error.message
           : 'Failed to delete pick. Please try again.',
     };
+  }
+}
+
+export async function getLatestPicks(
+  limit: number = 10,
+  userId?: string
+): Promise<{ picks: PickType[]; users: UserProfile[] }> {
+  try {
+    const pb = await getAdminPocketBase();
+
+    const picksResult = await pb.collection('picks').getList(1, limit, {
+      sort: '-updated',
+      filter: userId ? `user != "${userId}"` : undefined,
+      expand: 'matchup',
+    });
+
+    const validPicks: PickType[] = [];
+    for (const item of picksResult.items) {
+      const parsed = PickZ.safeParse(item);
+      if (parsed.success) {
+        validPicks.push(parsed.data);
+      }
+    }
+
+    const users = await getProfilesByIds(validPicks.map((p) => p.user));
+
+    return { picks: validPicks, users };
+  } catch {
+    return { picks: [], users: [] };
   }
 }
 
