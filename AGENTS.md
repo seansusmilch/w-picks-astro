@@ -1,5 +1,7 @@
 # AGENTS.md
 
+Use the **frontend-design** skill whenever working with UI.
+
 This repo contains two apps — an **Astro SSR app** (`astro-app/`) and a **Next.js App Router app** (`next-app/`). Both share PocketBase as a backend, TailwindCSS v4 for styling, and shadcn/ui (new-york style) for components.
 
 ## Build/Lint/Test Commands
