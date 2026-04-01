@@ -34,15 +34,6 @@ export default async function ProfilePage() {
   const hasUpcoming = picks.some((p) => p.status === 'upcoming');
   const defaultTab = hasLive ? 'live' : hasUpcoming ? 'upcoming' : 'past';
 
-  const logoutButton = (
-    <form action={logoutAction}>
-      <Button type="submit" variant="outline" className="gap-2">
-        <LogOut className="h-4 w-4" />
-        Logout
-      </Button>
-    </form>
-  );
-
   return (
     <div className="container mx-auto p-4 py-8 max-w-4xl">
       <ProfileEditWrapper

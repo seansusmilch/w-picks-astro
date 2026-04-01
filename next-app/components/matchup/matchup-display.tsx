@@ -23,8 +23,6 @@ function PreGame({
   away_code,
   home_code,
   time_utc,
-  away_meta,
-  home_meta,
   showStatusBadge = false,
 }: PreGameProps) {
   const gameTime = DateTime.fromSQL(time_utc).toJSDate();
@@ -89,8 +87,6 @@ function LiveScore({
   status_text,
   status,
   time_utc,
-  home_meta,
-  away_meta,
 }: LiveScoreProps) {
   let statusText = status_text;
   let gameDate: string | null = null;
@@ -170,8 +166,6 @@ function PostGame({
   home_code,
   home_score,
   status_text,
-  home_meta,
-  away_meta,
 }: PostGameProps) {
   return (
     <div className='w-full relative flex items-center gap-2 sm:gap-4'>
@@ -230,8 +224,6 @@ export function MatchupDisplay({
           away_code={matchup.away_code}
           home_code={matchup.home_code}
           time_utc={matchup.time_utc}
-          away_meta={matchup.away_meta || undefined}
-          home_meta={matchup.home_meta || undefined}
           showStatusBadge={showStatusBadge}
         />
       )}
@@ -244,8 +236,6 @@ export function MatchupDisplay({
           status_text={scoreboard.status_text}
           status={gameStatus}
           time_utc={matchup.time_utc}
-          home_meta={matchup.home_meta || undefined}
-          away_meta={matchup.away_meta || undefined}
         />
       )}
       {gameStatus === 3 && scoreboard && (
@@ -255,8 +245,6 @@ export function MatchupDisplay({
           home_code={matchup.home_code}
           home_score={scoreboard.home_score}
           status_text={scoreboard.status_text}
-          home_meta={matchup.home_meta || undefined}
-          away_meta={matchup.away_meta || undefined}
         />
       )}
     </div>

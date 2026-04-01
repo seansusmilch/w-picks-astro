@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getAdminPocketBase } from '@/lib/pocketbase-server';
-import { getTodayMatchups } from '@/app/actions/cron';
 import {
-  attachMatchupToScoreboard,
+  getTodayMatchups,
   updatePicksStatusByCode,
   updateScoreboard as updateScoreboardRecord,
 } from '@/app/actions/cron';

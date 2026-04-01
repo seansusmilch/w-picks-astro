@@ -117,7 +117,7 @@ export function GamesView({ initialDateCode, initialGames }: GamesViewProps) {
       url.searchParams.set('date', selectedDate);
       window.history.replaceState({ date: selectedDate }, '', url);
     }
-  }, []);
+  }, [selectedDate]);
 
   // Sync selected date with browser back/forward
   useEffect(() => {

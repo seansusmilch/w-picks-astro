@@ -26,7 +26,7 @@ export function MatchupRibbon({
   onSelectGame,
 }: MatchupRibbonProps) {
   const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
+  const [, setCurrent] = useState(0);
 
   // Find the index of the current matchup
   const currentIndex = useMemo(() => {
@@ -93,7 +93,7 @@ export function MatchupRibbon({
         <CarouselContent className='-ml-2 py-3 px-2 sm:px-4'>
           {games.map((game, index) => {
             const { matchup } = game;
-            const [gameDateCode, gameCode] = matchup.code.split('/');
+            const [, gameCode] = matchup.code.split('/');
             const isActive = gameCode === currentGameCode;
 
             return (

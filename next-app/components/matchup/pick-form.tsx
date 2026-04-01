@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { XIcon, Loader2, Lock } from 'lucide-react';
 import { TeamPicker } from './team-picker';
 import { HelpDialog } from './help-dialog';
@@ -53,39 +53,19 @@ export function PickForm({
     matchup: matchup.id,
   });
 
-  // Track if we've initialized the accordion state
-  const accordionInitializedRef = useRef<boolean>(false);
+  const [prevSyncKey, setPrevSyncKey] = useState(() => `${pick?.id ?? ''}:${matchup.id}`);
+  const syncKey = `${pick?.id ?? ''}:${matchup.id}`;
 
-  // Update form state when pick changes
-  // Only sync accordion state on initial mount or when pick is deleted
-  // Otherwise, let user interaction or submission success control the accordion
-  useEffect(() => {
+  if (prevSyncKey !== syncKey) {
+    setPrevSyncKey(syncKey);
+
     if (pick) {
-      // Only update form state if the pick data has actually changed
-      // This prevents unnecessary updates and ensures we sync with refetched data
-      setFormState((prev) => {
-        // Check if pick data has changed
-        if (
-          prev.pickId === pick.id &&
-          prev.win_prediction === pick.win_prediction &&
-          prev.comment === (pick.comment || '')
-        ) {
-          // No change, return previous state
-          return prev;
-        }
-        // Pick data changed, update form state
-        return {
-          win_prediction: pick.win_prediction,
-          comment: pick.comment || '',
-          pickId: pick.id,
-          matchup: matchup.id,
-        };
+      setFormState({
+        win_prediction: pick.win_prediction,
+        comment: pick.comment || '',
+        pickId: pick.id,
+        matchup: matchup.id,
       });
-      // Only set accordion to closed on initial mount when pick exists
-      if (!accordionInitializedRef.current) {
-        setAccordionValue('');
-        accordionInitializedRef.current = true;
-      }
     } else {
       setFormState({
         win_prediction: 'indeterminate',
@@ -93,70 +73,26 @@ export function PickForm({
         pickId: '',
         matchup: matchup.id,
       });
-      // Always open accordion when no pick exists
       setAccordionValue('pick-form');
-      accordionInitializedRef.current = true;
     }
-  }, [pick, matchup.id]);
+  }
 
-  // Handle successful submission via mutation callback
-  useEffect(() => {
-    if (!submitPickMutation.isSuccess) return;
-    const submittedPick = submitPickMutation.data?.pick;
-    if (!submittedPick) return;
-
-    // Ignore submissions from other matchups when navigating between games
-    if (submittedPick.matchup !== matchup.id) return;
-
+  const handleDeleteSuccess = () => {
     setFormState({
-      win_prediction: submittedPick.win_prediction,
-      comment: submittedPick.comment || '',
-      pickId: submittedPick.id,
+      win_prediction: 'indeterminate',
+      comment: '',
+      pickId: '',
       matchup: matchup.id,
     });
-
-    // Close accordion with animation
-    setAccordionValue('');
-
-    // Callback for parent component (mutations handle React Query updates)
+    setAccordionValue('pick-form');
     if (onPickUpdate) {
-      const currentPick = pick;
-      const optimisticPick = currentPick?.expand?.user
-        ? {
-            ...submittedPick,
-            expand: { ...currentPick.expand, user: currentPick.expand.user },
-          }
-        : submittedPick;
-      onPickUpdate(optimisticPick);
-    }
-  }, [submitPickMutation.isSuccess, submitPickMutation.data, matchup.id, onPickUpdate, pick]);
-
-  // Handle successful deletion via mutation callback
-  useEffect(() => {
-    if (deletePickMutation.isSuccess) {
-      setFormState({
-        win_prediction: 'indeterminate',
-        comment: '',
-        pickId: '',
-        matchup: matchup.id,
-      });
-      setAccordionValue('pick-form'); // Open accordion after deletion
-
-      // Callback for parent component
-      if (onPickUpdate) {
-        const currentPick = pick;
-        if (currentPick) {
-          const optimisticPick = {
-            ...currentPick,
-            win_prediction: 'indeterminate' as const,
-          };
-          onPickUpdate(optimisticPick);
-        } else {
-          onPickUpdate();
-        }
+      if (pick) {
+        onPickUpdate({ ...pick, win_prediction: 'indeterminate' as const });
+      } else {
+        onPickUpdate();
       }
     }
-  }, [deletePickMutation.isSuccess, matchup.id, onPickUpdate, pick]);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -166,17 +102,18 @@ export function PickForm({
     const comment = formData.get('comment')?.toString() || '';
 
     if (winPrediction === 'indeterminate') {
-      // Delete pick if indeterminate
       if (formState.pickId) {
-        deletePickMutation.mutate({
-          id: formState.pickId,
-          matchup: formState.matchup,
-          matchupCode: matchup.code,
-          userId: pick?.user,
-        });
+        deletePickMutation.mutate(
+          {
+            id: formState.pickId,
+            matchup: formState.matchup,
+            matchupCode: matchup.code,
+            userId: pick?.user,
+          },
+          { onSuccess: handleDeleteSuccess }
+        );
       }
     } else if (winPrediction) {
-      // Submit pick with optimistic update
       const optimisticPick: PickType | undefined = pick?.expand?.user
         ? {
             ...pick,
@@ -186,25 +123,52 @@ export function PickForm({
           }
         : undefined;
 
-      submitPickMutation.mutate({
-        id: formState.pickId || undefined,
-        win_prediction: winPrediction,
-        comment: comment,
-        matchup: formState.matchup,
-        matchupCode: matchup.code,
-        optimisticPick,
-      });
+      submitPickMutation.mutate(
+        {
+          id: formState.pickId || undefined,
+          win_prediction: winPrediction,
+          comment: comment,
+          matchup: formState.matchup,
+          matchupCode: matchup.code,
+          optimisticPick,
+        },
+        {
+          onSuccess: (data) => {
+            const submittedPick = data?.pick;
+            if (!submittedPick || submittedPick.matchup !== matchup.id) return;
+            setFormState({
+              win_prediction: submittedPick.win_prediction,
+              comment: submittedPick.comment || '',
+              pickId: submittedPick.id,
+              matchup: matchup.id,
+            });
+            setAccordionValue('');
+            if (onPickUpdate) {
+              const expandedPick = pick?.expand?.user
+                ? {
+                    ...submittedPick,
+                    expand: { ...pick.expand, user: pick.expand.user },
+                  }
+                : submittedPick;
+              onPickUpdate(expandedPick);
+            }
+          },
+        }
+      );
     }
   };
 
   const handleDelete = () => {
     if (!formState.pickId) return;
-    deletePickMutation.mutate({
-      id: formState.pickId,
-      matchup: formState.matchup,
-      matchupCode: matchup.code,
-      userId: pick?.user,
-    });
+    deletePickMutation.mutate(
+      {
+        id: formState.pickId,
+        matchup: formState.matchup,
+        matchupCode: matchup.code,
+        userId: pick?.user,
+      },
+      { onSuccess: handleDeleteSuccess }
+    );
   };
 
   const loading = submitPickMutation.isPending || deletePickMutation.isPending;

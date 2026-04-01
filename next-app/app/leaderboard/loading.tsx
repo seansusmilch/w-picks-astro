@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { LeaderboardSkeleton } from '@/components/leaderboard/leaderboard-skeleton';
 
 export default function LeaderboardLoading() {

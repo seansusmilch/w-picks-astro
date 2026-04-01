@@ -3,13 +3,11 @@ import { getAdminPocketBase } from '@/lib/pocketbase-server';
 import { DateTime } from 'luxon';
 import { getMatchupByCode } from '@/app/actions/matchups';
 import type { MatchupType } from '@/lib/definitions';
-import { MatchupZ } from '@/lib/definitions';
 import {
   getCronLogger,
   trackPerformance,
   createErrorResponse,
   generateExecutionMetrics,
-  type BatchOperationTracker,
 } from '@/lib/cron-utils';
 import { fetchNBAScheduleEndpoint } from '@/lib/nba';
 import type { NBAScheduleResponse } from '@/lib/types/nba-schedule';
@@ -19,18 +17,6 @@ const logger = getCronLogger('update-matchups');
 
 const PAST_CUTOFF = 3;
 const FUTURE_CUTOFF = 30;
-
-interface NBAGame {
-  gameCode: string;
-  gameDateTimeUTC: string;
-  awayTeam: { teamTricode: string; wins: number; losses: number };
-  homeTeam: { teamTricode: string; wins: number; losses: number };
-}
-
-interface GameDate {
-  gameDate: string;
-  games: NBAGame[];
-}
 
 interface Matchup {
   code: string;
@@ -49,7 +35,7 @@ interface Matchup {
 
 interface OperationResult {
   id?: string;
-  matchup?: any;
+  matchup?: Matchup | { id: string; code: string; teams: string; time: string };
   action:
     | 'CREATED'
     | 'UPDATED'
@@ -208,7 +194,6 @@ async function processMatchups(
 async function deleteMatchups(
   matchupsToDelete: MatchupType[]
 ): Promise<OperationResult[]> {
-  const pb = await getAdminPocketBase();
   const results: OperationResult[] = [];
 
   for (const matchup of matchupsToDelete) {
@@ -247,7 +232,16 @@ async function deleteMatchups(
   return results;
 }
 
-function generateStats(results: OperationResult[]): any {
+interface OperationStats {
+  created: number;
+  updated: number;
+  failed: number;
+  skipped: number;
+  deleted: number;
+  deletesFailed: number;
+}
+
+function generateStats(results: OperationResult[]): OperationStats {
   return {
     created: results.filter((r) => r.action === 'CREATED').length,
     updated: results.filter((r) => r.action === 'UPDATED').length,

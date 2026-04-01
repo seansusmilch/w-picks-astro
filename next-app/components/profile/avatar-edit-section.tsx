@@ -34,6 +34,7 @@ export function AvatarEditSection({
     currentAvatarUrl
   );
   const [fileError, setFileError] = useState<string | null>(null);
+  const [hasFileSelected, setHasFileSelected] = useState(false);
 
   // Update preview when current avatar changes
   useEffect(() => {
@@ -49,6 +50,7 @@ export function AvatarEditSection({
       }
       // Clear any file errors
       setFileError(null);
+      setHasFileSelected(false);
       // Call success callback if provided
       if (onSuccess) {
         onSuccess();
@@ -68,6 +70,7 @@ export function AvatarEditSection({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setFileError(null);
+    setHasFileSelected(!!file);
 
     if (file) {
       // Validate file size
@@ -112,11 +115,9 @@ export function AvatarEditSection({
     }
     // Reset to current avatar
     setAvatarPreview(currentAvatarUrl);
-    // Clear any file errors
     setFileError(null);
+    setHasFileSelected(false);
   };
-
-  const hasFileSelected = (inputRef.current?.files?.length ?? 0) > 0;
 
   return (
     <div className='space-y-4'>

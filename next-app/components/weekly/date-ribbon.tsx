@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { DateTime } from 'luxon';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { isToday, expandDateRange, getTodayCodePrefix } from '@/lib/date-utils';
+import { isToday } from '@/lib/date-utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface DateRibbonProps {
@@ -20,7 +20,6 @@ const DAY_ABBREVIATIONS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export function DateRibbon({
   dateRange,
   selectedDate,
-  gamesCounts,
   onDateSelect,
   onExpandRange,
 }: DateRibbonProps) {
@@ -28,7 +27,6 @@ export function DateRibbon({
   const selectedDateRef = useRef<HTMLButtonElement>(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(false);
-  const todayCodePrefix = getTodayCodePrefix();
 
   // Scroll selected date into view on mount/change
   useEffect(() => {
