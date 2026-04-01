@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Trophy, TrendingUp, Target, BarChart3 } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 import type { StatType } from '@/lib/definitions';
 
 interface AllTimeStatsCardProps {
@@ -19,8 +19,10 @@ export function AllTimeStatsCard({
   description = 'Your complete pick performance history',
 }: AllTimeStatsCardProps) {
   const winPicks = stats?.win_picks || 0;
+  const losePicks = stats?.lose_picks || 0;
   const totalPicks = stats?.total_picks || 0;
   const progressValue = totalPicks > 0 ? (winPicks / totalPicks) * 100 : 0;
+  const wlRatio = losePicks > 0 ? (winPicks / losePicks).toFixed(2) : winPicks > 0 ? winPicks.toFixed(2) : '0.00';
 
   return (
     <Card className='mb-6'>
@@ -32,59 +34,10 @@ export function AllTimeStatsCard({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className='space-y-6'>
-        {/* Stat Grid */}
-        <div className='grid grid-cols-2 sm:grid-cols-4 gap-4'>
-          <div className='flex flex-col items-center p-4 rounded-lg bg-muted/50 border border-border'>
-            <div className='flex items-center gap-2 mb-2'>
-              <Trophy className='h-5 w-5 text-primary' />
-              <span className='text-2xl sm:text-3xl font-bold'>
-                {stats?.win_picks || 0}
-              </span>
-            </div>
-            <span className='text-xs sm:text-sm text-muted-foreground font-medium'>
-              Wins
-            </span>
-          </div>
-          <div className='flex flex-col items-center p-4 rounded-lg bg-muted/50 border border-border'>
-            <div className='flex items-center gap-2 mb-2'>
-              <Target className='h-5 w-5 text-primary' />
-              <span className='text-2xl sm:text-3xl font-bold'>
-                {stats?.lose_picks || 0}
-              </span>
-            </div>
-            <span className='text-xs sm:text-sm text-muted-foreground font-medium'>
-              Losses
-            </span>
-          </div>
-          <div className='flex flex-col items-center p-4 rounded-lg bg-muted/50 border border-border'>
-            <div className='flex items-center gap-2 mb-2'>
-              <TrendingUp className='h-5 w-5 text-primary' />
-              <span className='text-2xl sm:text-3xl font-bold'>
-                {stats?.win_loss_ratio?.toFixed(2) || '0.00'}
-              </span>
-            </div>
-            <span className='text-xs sm:text-sm text-muted-foreground font-medium'>
-              W/L Ratio
-            </span>
-          </div>
-          <div className='flex flex-col items-center p-4 rounded-lg bg-muted/50 border border-border'>
-            <div className='flex items-center gap-2 mb-2'>
-              <BarChart3 className='h-5 w-5 text-primary' />
-              <span className='text-2xl sm:text-3xl font-bold'>
-                {stats?.win_pick_rate?.toFixed(1) || '0.0'}%
-              </span>
-            </div>
-            <span className='text-xs sm:text-sm text-muted-foreground font-medium'>
-              Win Rate
-            </span>
-          </div>
-        </div>
-
-        {/* Progress Bar */}
         {totalPicks > 0 && (
           <div className='space-y-2'>
             <div className='flex justify-between text-sm'>
-              <span className='text-muted-foreground'>Win Rate</span>
+              <span className='text-muted-foreground'>{wlRatio} W/L</span>
               <span className='font-medium'>{progressValue.toFixed(1)}%</span>
             </div>
             <Progress value={progressValue} className='h-3' />
