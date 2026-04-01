@@ -85,8 +85,8 @@ export const PickZ = BaseZ.extend({
   result: z.string(),
   expand: z
     .object({
-      user: UserZ,
-      matchup: MatchupZ,
+      user: UserZ.optional(),
+      matchup: MatchupZ.optional(),
     })
     .optional(),
 }).required({ matchup: true, win_prediction: true, user: true });
