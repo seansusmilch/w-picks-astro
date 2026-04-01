@@ -5,6 +5,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     include: ['__tests__/**/*.test.ts'],
+    globals: true,
+    setupFiles: ['__tests__/setup/msw.ts'],
   },
   resolve: {
     alias: {
