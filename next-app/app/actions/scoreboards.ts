@@ -1,12 +1,14 @@
 'use server';
 
 import type { ScoreboardType } from '@/lib/definitions';
+import { ScoreboardZ } from '@/lib/definitions';
 import { fetchNBAScoreboardsEndpoint } from '@/lib/nba';
 import {
   transformNBAGamesToScoreboards,
   findScoreboardByCode,
 } from '@/lib/nba-scoreboard-utils';
 import { getLogger } from '@/lib/logger';
+import { getAdminPocketBase } from '@/lib/pocketbase-server';
 
 const logger = getLogger('scoreboards');
 
@@ -87,28 +89,81 @@ export async function getTodayScoreboards(): Promise<ScoreboardType[]> {
 }
 
 /**
- * Fetches scoreboards for a given code prefix (date code) from the NBA API
- * Filters scoreboards that match the prefix
+ * Fetches scoreboards for a given code prefix from the PocketBase database
+ */
+async function getScoreboardsFromDatabase(
+  codePrefix: string
+): Promise<ScoreboardType[]> {
+  const pb = await getAdminPocketBase();
+
+  try {
+    const records = await pb.collection('scoreboards').getFullList({
+      filter: pb.filter(`code ?~ {:codePrefix}`, { codePrefix }),
+    });
+
+    const scoreboards: ScoreboardType[] = [];
+    for (const record of records) {
+      const parsed = ScoreboardZ.safeParse(record);
+      if (parsed.success) {
+        scoreboards.push(parsed.data);
+      } else {
+        logger.warn(
+          { codePrefix, errors: parsed.error.issues },
+          'Scoreboard validation failed'
+        );
+      }
+    }
+
+    logger.debug(
+      { codePrefix, count: scoreboards.length },
+      'Fetched scoreboards from database'
+    );
+    return scoreboards;
+  } catch (error) {
+    logger.error(
+      {
+        codePrefix,
+        error: error instanceof Error ? error.message : String(error),
+      },
+      'Failed to fetch scoreboards from database'
+    );
+    return [];
+  }
+}
+
+/**
+ * Fetches scoreboards for a given code prefix (date code)
+ * Queries PocketBase database first, falls back to NBA API for today's games
  */
 export async function getScoreboardsByCodePrefix(
   codePrefix: string
 ): Promise<ScoreboardType[]> {
   logger.debug(
     { codePrefix },
-    'Fetching scoreboards by code prefix from NBA API'
+    'Fetching scoreboards by code prefix'
   );
 
   try {
-    const allScoreboards = await getTodayScoreboards();
+    // Query database first (has historical scoreboards)
+    const dbScoreboards = await getScoreboardsFromDatabase(codePrefix);
 
-    // Filter scoreboards that match the code prefix
+    if (dbScoreboards.length > 0) {
+      logger.debug(
+        { codePrefix, count: dbScoreboards.length },
+        'Returning scoreboards from database'
+      );
+      return dbScoreboards;
+    }
+
+    // Fall back to NBA API for today/future dates not yet in DB
+    const allScoreboards = await getTodayScoreboards();
     const filtered = allScoreboards.filter((sb) =>
       sb.code.startsWith(codePrefix)
     );
 
     logger.debug(
       { codePrefix, count: filtered.length },
-      'Filtered scoreboards by code prefix'
+      'Filtered scoreboards from NBA API'
     );
 
     return filtered;
