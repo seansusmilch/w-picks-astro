@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { logoutAction } from '@/app/actions/auth';
+import { FeedbackDialog } from '@/components/ui/feedback-dialog';
 
 interface TopNavProps {
   isAuthenticated: boolean;
@@ -80,6 +81,7 @@ export function TopNav({ isAuthenticated, username }: TopNavProps) {
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">{username || 'User'}</span>
               </div>
+              <FeedbackDialog />
               <form action={logoutAction}>
                 <Button type="submit" variant="ghost" size="sm" className="gap-2">
                   <LogOut className="h-4 w-4" />
