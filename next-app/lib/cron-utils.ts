@@ -282,7 +282,7 @@ export function createSuccessResponse(
   jobStartTime: number,
   data: Record<string, unknown> = {}
 ): Response {
-  const metrics = generateExecutionMetrics(jobStartTime, data.metrics || {});
+  const metrics = generateExecutionMetrics(jobStartTime, (data.metrics as Record<string, unknown>) || {});
 
   return new Response(
     JSON.stringify({
