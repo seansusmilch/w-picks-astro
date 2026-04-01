@@ -80,7 +80,6 @@ export function MatchupPageClient({
   // Get games for current date
   const {
     data: games,
-    isLoading: isLoadingGames,
   } = useGamesByDateCode(dateCode, {
     enabled: !!dateCode,
   });
@@ -199,7 +198,7 @@ export function MatchupPageClient({
 
   // Refetch matchup data - mutations will handle optimistic updates
   const refetchMatchupData = useCallback(
-    async (optimisticPick?: PickType) => {
+    async () => {
       if (!gameCode || !dateCode) return;
       // Mutations handle optimistic updates, so we just need to refetch
       await queryClient.invalidateQueries({

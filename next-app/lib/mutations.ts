@@ -57,11 +57,11 @@ export function useSubmitPick() {
       }
 
       // Snapshot previous value for rollback
-      let previousMatchupData: any = null;
+      let previousMatchupData: MatchupPageData | null = null;
       if (variables.matchupCode) {
         previousMatchupData = queryClient.getQueryData<MatchupPageData | null>(
           queryKeys.matchup(variables.matchupCode)
-        );
+        ) ?? null;
       }
 
       // Optimistically update matchup data if we have optimistic pick
@@ -164,11 +164,11 @@ export function useDeletePick() {
       }
 
       // Snapshot previous value
-      let previousMatchupData: any = null;
+      let previousMatchupData: MatchupPageData | null = null;
       if (variables.matchupCode) {
         previousMatchupData = queryClient.getQueryData<MatchupPageData | null>(
           queryKeys.matchup(variables.matchupCode)
-        );
+        ) ?? null;
       }
 
       // Optimistically remove pick

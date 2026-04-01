@@ -2,11 +2,10 @@
 
 import { getAdminPocketBase } from '@/lib/pocketbase-server';
 import { getMatchupByCode } from '@/app/actions/matchups';
-import type { MatchupType, ScoreboardType, PickType } from '@/lib/definitions';
+import type { MatchupType, ScoreboardType } from '@/lib/definitions';
 import { MatchupZ, ScoreboardZ, PickZ } from '@/lib/definitions';
 import { getLogger } from '@/lib/logger';
 import { getCodePrefixFromDate } from '@/lib/date-utils';
-import { DateTime } from 'luxon';
 
 const logger = getLogger('cron-helpers');
 

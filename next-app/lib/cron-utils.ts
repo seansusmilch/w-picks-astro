@@ -69,7 +69,7 @@ export class BatchOperationTracker {
   /**
    * Record a failed operation
    */
-  recordError(error: any, itemId?: string): void {
+  recordError(error: unknown, itemId?: string): void {
     this.errorCount++;
     this.processedItems++;
 
@@ -209,8 +209,8 @@ export function trackPerformance<T>(
  */
 export function generateExecutionMetrics(
   jobStartTime: number,
-  additionalMetrics: Record<string, any> = {}
-): Record<string, any> {
+  additionalMetrics: Record<string, unknown> = {}
+): Record<string, unknown> {
   const jobEndTime = performance.now();
   const jobDurationMs = jobEndTime - jobStartTime;
 
@@ -228,9 +228,9 @@ export function generateExecutionMetrics(
  * Create a standardized error response for cron jobs
  */
 export function createErrorResponse(
-  error: any,
+  error: unknown,
   jobStartTime: number,
-  additionalData: Record<string, any> = {}
+  additionalData: Record<string, unknown> = {}
 ): Response {
   const jobEndTime = performance.now();
   const jobDurationMs = jobEndTime - jobStartTime;
@@ -280,7 +280,7 @@ export function createErrorResponse(
 export function createSuccessResponse(
   message: string,
   jobStartTime: number,
-  data: Record<string, any> = {}
+  data: Record<string, unknown> = {}
 ): Response {
   const metrics = generateExecutionMetrics(jobStartTime, data.metrics || {});
 

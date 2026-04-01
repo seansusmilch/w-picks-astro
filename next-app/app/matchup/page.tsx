@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getAuthenticatedUser } from '@/lib/pocketbase-server';
 import { getGamesByCodePrefix, getMatchupPageData } from '@/app/actions/matchups';
 import { getTodayCodePrefix } from '@/lib/date-utils';
+import type { MatchupType } from '@/lib/definitions';
 import { MatchupPageClient } from '@/components/matchup/matchup-page-client';
 
 interface MatchupIndexPageProps {
@@ -24,7 +25,7 @@ export default async function MatchupIndexPage({ searchParams }: MatchupIndexPag
     return (
       <MatchupPageClient
         initialGames={games}
-        initialData={{ matchup: {} as any, scoreboard: null, picks: [] }}
+        initialData={{ matchup: {} as MatchupType, scoreboard: null, picks: [] }}
         initialDateCode={dateCode}
         initialGameCode={''}
         userId={user.record.id}

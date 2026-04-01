@@ -13,7 +13,7 @@ export default async function Home() {
             Welcome to Baller Picks
           </h1>
           <p className="max-w-md text-lg leading-8 text-muted-foreground">
-            Your ultimate companion for NBA predictions and pick 'ems.
+            Your ultimate companion for NBA predictions and pick&apos;ems.
             {user ? (
               <>
                 {' '}You are logged in as <strong>{user.record.email}</strong>.

@@ -26,15 +26,6 @@ export default async function ProfilePage() {
   const stats = await getStatsByUserId(user.record.id);
   const avatarUrl = getUserAvatarUrl(user.record.id, user.record.avatar);
 
-  const logoutButton = (
-    <form action={logoutAction}>
-      <Button type="submit" variant="outline" className="gap-2">
-        <LogOut className="h-4 w-4" />
-        Logout
-      </Button>
-    </form>
-  );
-
   return (
     <div className="container mx-auto p-4 py-8 max-w-4xl">
       <ProfileEditWrapper

@@ -1,4 +1,4 @@
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { UserAvatar } from '@/components/profile/user-avatar';
 import { ReactNode } from 'react';
 

@@ -7,11 +7,27 @@ import type {
   PickType,
   GameType,
 } from '@/lib/definitions';
-import { MatchupZ, ScoreboardZ, PickZ, UserZ } from '@/lib/definitions';
+import { MatchupZ, PickZ } from '@/lib/definitions';
 import { getCurrentWeekCodePrefixes } from '@/lib/date-utils';
 import { getLogger } from '@/lib/logger';
 import { getUserAvatarUrl } from '@/lib/utils';
 import { getScoreboardByCode, getScoreboardsByCodePrefix } from '@/app/actions/scoreboards';
+
+interface RawExpandedPick {
+  id: string;
+  created: string;
+  updated: string;
+  matchup: string | { id: string };
+  user: string | { id: string };
+  win_prediction: string;
+  comment: string;
+  status: string;
+  result: string;
+  expand?: {
+    user: Record<string, unknown>;
+    matchup?: Record<string, unknown>;
+  };
+}
 
 const logger = getLogger('matchups');
 
@@ -285,7 +301,7 @@ export async function getMatchupPageData(
     // Extract picks from the expanded relation BEFORE parsing matchup
     // (parsing strips the expand property)
     // Type assertion needed because PocketBase's expand is typed as any
-    const picksRecords = (matchupRecord.expand as any)?.picks_via_matchup || [];
+    const picksRecords = (matchupRecord.expand as { picks_via_matchup?: RawExpandedPick[] } | undefined)?.picks_via_matchup || [];
     logger.debug(
       {
         code,
@@ -485,7 +501,7 @@ export async function getCurrentWeekMatchups(): Promise<MatchupType[]> {
  */
 export async function getMatchupsAndPicksByCodePrefix(
   codePrefix: string
-): Promise<any[]> {
+): Promise<Record<string, unknown>[]> {
   logger.debug({ codePrefix }, 'Fetching matchups and picks by code prefix');
 
   const pb = await getAdminPocketBase();
@@ -546,7 +562,7 @@ export async function getGamesByCodePrefix(
     for (const matchupRecord of matchupsAndPicks) {
       // Extract picks from expanded relation
       // Type assertion needed because PocketBase's expand is typed as any
-      const picksRecords = (matchupRecord.expand as any)?.picks_via_matchup || [];
+      const picksRecords = (matchupRecord.expand as { picks_via_matchup?: RawExpandedPick[] } | undefined)?.picks_via_matchup || [];
       const picks: PickType[] = [];
       let validPicks = 0;
       let invalidPicks = 0;
@@ -628,7 +644,7 @@ export async function getGamesByCodePrefix(
       );
 
       // Parse matchup (remove expand property)
-      const { expand, ...matchupWithoutExpand } = matchupRecord;
+      const { ...matchupWithoutExpand } = matchupRecord;
       const parsedMatchup = MatchupZ.safeParse(matchupWithoutExpand);
 
       if (!parsedMatchup.success) {

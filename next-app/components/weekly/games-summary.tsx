@@ -2,7 +2,6 @@
 
 import { WeeklyMatchupCard } from './weekly-matchup-card';
 import type { GameType } from '@/lib/definitions';
-import { cn } from '@/lib/utils';
 
 interface GamesSummaryProps {
   games: GameType[];

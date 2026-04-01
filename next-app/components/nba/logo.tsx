@@ -1,23 +1,34 @@
 'use client';
 
+import { useSyncExternalStore, type ImgHTMLAttributes } from 'react';
 import { TeamMap } from '@/lib/team-map';
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
 
-interface LogoProps {
+interface LogoProps extends ImgHTMLAttributes<HTMLImageElement> {
   tricode: string;
-  className?: string;
-  [key: string]: any;
+}
+
+function subscribeToDarkMode(callback: () => void) {
+  const observer = new MutationObserver(callback);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
+  return () => observer.disconnect();
+}
+
+function getDarkSnapshot() {
+  return document.documentElement.classList.contains('dark');
+}
+
+function getServerSnapshot() {
+  return false;
 }
 
 export function Logo({ tricode, className, ...props }: LogoProps) {
-  const [invert, setInvert] = useState(false);
+  const isDark = useSyncExternalStore(subscribeToDarkMode, getDarkSnapshot, getServerSnapshot);
+  const invert = tricode === 'UTA' && isDark;
   const { logo, name_full } = TeamMap[tricode as keyof typeof TeamMap] || TeamMap['NBA'];
-
-  useEffect(() => {
-    if (tricode !== 'UTA') return;
-    setInvert(!!document?.querySelector('html.dark'));
-  }, [tricode]);
 
   return (
     <img
@@ -28,4 +39,3 @@ export function Logo({ tricode, className, ...props }: LogoProps) {
     />
   );
 }
-

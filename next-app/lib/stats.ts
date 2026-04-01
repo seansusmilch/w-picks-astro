@@ -1,7 +1,6 @@
 import { initPocketBase, getAdminPocketBase } from './pocketbase-server';
 import {
   StatZ,
-  WeeklyStatZ,
   type StatType,
   type WeeklyStatType,
   type UserType,

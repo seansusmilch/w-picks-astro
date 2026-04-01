@@ -1,7 +1,4 @@
-import PocketBase, {
-  type RecordAuthResponse,
-  type RecordModel,
-} from 'pocketbase';
+import PocketBase from 'pocketbase';
 import { cookies } from 'next/headers';
 import { UserZ, type UserType } from './definitions';
 

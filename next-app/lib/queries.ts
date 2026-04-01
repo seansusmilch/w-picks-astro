@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useQueryClient, type Query } from '@tanstack/react-query';
+import { useQuery, type Query } from '@tanstack/react-query';
 import {
   getGamesByCodePrefix,
   getMatchupPageData,

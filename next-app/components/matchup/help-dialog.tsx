@@ -43,9 +43,9 @@ export function HelpDialog() {
             Yes, you can change your pick at any time before the game starts.
             Once the game starts, you cannot change your pick.
           </DialogDescription>
-          <DialogTitle>What happens if I don't pick a team?</DialogTitle>
+          <DialogTitle>What happens if I don&apos;t pick a team?</DialogTitle>
           <DialogDescription>
-            If you don't pick a team, you will not receive a W or L. There is no
+            If you don&apos;t pick a team, you will not receive a W or L. There is no
             penalty for not picking for a game.
           </DialogDescription>
         </DialogHeader>
