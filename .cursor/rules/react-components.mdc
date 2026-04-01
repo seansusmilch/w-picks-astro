@@ -1,8 +1,20 @@
 ---
-description: rules for modifying or creating react components
-globs: *.tsx
+description: Common rules for React components across all projects
+globs: 
 alwaysApply: false
 ---
-- Use existing shadcn components where possible from here `src/components/ui`
-- If more shadcn components are needed, use the command `pnpm dlx shadcn@latest add component-name`
-[components.mdc](mdc:.cursor/rules/components.mdc)
+- All React components must use TypeScript with proper type definitions
+- Use TypeScript interfaces for all component props
+- Keep components simple and focused on a single responsibility
+- Keep components dumb and reusable
+- Always use Tailwind CSS for styling (no custom CSS or @apply directives)
+- Use Tailwind CSS exclusively for styling (no inline styles or CSS modules)
+- Follow utility-first CSS approach
+- Never use custom CSS or @apply directives
+- Maintain consistent spacing using Tailwind's spacing scale
+- Use Tailwind's color palette for consistency
+- Implement responsive design using Tailwind breakpoints (sm:, md:, lg:, xl:)
+- Use shadcn/ui components as the foundation for UI elements
+- Import types from `@/lib/definitions` for shared data types
+- Prefer composition over complex props
+- Follow existing component patterns in the codebase

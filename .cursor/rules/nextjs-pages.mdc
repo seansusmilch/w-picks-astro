@@ -1,0 +1,15 @@
+---
+description: Rules for modifying and creating new pages in the Next.js app
+alwaysApply: false
+---
+[nextjs.mdc](mdc:.cursor/rules/nextjs.mdc)
+
+- All pages live in `next-app/app/` directory following App Router conventions
+- Pages are Server Components by default (no `'use client'` directive needed)
+- Use async Server Components for data fetching
+- Check authentication using `getAuthenticatedUser()` from `@/lib/pocketbase-server`
+- Redirect unauthorized users using `redirect()` from `next/navigation`
+- Import layout metadata from `next/metadata` if needed
+- Use nested folders for routes (e.g., `app/dashboard/page.tsx` for `/dashboard`)
+- Use dynamic segments with brackets (e.g., `app/profile/[id]/page.tsx` for `/profile/123`)
+- Group related routes with route groups using parentheses (e.g., `app/(auth)/login/page.tsx`)

@@ -1,0 +1,100 @@
+---
+description: Rules for dealing with Next.js App Router pages and components
+alwaysApply: false
+---
+You are an expert in Next.js 16, React 19, TypeScript, and TailwindCSS for scalable web development.
+
+Key Principles
+- Write concise, technical responses with accurate Next.js App Router examples
+- Use Server Components by default, only use Client Components when necessary
+- Leverage React Server Components for optimal performance
+- Use TypeScript for type safety across all components
+- Follow shadcn/ui component patterns and best practices
+
+Project Structure
+- next-app/
+    - app/
+        - actions/      # Server Actions (marked with 'use server')
+        - [routes]/     # App Router pages
+        - layout.tsx     # Root layout
+    - components/
+        - ui/          # shadcn/ui components
+    - lib/            # utility functions, PocketBase helpers, type definitions
+    - public/         # static assets
+    - next.config.mjs # Next.js configuration
+    - tsconfig.json   # TypeScript configuration
+
+Component Development
+- Server Components are the default - use them unless you need interactivity
+- Use `'use client'` directive only when you need:
+  - React hooks (useState, useEffect, etc.)
+  - Event handlers (onClick, onChange, etc.)
+  - Browser APIs (window, localStorage, etc.)
+  - Third-party libraries that require client-side execution
+- Follow common React component patterns (see [react-components.mdc](mdc:.cursor/rules/react-components.mdc))
+- Use TypeScript interfaces for all props
+- Keep components simple and focused on UI concerns
+- Use shadcn/ui components as the foundation for UI elements
+- Import types from `@/lib/definitions` for shared data types (see [data-types.mdc](mdc:.cursor/rules/data-types.mdc))
+
+Styling Guidelines
+- **See [nextjs-styling.mdc](mdc:.cursor/rules/nextjs-styling.mdc) for comprehensive styling rules**
+- Use TailwindCSS v4 exclusively for styling - ALL styles must go through Tailwind utility classes
+- Never use inline `style` attributes, custom CSS files, or CSS modules
+- **CRITICAL**: Use semantic color names (primary, secondary, accent, destructive, muted, etc.) instead of explicit colors (red, green, blue, etc.)
+- Never use explicit Tailwind color names like `bg-red-500`, `text-blue-600` - use `bg-primary`, `text-accent-foreground` instead
+- Maintain consistent spacing using Tailwind's spacing scale
+- Implement responsive design using Tailwind breakpoints (sm:, md:, lg:, xl:)
+- Configuration is done via Tailwind CSS v4 (tailwind.config.ts for content paths)
+
+Server Actions
+- Server Actions are defined in `next-app/app/actions/` directory
+- Mark server actions with `'use server'` directive at the top of the file
+- Actions accept `FormData` or other parameters and return state objects
+- Use `useActionState` hook in Client Components to handle form state
+- Validate input with Zod schemas before processing
+- Handle errors gracefully and return error states in the response
+- Use `redirect()` from `next/navigation` for navigation after actions
+- Handle redirect errors by checking for `NEXT_REDIRECT` digest
+
+Data Fetching
+- Server-side: Use direct database calls or API calls in Server Components
+- Use `async/await` in Server Components for data fetching
+- Client-side: Use React hooks (useState, useEffect) or Server Actions from Client Components
+- Use PocketBase client from `@/lib/pocketbase-server` for database operations
+- Access cookies via `cookies()` from `next/headers` in Server Components/Actions
+
+Authentication
+- Use `getAuthenticatedUser()` from `@/lib/pocketbase-server` to check auth status
+- Redirect unauthenticated users using `redirect()` from `next/navigation`
+- Store auth tokens in HTTP-only cookies via `cookies().set()`
+- Initialize PocketBase with `initPocketBase()` to load auth from cookies
+- Use `createPocketBase()` for new PocketBase instances in server actions
+
+TypeScript Best Practices
+- Enable strict mode in tsconfig.json
+- Define interfaces for all props and data structures
+- Use Zod schemas in `next-app/lib/definitions.ts` for runtime validation
+- Import types using `type` keyword when importing only types
+- Use `@/` alias for imports (configured in tsconfig.json)
+
+Server Component Guidelines
+- Server Components are async by default
+- Can directly access filesystem, databases, and environment variables
+- Cannot use browser APIs or React hooks
+- Can pass Server Components as children to Client Components
+
+Client Component Guidelines
+- Must be marked with `'use client'` directive
+- Can use React hooks and browser APIs
+- Use `useActionState` for form handling with Server Actions
+- Keep Client Components small and focused on interactivity
+
+Code Quality
+- Keep components modular and reusable
+- Document complex logic with clear comments
+- Use consistent naming conventions
+- Follow existing code patterns in the codebase
+- Handle errors gracefully with proper error messages
+
+Refer to Next.js 16 official documentation and shadcn/ui documentation for detailed component implementation guidelines.

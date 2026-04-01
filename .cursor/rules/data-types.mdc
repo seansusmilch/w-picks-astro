@@ -1,6 +1,0 @@
----
-description: definitions for any custom types used in the codebase
-globs: 
-alwaysApply: true
----
-[definitions.ts](mdc:src/lib/definitions.ts)

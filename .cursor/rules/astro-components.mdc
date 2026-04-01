@@ -1,0 +1,10 @@
+---
+description: Generic rules for working with components (Astro-specific)
+globs: astro-app/src/components/**/*
+alwaysApply: false
+---
+[react-components.mdc](mdc:.cursor/rules/react-components.mdc) - Common React component rules
+
+- React components should live in the `astro-app/src/components` folder
+- Astro components (.astro files) can be used for static layouts and server-side rendering
+- Prefer composition over complex props

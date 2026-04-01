@@ -1,13 +1,14 @@
 ---
-description: 
-globs: 
-alwaysApply: false
----
----
 description: Rules for modifying and creating new pages in the app
-globs: src/pages/**/*.astro
+globs: astro-app/src/pages/**/*.astro
 alwaysApply: false
 ---
 [astro.mdc](mdc:.cursor/rules/astro.mdc)
 
-- fallback components can be set by using `slot='fallback'` on a child component. The actual component does not need to support children, as this is a feature of AstroJS
+- All pages live in `astro-app/src/pages/`
+- Use Astro's `Layout` component from `@/layouts/Layout.astro` for consistent page structure
+- Fallback components can be set by using `slot='fallback'` on a child component. The actual component does not need to support children, as this is a feature of AstroJS
+- For server-side data fetching, use `Astro.callAction()` with actions from `astro:actions` (e.g., `Astro.callAction(actions.users.getUserProfile, { username })`)
+- Handle errors gracefully when calling actions (check for `error` property in response)
+- Use `Astro.locals` for accessing authenticated user state and other request context
+- API routes should be placed in `astro-app/src/pages/api/` directory

@@ -1,0 +1,6 @@
+---
+alwaysApply: true
+---
+
+always use pnpm for package management
+IMPORTANT: before running any commands, check what path you are currently in with `pwd`

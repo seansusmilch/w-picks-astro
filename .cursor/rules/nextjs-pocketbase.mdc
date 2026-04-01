@@ -1,0 +1,18 @@
+---
+description: Rules for working with PocketBase in Next.js
+alwaysApply: false
+---
+[nextjs.mdc](mdc:.cursor/rules/nextjs.mdc)
+
+- PocketBase utilities are in `next-app/lib/pocketbase-server.ts`
+- Use `createPocketBase()` to create a new PocketBase instance
+- Use `initPocketBase()` to initialize PocketBase with auth from cookies (for Server Components)
+- Use `getAuthenticatedUser()` to check if user is authenticated (returns `null` if not)
+- Auth state is stored in HTTP-only cookies named `pb_auth`
+- Cookie settings are configured via `getCookieSettings()` helper
+- Always validate PocketBase records with Zod schemas before using them
+- Handle `ClientResponseError` from PocketBase with proper error messages
+- Use `pb.authStore.isValid` to check authentication status
+- Use `pb.authStore.record` to access authenticated user record
+- Call `pb.authStore.authRefresh()` to refresh expired tokens
+- Clear auth store with `pb.authStore.clear()` on logout or invalid auth
