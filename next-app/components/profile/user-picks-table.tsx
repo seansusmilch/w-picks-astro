@@ -27,9 +27,9 @@ export function UserPicksTable({
   const upcomingPicks = picks.filter((p) => p.status === 'upcoming');
 
   const savedTab =
-    typeof window !== 'undefined' ? localStorage.getItem('userPicksTab') : null;
-  const initialTab = ['past', 'live', 'upcoming'].includes(savedTab || '')
-    ? savedTab
+    typeof window !== 'undefined' ? localStorage.getItem('userPicksTab') : undefined;
+  const initialTab = ['past', 'live', 'upcoming'].includes(savedTab ?? '')
+    ? (savedTab ?? defaultTab)
     : defaultTab;
 
   const handleTabChange = (value: string) => {
