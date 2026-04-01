@@ -14,6 +14,7 @@ import { ProfileEditWrapper } from '@/components/profile/profile-edit-wrapper';
 import { AllTimeStatsCard } from '@/components/profile/all-time-stats-card';
 import { LogOut } from 'lucide-react';
 import { logoutAction } from '@/app/actions/auth';
+import { ThemeSelector } from '@/components/theme-selector';
 
 export default async function ProfilePage() {
   const user = await getAuthenticatedUser();
@@ -60,6 +61,10 @@ export default async function ProfilePage() {
             <p className='text-sm text-muted-foreground'>
               @{user.record.username}
             </p>
+          </div>
+          <div className='pt-4 border-t border-border'>
+            <p className='text-sm font-medium mb-2'>Theme</p>
+            <ThemeSelector />
           </div>
           <div className='pt-4 border-t border-border'>
             <form action={logoutAction} className='sm:hidden'>

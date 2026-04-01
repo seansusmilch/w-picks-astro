@@ -4,6 +4,7 @@ import Script from 'next/script';
 import './globals.css';
 import { Navigation } from '@/components/navigation/navigation';
 import { QueryProvider } from '@/components/providers/query-provider';
+import { ThemeProvider } from '@/components/providers/theme-provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -66,10 +67,12 @@ export default function RootLayout({
           data-site-id='b8121a37e67d'
           strategy='afterInteractive'
         />
-        <QueryProvider>
-          <Navigation />
-          <main className='min-h-screen pb-16 md:pb-0'>{children}</main>
-        </QueryProvider>
+        <ThemeProvider>
+          <QueryProvider>
+            <Navigation />
+            <main className='min-h-screen pb-16 md:pb-0'>{children}</main>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
