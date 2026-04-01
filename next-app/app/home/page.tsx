@@ -5,8 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getLatestPicks } from '@/app/actions/picks';
 import { getAuthenticatedUser } from '@/lib/pocketbase-server';
 import { LatestPicksView } from '@/components/weekly/latest-picks-view';
-import { LatestPicksViewSkeleton } from '@/components/weekly/latest-picks-view';
-import { Suspense } from 'react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -29,9 +27,9 @@ export default async function HomePage({
 
   return (
     <div className="container mx-auto px-0 sm:px-4 py-0 sm:py-4 max-w-6xl">
-      <Suspense fallback={<LatestPicksViewSkeleton />}>
+      {latestPicks.length > 0 && (
         <LatestPicksView picks={latestPicks} users={latestPicksUsers} />
-      </Suspense>
+      )}
       <Card>
         <CardContent className="p-0">
           <GamesView

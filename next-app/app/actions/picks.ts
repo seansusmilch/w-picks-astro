@@ -282,7 +282,7 @@ export async function getLatestPicks(
     const pb = await getAdminPocketBase();
 
     const picksResult = await pb.collection('picks').getList(1, limit, {
-      sort: '-updated',
+      sort: '-created',
       filter: userId ? `user != "${userId}"` : undefined,
       expand: 'matchup',
     });
@@ -295,9 +295,18 @@ export async function getLatestPicks(
       }
     }
 
-    const users = await getProfilesByIds(validPicks.map((p) => p.user));
+    const allUsers = await getProfilesByIds(validPicks.map((p) => p.user));
+    const hiddenUserIds = new Set(
+      allUsers
+        .filter((u) => u.hideFromLatestPicks)
+        .map((u) => u.id)
+    );
+    const filteredPicks = validPicks.filter((p) => !hiddenUserIds.has(p.user));
+    const visibleUsers = allUsers.filter(
+      (u) => !hiddenUserIds.has(u.id) || filteredPicks.some((p) => p.user === u.id)
+    ).filter((u) => filteredPicks.some((p) => p.user === u.id));
 
-    return { picks: validPicks, users };
+    return { picks: filteredPicks, users: visibleUsers };
   } catch {
     return { picks: [], users: [] };
   }

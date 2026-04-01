@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 import {
   Table,
   TableBody,
@@ -26,18 +28,23 @@ export function UserPicksTable({
   const livePicks = picks.filter((p) => p.status === 'live');
   const upcomingPicks = picks.filter((p) => p.status === 'upcoming');
 
-  const savedTab =
-    typeof window !== 'undefined' ? localStorage.getItem('userPicksTab') : undefined;
-  const initialTab = ['past', 'live', 'upcoming'].includes(savedTab ?? '')
-    ? (savedTab ?? defaultTab)
-    : defaultTab;
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('userPicksTab');
+    if (saved && ['past', 'live', 'upcoming'].includes(saved)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveTab(saved as 'past' | 'live' | 'upcoming');
+    }
+  }, []);
 
   const handleTabChange = (value: string) => {
+    setActiveTab(value as 'past' | 'live' | 'upcoming');
     localStorage.setItem('userPicksTab', value);
   };
 
   return (
-    <Tabs defaultValue={initialTab} onValueChange={handleTabChange}>
+    <Tabs value={activeTab} onValueChange={handleTabChange}>
       <div className='flex justify-center'>
         <TabsList>
           <TabsTrigger value='past'>Past</TabsTrigger>

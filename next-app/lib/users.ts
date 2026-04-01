@@ -6,6 +6,7 @@ export interface UserProfile {
   username: string;
   bio: string;
   avatar_url: string | null;
+  hideFromLatestPicks: boolean;
 }
 
 export async function getProfilesByIds(ids: string[]): Promise<UserProfile[]> {
@@ -23,5 +24,8 @@ export async function getProfilesByIds(ids: string[]): Promise<UserProfile[]> {
     avatar_url: record.avatar
       ? getUserAvatarUrl(record.id, record.avatar)
       : null,
+    hideFromLatestPicks: Boolean(
+      (record.settings as Record<string, unknown>)?.hideFromLatestPicks
+    ),
   }));
 }
