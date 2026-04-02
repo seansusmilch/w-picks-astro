@@ -1,12 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from '@/components/ui/carousel';
-import { PickSlabSkeleton } from '@/components/ui/pick-slab-skeleton';
+import { PickSlabSkeleton } from '@/components/ui/pick-skeleton';
 import type { PickType } from '@/lib/definitions';
 import { TeamMap } from '@/lib/team-map';
 import { Logo } from '@/components/nba/logo';
@@ -17,7 +11,6 @@ import { useAddReaction, useRemoveReaction } from '@/lib/mutations';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { ExternalLinkIcon, FlameIcon } from 'lucide-react';
-import type { CarouselApi } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
 
 interface UserProfile {
@@ -28,21 +21,15 @@ interface UserProfile {
 
 export function LatestPicksViewSkeleton() {
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <Carousel className="w-full">
-        <CarouselContent>
-          {[1, 2, 3].map((index) => (
-            <CarouselItem key={index} className="md:basis-full">
-              <PickSlabSkeleton />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+    <div className="w-full mx-auto space-y-3">
+      {[1, 2, 3, 4, 5].map((index) => (
+        <PickSlabSkeleton key={index} />
+      ))}
     </div>
   );
 }
 
-function PickSlab({
+function FeedPickCard({
   pick,
   user,
   matchupUrl,
@@ -87,8 +74,8 @@ function PickSlab({
     addReactionMutation.isPending || removeReactionMutation.isPending;
 
   return (
-    <div className="border border-border rounded-lg p-2 flex gap-2">
-      <div className="flex flex-col justify-between">
+    <article className="flex gap-3 px-4 py-3 border-b border-border hover:bg-accent/30 transition-colors">
+      <div className="shrink-0">
         <Link href={`/profile/${user.username}`}>
           <UserAvatar
             className="w-10 h-10"
@@ -96,55 +83,63 @@ function PickSlab({
             username={user.username}
           />
         </Link>
-        <span className="text-xs text-muted-foreground flex items-center gap-1 tabular-nums">
-          {createdAt}
-        </span>
       </div>
-      <div className="grow flex flex-col">
-        <div className="flex items-center gap-2 justify-between">
-          <span className="text-sm opacity-50">@{user.username}</span>
-          <div className="flex items-center rounded-lg bg-secondary text-secondary-foreground">
-            <Logo tricode={teamCode} className="w-6 h-6" />
-            <span className="py-1 pr-2 text-xs text-nowrap">{teamName}</span>
-          </div>
+      <div className="grow min-w-0 flex flex-col gap-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            href={`/profile/${user.username}`}
+            className="text-sm font-semibold hover:underline"
+          >
+            @{user.username}
+          </Link>
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {createdAt}
+          </span>
         </div>
 
-        <div className="flex">
-          <div className="grow text-md break-words">
-            <p>{pick.comment}</p>
+        {pick.comment && (
+          <p className="text-sm leading-relaxed break-words">{pick.comment}</p>
+        )}
+
+        <div className="flex items-center justify-between mt-1">
+          <div className="flex items-center gap-3">
             {matchupUrl && (
               <Link
                 href={matchupUrl}
-                className="text-xs text-primary hover:underline pt-2 inline-flex items-end gap-1"
+                className="text-xs text-primary hover:underline inline-flex items-center gap-1"
               >
-                View matchup <ExternalLinkIcon className="w-4 h-4" />
+                View matchup <ExternalLinkIcon className="w-3 h-3" />
               </Link>
             )}
-          </div>
-          <div className="pt-2">
-            <Button
-              className="min-h-12"
-              variant="ghost"
-              onClick={handleLike}
-              disabled={isLoading || isMutating}
+            <Link
+              href={matchupUrl || '#'}
+              className="flex items-center rounded-full bg-secondary/80 text-secondary-foreground hover:bg-secondary transition-colors"
             >
-              <div className="flex flex-col items-center gap-2">
-                <FlameIcon
-                  className={cn(
-                    'h-4 w-4',
-                    reactionData?.isLiked &&
-                      'text-destructive fill-destructive'
-                  )}
-                />
-                <span className="tabular-nums">
-                  {reactionData?.totalItems || 0}
-                </span>
-              </div>
-            </Button>
+              <Logo tricode={teamCode} className="w-5 h-5" />
+              <span className="py-0.5 pr-2 text-xs text-nowrap">{teamName}</span>
+            </Link>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-muted-foreground hover:text-destructive"
+            onClick={handleLike}
+            disabled={isLoading || isMutating}
+          >
+            <FlameIcon
+              className={cn(
+                'h-4 w-4 transition-transform hover:scale-110',
+                reactionData?.isLiked &&
+                  'text-destructive fill-destructive scale-110'
+              )}
+            />
+            <span className="text-xs tabular-nums">
+              {reactionData?.totalItems || 0}
+            </span>
+          </Button>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -157,99 +152,44 @@ export function LatestPicksView({
   users: UserProfile[];
   isLoading?: boolean;
 }) {
-  const [api, setApi] = useState<CarouselApi | null>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
-  const isAutoScrollingRef = useRef(false);
-
-  const scrollNext = useCallback(() => {
-    if (api) {
-      isAutoScrollingRef.current = true;
-      api.scrollNext();
-      setTimeout(() => {
-        isAutoScrollingRef.current = false;
-      }, 100);
-    }
-  }, [api]);
-
-  const stopAutoScroll = useCallback(() => {
-    setAutoScrollEnabled(false);
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  }, []);
-
-  const handleManualNavigation = useCallback(() => {
-    if (!isAutoScrollingRef.current) {
-      stopAutoScroll();
-    }
-  }, [stopAutoScroll]);
-
-  useEffect(() => {
-    if (picks.length > 1 && api && autoScrollEnabled) {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      intervalRef.current = setInterval(scrollNext, 5000);
-      return () => {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
-      };
-    }
-  }, [api, picks.length, scrollNext, autoScrollEnabled]);
-
-  useEffect(() => {
-    if (!api) return;
-    api.on('select', handleManualNavigation);
-    return () => {
-      api.off('select', handleManualNavigation);
-    };
-  }, [api, handleManualNavigation]);
-
   if (isLoading) {
     return <LatestPicksViewSkeleton />;
   }
 
+  if (picks.length === 0) {
+    return (
+      <div className="text-center py-16 text-muted-foreground">
+        <p className="text-lg font-medium">No picks yet</p>
+        <p className="text-sm mt-1">Check back later for picks from the community</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      {picks.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">
-          No picks available
-        </div>
-      ) : (
-        <Carousel
-          setApi={setApi}
-          className="w-full"
-          opts={{
-            align: 'start',
-            loop: true,
-          }}
+    <div className="w-full mx-auto divide-y divide-border">
+      {picks.map((pick, index) => (
+        <div
+          key={pick.id}
+          className="animate-in fade-in slide-in-from-bottom-2 duration-300"
+          style={{ animationDelay: `${Math.min(index, 5) * 75}ms`, animationFillMode: 'both' }}
         >
-          <CarouselContent>
-            {picks.map((pick) => (
-              <CarouselItem key={pick.id} className="md:basis-full">
-                <PickSlab
-                  pick={pick}
-                  user={
-                    users.find((u) => u.id === pick.user) || {
-                      id: pick.user,
-                      username: 'unknown',
-                      avatar_url: null,
-                    }
-                  }
-                  matchupUrl={
-                    pick.expand?.matchup?.code
-                      ? `/matchup/${pick.expand.matchup.code}`
-                      : undefined
-                  }
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-      )}
+          <FeedPickCard
+            pick={pick}
+            user={
+              users.find((u) => u.id === pick.user) || {
+                id: pick.user,
+                username: 'unknown',
+                avatar_url: null,
+              }
+            }
+            matchupUrl={
+              pick.expand?.matchup?.code
+                ? `/matchup/${pick.expand.matchup.code}`
+                : undefined
+            }
+          />
+        </div>
+      ))}
     </div>
   );
 }
