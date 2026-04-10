@@ -281,9 +281,16 @@ export async function getLatestPicks(
   try {
     const pb = await getAdminPocketBase();
 
+    // Check if the logged-in user has opted to hide themselves — if not, include their picks
+    let excludeSelf = false;
+    if (userId) {
+      const [selfProfile] = await getProfilesByIds([userId]);
+      excludeSelf = selfProfile?.hideFromLatestPicks ?? false;
+    }
+
     const picksResult = await pb.collection('picks').getList(1, limit, {
       sort: '-created',
-      filter: userId ? `user != "${userId}"` : undefined,
+      filter: userId && excludeSelf ? `user != "${userId}"` : undefined,
       expand: 'matchup',
     });
 
