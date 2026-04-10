@@ -10,7 +10,7 @@ import { useReactions } from '@/lib/queries';
 import { useAddReaction, useRemoveReaction } from '@/lib/mutations';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
-import { ExternalLinkIcon, FlameIcon } from 'lucide-react';
+import { FlameIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface UserProfile {
@@ -74,8 +74,11 @@ function FeedPickCard({
     addReactionMutation.isPending || removeReactionMutation.isPending;
 
   return (
-    <article className="flex gap-3 px-4 py-3 border-b border-border hover:bg-accent/30 transition-colors">
-      <div className="shrink-0">
+    <article className="relative flex gap-3 px-4 py-3 border-b border-border hover:bg-accent/30 transition-colors">
+      {matchupUrl && (
+        <Link href={matchupUrl} className="absolute inset-0 z-0" aria-label="View matchup" />
+      )}
+      <div className="relative z-10 shrink-0">
         <Link href={`/profile/${user.username}`}>
           <UserAvatar
             className="w-10 h-10"
@@ -88,7 +91,7 @@ function FeedPickCard({
         <div className="flex items-center gap-2 flex-wrap">
           <Link
             href={`/profile/${user.username}`}
-            className="text-sm font-semibold hover:underline"
+            className="relative z-10 text-sm font-semibold hover:underline"
           >
             @{user.username}
           </Link>
@@ -103,26 +106,15 @@ function FeedPickCard({
 
         <div className="flex items-center justify-between mt-1">
           <div className="flex items-center gap-3">
-            {matchupUrl && (
-              <Link
-                href={matchupUrl}
-                className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-              >
-                View matchup <ExternalLinkIcon className="w-3 h-3" />
-              </Link>
-            )}
-            <Link
-              href={matchupUrl || '#'}
-              className="flex items-center rounded-full bg-secondary/80 text-secondary-foreground hover:bg-secondary transition-colors"
-            >
+            <div className="flex items-center rounded-full bg-secondary/80 text-secondary-foreground">
               <Logo tricode={teamCode} className="w-5 h-5" />
               <span className="py-0.5 pr-2 text-xs text-nowrap">{teamName}</span>
-            </Link>
+            </div>
           </div>
           <Button
             variant="ghost"
             size="sm"
-            className="gap-1.5 text-muted-foreground hover:text-destructive"
+            className="relative z-10 gap-1.5 text-muted-foreground hover:text-destructive"
             onClick={handleLike}
             disabled={isLoading || isMutating}
           >
